@@ -1,0 +1,58 @@
+[
+  {
+    "doc_id": "POL-001",
+    "title": "Vendor Invoice Archival Policy",
+    "sensitivity": "internal",
+    "allowed_roles": ["procurement_manager", "finance_admin", "system"],
+    "content": "Procurement managers and finance administrators are authorized to archive vendor invoices for a specific month and vendor. The archive operation sets the invoice status to ARCHIVED and is irreversible via self-service. Invoices must be in OPEN status to be archived. Archival must be scoped to a single vendor and a single calendar month. Bulk archival exceeding 10 records requires a secondary approval from a finance administrator.",
+    "tags": ["invoice", "archive", "vendor", "procurement"]
+  },
+  {
+    "doc_id": "POL-002",
+    "title": "User Access Block Policy",
+    "sensitivity": "internal",
+    "allowed_roles": ["it_admin", "security_officer"],
+    "content": "IT administrators and security officers may block user access for a defined duration. The block must specify a target user ID and a duration in days. Access blocks exceeding 30 days require security officer approval. Blocks on admin-role accounts require dual approval. The requesting actor must not block their own account.",
+    "tags": ["access", "block", "user", "security"]
+  },
+  {
+    "doc_id": "POL-003",
+    "title": "Vendor Credit Limit Update Policy",
+    "sensitivity": "restricted",
+    "allowed_roles": ["finance_admin", "credit_officer"],
+    "content": "Credit limits for vendors may only be updated by finance administrators or credit officers. The new limit must be specified explicitly in the request. Increases above 50,000 INR require a credit officer co-approval. Decreases that place the limit below outstanding invoice amounts must be escalated. Limit changes are logged and auditable.",
+    "tags": ["limit", "credit", "vendor", "finance", "update"]
+  },
+  {
+    "doc_id": "POL-004",
+    "title": "Vendor Suspension Policy",
+    "sensitivity": "restricted",
+    "allowed_roles": ["procurement_manager", "compliance_officer"],
+    "content": "Vendor accounts may be suspended by procurement managers or compliance officers when there is documented evidence of policy breach. Suspension halts all new purchase orders and invoice submissions. Active invoices remain payable. Suspension requires a written justification logged in the audit trail. Reinstatement requires compliance officer approval.",
+    "tags": ["vendor", "suspend", "compliance", "procurement"]
+  },
+  {
+    "doc_id": "POL-005",
+    "title": "Access Grant Policy",
+    "sensitivity": "restricted",
+    "allowed_roles": ["it_admin"],
+    "content": "New access grants to enterprise systems must specify: the target user ID, the role or scope being granted, and the business justification. IT administrators may grant read_only access unilaterally. Granting billing or admin scope requires a department head co-approval. Grants must not exceed the requesting actor's own privilege level.",
+    "tags": ["access", "grant", "role", "permission", "admin"]
+  },
+  {
+    "doc_id": "POL-006",
+    "title": "Prohibited Operations Policy",
+    "sensitivity": "public",
+    "allowed_roles": [],
+    "content": "The following operations are prohibited for all actors via automated agent requests: modifying audit trail records, deleting data from the vendor_invoices table (tombstoning via ARCHIVED status is permitted instead), granting system-level access, and executing raw SQL queries. Any request that attempts to perform a prohibited operation must be blocked and escalated to a security officer.",
+    "tags": ["prohibited", "security", "audit", "delete", "block"]
+  },
+  {
+    "doc_id": "POL-007",
+    "title": "Temporal Scope Requirement",
+    "sensitivity": "internal",
+    "allowed_roles": ["procurement_manager", "finance_admin", "it_admin", "system"],
+    "content": "All bulk data operations must include explicit temporal scope. A request to archive, update, or delete records without specifying a month and year is considered ambiguous and must be blocked. Temporal scope must match the intent stated in the original user request. Operations targeting a date range broader than one calendar month require escalation.",
+    "tags": ["temporal", "scope", "month", "year", "bulk"]
+  }
+]

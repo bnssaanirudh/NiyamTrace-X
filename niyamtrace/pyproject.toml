@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "niyamtrace"
+version = "0.1.0"
+description = "NiyamTrace — local-first NLP-first assurance platform for multilingual LLM agents"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "NiyamTrace Contributors" }]
+
+dependencies = [
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.29.0",
+    "pydantic>=2.7.0",
+    "duckdb>=0.10.0",
+    "pyarrow>=16.0.0",
+    "pytest>=8.2.0",
+    "httpx>=0.27.0",       # for FastAPI test client
+    "python-dateutil>=2.9.0",
+]
+
+[project.optional-dependencies]
+nlp = [
+  "regex",
+  "ftfy",
+  "pydantic",
+  "rapidfuzz",
+  "numpy",
+  "torch",
+  "transformers",
+  "sentencepiece",
+  "safetensors",
+  "indic-nlp-library==0.92"
+]
+
+data = [
+  "datasets",
+  "pandas",
+  "pyarrow"
+]
+
+dev = [
+  "pytest",
+  "pytest-cov",
+  "hypothesis",
+  "pytest-asyncio>=0.23.0",
+  "ruff>=0.4.0",
+  "mypy>=1.10.0"
+]
+
+nlu = [
+  "torch",
+  "transformers",
+  "tokenizers",
+  "accelerate",
+  "datasets",
+  "evaluate",
+  "seqeval",
+  "scikit-learn",
+  "onnx",
+  "onnxruntime",
+  "optimum",
+  "rapidfuzz",
+  "pydantic"
+]
+
+nlu-dev = [
+  "pytest",
+  "pytest-cov",
+  "hypothesis"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["apps*", "packages*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+log_cli = true
+log_cli_level = "INFO"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
