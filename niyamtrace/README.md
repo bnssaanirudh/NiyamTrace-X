@@ -16,18 +16,24 @@ Semantically equivalent requests in different languages/scripts can cause an LLM
 cd niyamtrace
 pip install -e ".[dev]"
 
+# Configure environment variables
+cp .env.example .env
+# Edit .env and add your API keys
+
 # Seed the ERP database
 python data/synthetic/erp.py
 
 # Run the Week 2 exit-criterion integration test
-pytest tests/integration/test_week2_spine.py -v
+python -m pytest tests/integration/test_week2_spine.py -v
 
 # Run all tests
-pytest tests/ -v
+python -m pytest tests/ -v
 
 # Start the gateway (then POST to http://localhost:8000/invoke)
 uvicorn apps.gateway.main:app --reload
 ```
+
+> **For AI Agents (Antigravity):** Please refer to [`../ANTIGRAVITY_GUIDE.md`](../ANTIGRAVITY_GUIDE.md) for detailed environment setup and execution instructions.
 
 ## Honest Claims
 

@@ -80,7 +80,7 @@ class NiyamCompiler:
             self.client_instructor = instructor.from_groq(
                 Groq(api_key=api_key), mode=instructor.Mode.JSON
             )
-            self.model_name = os.environ.get("GROQ_MODEL", "llama3-70b-8192")
+            self.model_name = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
         else:
             from openai import OpenAI
             self.model_name = os.environ.get("LOCAL_LLM_MODEL", "qwen2.5:7b")
@@ -101,7 +101,7 @@ class NiyamCompiler:
         prompt = f"""Analyze the following text and extract the user's intent and key slots.
         Map month names to their integer value (1-12). All numeric IDs must be integers.
         Set confidence to reflect how certain you are (0.0 = not sure, 1.0 = completely certain).
-        If a slot is missing or ambiguous, leave it as null — do NOT guess.
+        If a slot is missing or ambiguous, leave it as null — do NOT guess (except for the year, assume 2025 if missing).
 
         Text: {normalized_text}
         {repair_instruction}
@@ -147,7 +147,7 @@ class NiyamCompiler:
             return self.client_instructor.chat.completions.create(
                 model=self.model_name,
                 messages=[
-                    {"role": "system", "content": "You are a precise data extraction system."},
+                    {"role": "system", "content": "You are a precise data extraction system. Assume the current year is 2025 unless explicitly specified."},
                     {"role": "user", "content": prompt},
                 ],
                 response_model=CandidateIntent,

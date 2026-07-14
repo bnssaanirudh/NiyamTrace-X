@@ -89,10 +89,10 @@ def traces_dir(tmp_path):
 
 @pytest.fixture
 def pipeline(fresh_erp, traces_dir):
-    from packages.nlp.parser import SlotParser
+    from packages.nlp.compiler import NiyamCompiler
     
-    parser = SlotParser(parser_version_suffix="mock")
-    return NiyamPipeline(erp_conn=fresh_erp, traces_dir=traces_dir, parser=parser)
+    compiler = NiyamCompiler(parser_version_suffix="mock")
+    return NiyamPipeline(erp_conn=fresh_erp, traces_dir=traces_dir, compiler=compiler)
 
 
 @pytest.fixture

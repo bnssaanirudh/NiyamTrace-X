@@ -11,7 +11,7 @@ import pytest
 
 from apps.gateway.pipeline import NiyamPipeline, PipelineRequest
 from data.synthetic.erp import init_schema, reset_to_seed
-from packages.nlp.parser import SlotParser
+from packages.nlp.compiler import NiyamCompiler
 
 
 @pytest.fixture
@@ -25,14 +25,14 @@ def fresh_erp():
 
 
 @pytest.fixture
-def mock_parser():
-    return SlotParser(parser_version_suffix="mock-test")
+def mock_compiler():
+    return NiyamCompiler(parser_version_suffix="mock-test")
 
 
 @pytest.fixture
-def pipeline(fresh_erp, tmp_path, mock_parser):
+def pipeline(fresh_erp, tmp_path, mock_compiler):
     traces_dir = tmp_path / "traces"
-    return NiyamPipeline(erp_conn=fresh_erp, traces_dir=traces_dir, parser=mock_parser)
+    return NiyamPipeline(erp_conn=fresh_erp, traces_dir=traces_dir, compiler=mock_compiler)
 
 
 def test_slot_parser_integrated_in_trace(pipeline, tmp_path):
