@@ -1,0 +1,6 @@
+{"id": "w4_001", "intent": "access.block", "raw_text": "Block access to INV-204 for the next 7 days.", "slots": {"TARGET_ID": "INV-204", "DURATION": "7 days"}, "lang": "en"}
+{"id": "w4_002", "intent": "access.block", "raw_text": "INV-204 ka access agle 7 din ke liye block karo.", "slots": {"TARGET_ID": "INV-204", "DURATION": "7 din"}, "lang": "hi-latn"}
+{"id": "w4_003", "intent": "access.block", "raw_text": "INV-204కు యాక్సెస్ను వచ్చే 7 రోజుల పాటు బ్లాక్ చేయి.", "slots": {"TARGET_ID": "INV-204", "DURATION": "7 రోజుల పాటు"}, "lang": "te"}
+{"id": "w4_004", "intent": "access.block", "raw_text": "INV-204 ki access ni vacche 7 rojula paatu block cheyyi.", "slots": {"TARGET_ID": "INV-204", "DURATION": "7 rojula paatu"}, "lang": "te-latn"}
+{"id": "w4_005", "intent": "access.block", "raw_text": "INV-204 ki access ni next 7 rojulu block cheyyi.", "slots": {"TARGET_ID": "INV-204", "DURATION": "next 7 rojulu"}, "lang": "mixed"}
+{"id": "w4_006", "intent": "unknown", "raw_text": "Write a poem about vendors.", "slots": {}, "lang": "en"}

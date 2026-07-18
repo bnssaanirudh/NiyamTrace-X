@@ -1,0 +1,30 @@
+[
+  {
+    "mode": "only_llm",
+    "accuracy": 0.35,
+    "correct": 7,
+    "total": 20,
+    "avg_latency_ms": 113.91636499902233
+  },
+  {
+    "mode": "llm_typechecker",
+    "accuracy": 0.35,
+    "correct": 7,
+    "total": 20,
+    "avg_latency_ms": 153.187359997537
+  },
+  {
+    "mode": "llm_entitylinker",
+    "accuracy": 0.35,
+    "correct": 7,
+    "total": 20,
+    "avg_latency_ms": 78.83818999980576
+  },
+  {
+    "mode": "full",
+    "accuracy": 0.35,
+    "correct": 7,
+    "total": 20,
+    "avg_latency_ms": 119.0243450080743
+  }
+]
