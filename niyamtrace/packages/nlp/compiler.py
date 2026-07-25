@@ -57,15 +57,17 @@ class NiyamCompiler:
         
         if self.backend == "gemini":
             from google import genai
-            api_key = os.environ.get("GEMINI_API_KEY")
+            from packages.secrets.manager import get_secrets_manager
+            api_key = get_secrets_manager().get_optional("GEMINI_API_KEY")
             if not api_key:
-                raise RuntimeError("GEMINI_API_KEY environment variable not set")
+                raise RuntimeError("GEMINI_API_KEY not found in secrets manager")
             self.client_gemini = genai.Client(api_key=api_key)
         elif self.backend == "groq":
             from groq import Groq
-            api_key = os.environ.get("GROQ_API_KEY")
+            from packages.secrets.manager import get_secrets_manager
+            api_key = get_secrets_manager().get_optional("GROQ_API_KEY")
             if not api_key:
-                raise RuntimeError("GROQ_API_KEY environment variable not set")
+                raise RuntimeError("GROQ_API_KEY not found in secrets manager")
             self.client_groq = Groq(api_key=api_key)
             self.model_name = os.environ.get("GROQ_MODEL", "llama3-8b-8192")
         elif self.backend == "groq_instructor":
@@ -74,9 +76,10 @@ class NiyamCompiler:
             # instructor wraps the Groq client and retries until Pydantic validates.
             import instructor
             from groq import Groq
-            api_key = os.environ.get("GROQ_API_KEY")
+            from packages.secrets.manager import get_secrets_manager
+            api_key = get_secrets_manager().get_optional("GROQ_API_KEY")
             if not api_key:
-                raise RuntimeError("GROQ_API_KEY environment variable not set")
+                raise RuntimeError("GROQ_API_KEY not found in secrets manager")
             self.client_instructor = instructor.from_groq(
                 Groq(api_key=api_key), mode=instructor.Mode.JSON
             )
@@ -92,6 +95,13 @@ class NiyamCompiler:
 
     def _extract_candidate(self, normalized_text: str, repair_hint: str | None = None) -> CandidateIntent:
         """Stage 1: LLM Extractor. If repair_hint is provided, it is a bounded repair pass (#23)."""
+        if "mock" in self.parser_version:
+            return CandidateIntent(
+                intent="invoice.archive",
+                slots=CandidateSlots(VENDOR_ID=4421, MONTH=3, YEAR=2025),
+                confidence=0.99
+            )
+
         repair_instruction = f"""
 
         IMPORTANT CORRECTION: A previous extraction attempt failed with this error: "{repair_hint}".
@@ -269,6 +279,17 @@ class NiyamCompiler:
                     repair_attempted=repair_attempted,
                     extraction_confidence=candidate.confidence,
                 )
+
+            # Stage 2.5: Temporal Deixis Resolution
+            # If the LLM failed to extract a hard month/year (or they were relative like "last month"),
+            # attempt to resolve it deterministically from the normalized text.
+            if candidate.intent == "invoice.archive" and (candidate.slots.MONTH is None or candidate.slots.YEAR is None):
+                from packages.nlp.temporal import TemporalDeicticsResolver
+                resolver = TemporalDeicticsResolver()
+                temporal_res = resolver.resolve(intake_result.normalized_text)
+                if temporal_res:
+                    candidate.slots.MONTH = candidate.slots.MONTH or temporal_res.month
+                    candidate.slots.YEAR = candidate.slots.YEAR or temporal_res.year
 
             # Stage 3: Entity Linker
             ok, err_stage, err_detail, clarify_prompt = self._entity_link(candidate)

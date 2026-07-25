@@ -6,30 +6,22 @@ call WITHOUT actually mutating anything. It runs a SELECT query that mirrors
 the WHERE clause the real executor would use, then packages the result as a
 StateDelta.
 
-The gate compares predicted_delta ⊆ allowed_effects(contract, policy) before
-permitting the actual write. See Section 6 of the NiyamTrace brief.
+Tools supported:
+  - archive_invoices    (Week 2)
+  - block_user_access   (Week 9)
+  - update_credit_limit (Week 9)
+  - suspend_vendor      (Week 9)
 
-Design:
-- Read-only: never writes to the ERP connection passed in.
-- Tool-specific: each tool has a dedicated _simulate_<tool> function.
-- Returns StateDelta with the affected record IDs, field-level deltas, and
-  an estimated row count.
-
-Status: IMPLEMENTED (Week 2) — archive_invoices simulation only.
+Status: IMPLEMENTED (Week 9) — 4 tools.
 """
 
 from __future__ import annotations
 
 import sqlite3
-import time
+from datetime import date, timedelta
 from typing import Any
 
 from packages.contracts.schema import RecordDelta, StateDelta, ToolCall
-
-
-# ---------------------------------------------------------------------------
-# Public simulator entry point
-# ---------------------------------------------------------------------------
 
 
 class ShadowSimulator:
@@ -52,6 +44,9 @@ class ShadowSimulator:
         """
         handlers = {
             "archive_invoices": self._simulate_archive_invoices,
+            "block_user_access": self._simulate_block_user_access,
+            "update_credit_limit": self._simulate_update_credit_limit,
+            "suspend_vendor": self._simulate_suspend_vendor,
         }
         fn = handlers.get(tool_call.tool_name)
         if fn is None:
@@ -61,32 +56,28 @@ class ShadowSimulator:
         return fn(tool_call.arguments)
 
     # ------------------------------------------------------------------
-    # Per-tool simulation functions
+    # archive_invoices
     # ------------------------------------------------------------------
 
     def _simulate_archive_invoices(self, args: dict[str, Any]) -> StateDelta:
         """
         Predict which OPEN invoices for vendor_id, month, year would be
         archived (status → ARCHIVED). Read-only SELECT — no writes.
-
-        The SELECT mirrors the WHERE clause the executor will use exactly,
-        so simulator fidelity is guaranteed for the seed data.
         """
         vendor_id: int = args.get("vendor_id")
         month: int = args.get("month")
         year: int = args.get("year")
 
         clauses = ["vendor_id = ?", "status = 'OPEN'"]
-        params = [vendor_id]
+        params: list[Any] = [vendor_id]
         if month is not None:
             clauses.append("month = ?")
             params.append(month)
         if year is not None:
             clauses.append("year = ?")
             params.append(year)
-            
-        where = " AND ".join(clauses)
 
+        where = " AND ".join(clauses)
         rows = self._conn.execute(
             f"""
             SELECT invoice_id, status
@@ -104,6 +95,130 @@ class ShadowSimulator:
                 field="status",
                 old_value=row["status"],
                 new_value="ARCHIVED",
+            )
+            for row in rows
+        ]
+
+        return StateDelta(
+            affected_record_ids=[r.record_id for r in record_deltas],
+            record_deltas=record_deltas,
+            table="vendor_invoices",
+            estimated_row_count=len(record_deltas),
+        )
+
+    # ------------------------------------------------------------------
+    # block_user_access
+    # ------------------------------------------------------------------
+
+    def _simulate_block_user_access(self, args: dict[str, Any]) -> StateDelta:
+        """
+        Predict the effect of blocking a user: status → BLOCKED,
+        blocked_until → today + duration_days.
+        Read-only SELECT — no writes.
+        """
+        user_id: str = args.get("user_id", "")
+        duration_days: int = args.get("duration_days", 1)
+
+        rows = self._conn.execute(
+            "SELECT user_id, status, blocked_until FROM user_access WHERE user_id = ?",
+            (user_id,),
+        ).fetchall()
+
+        blocked_until = (date.today() + timedelta(days=duration_days)).isoformat()
+
+        record_deltas = []
+        for row in rows:
+            record_deltas.append(
+                RecordDelta(
+                    record_id=row["user_id"],
+                    table="user_access",
+                    field="status",
+                    old_value=row["status"],
+                    new_value="BLOCKED",
+                )
+            )
+            record_deltas.append(
+                RecordDelta(
+                    record_id=row["user_id"],
+                    table="user_access",
+                    field="blocked_until",
+                    old_value=row["blocked_until"],
+                    new_value=blocked_until,
+                )
+            )
+
+        return StateDelta(
+            affected_record_ids=[user_id] if rows else [],
+            record_deltas=record_deltas,
+            table="user_access",
+            estimated_row_count=len(rows),
+        )
+
+    # ------------------------------------------------------------------
+    # update_credit_limit
+    # ------------------------------------------------------------------
+
+    def _simulate_update_credit_limit(self, args: dict[str, Any]) -> StateDelta:
+        """
+        Predict the effect of updating a vendor's credit limit.
+        Read-only SELECT — no writes.
+        """
+        vendor_id: int = args.get("vendor_id")
+        new_limit: float = args.get("new_limit_inr", 0.0)
+
+        rows = self._conn.execute(
+            "SELECT vendor_id, credit_limit_inr FROM vendor_credit_limits WHERE vendor_id = ?",
+            (vendor_id,),
+        ).fetchall()
+
+        record_deltas = [
+            RecordDelta(
+                record_id=str(row["vendor_id"]),
+                table="vendor_credit_limits",
+                field="credit_limit_inr",
+                old_value=str(row["credit_limit_inr"]),
+                new_value=str(new_limit),
+            )
+            for row in rows
+        ]
+
+        return StateDelta(
+            affected_record_ids=[str(vendor_id)] if rows else [],
+            record_deltas=record_deltas,
+            table="vendor_credit_limits",
+            estimated_row_count=len(rows),
+        )
+
+    # ------------------------------------------------------------------
+    # suspend_vendor
+    # ------------------------------------------------------------------
+
+    def _simulate_suspend_vendor(self, args: dict[str, Any]) -> StateDelta:
+        """
+        Predict the effect of suspending a vendor: all OPEN invoices for
+        the vendor are flagged as SUSPENDED (simulated only — actual ERP
+        would set a vendor-level status flag).
+        Read-only SELECT — no writes.
+        """
+        vendor_id: int = args.get("vendor_id")
+
+        rows = self._conn.execute(
+            """
+            SELECT invoice_id, status
+            FROM vendor_invoices
+            WHERE vendor_id = ? AND status = 'OPEN'
+            ORDER BY invoice_id
+            """,
+            (vendor_id,),
+        ).fetchall()
+
+        record_deltas = [
+            RecordDelta(
+                record_id=row["invoice_id"],
+                table="vendor_invoices",
+                field="status",
+                old_value=row["status"],
+                new_value="SUSPENDED",
             )
             for row in rows
         ]

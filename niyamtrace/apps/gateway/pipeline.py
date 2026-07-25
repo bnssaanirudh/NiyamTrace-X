@@ -55,7 +55,10 @@ from packages.nlp.intake import MultilingualIntake
 from packages.nlp.compiler import NiyamCompiler
 from packages.evidence.retriever import EvidenceRetriever
 from packages.evidence.nli import NLIEngine
+from packages.observability.logger import get_logger, current_trace_id
 from data.synthetic.erp import SEED_SNAPSHOT_ID
+
+logger = get_logger(__name__)
 
 _INTAKE = MultilingualIntake()  # stateless; safe to share across requests
 _COMPILER = NiyamCompiler()
@@ -89,7 +92,7 @@ class PipelineResult:
         trace_id: str,
         task_id: str,
         contract: ActionContract,
-        tool_call: ToolCall,
+        tool_calls: list[ToolCall],
         predicted_delta: StateDelta,
         gate_decision: GateDecision,
         actual_delta: StateDelta | None,
@@ -99,7 +102,7 @@ class PipelineResult:
         self.trace_id = trace_id
         self.task_id = task_id
         self.contract = contract
-        self.tool_call = tool_call
+        self.tool_calls = tool_calls
         self.predicted_delta = predicted_delta
         self.gate_decision = gate_decision
         self.actual_delta = actual_delta
@@ -135,6 +138,8 @@ class NiyamPipeline:
 
     def run(self, req: PipelineRequest) -> PipelineResult:
         trace_id = str(uuid.uuid4())
+        current_trace_id.set(trace_id)
+        logger.info(f"Starting pipeline for request: {req.task_id} by {req.actor_role}")
 
         with TraceWriter(trace_id=trace_id, traces_dir=self._traces_dir) as writer:
             t_pipeline_start = time.perf_counter()
@@ -215,7 +220,7 @@ class NiyamPipeline:
                     trace_id=trace_id,
                     task_id=req.task_id,
                     contract=None,  # type: ignore
-                    tool_call=None, # type: ignore
+                    tool_calls=[],
                     predicted_delta=None, # type: ignore
                     gate_decision=decision,
                     actual_delta=None,
@@ -294,24 +299,27 @@ class NiyamPipeline:
             # Event 5: tool_proposed
             # ---------------------------------------------------------------
             t0 = time.perf_counter()
-            tool_call = _build_tool_call(contract)
-            tool_sh = schema_hash("archive_invoices")
-            envelope["tool_schema_hash"] = tool_sh
+            tool_calls = _build_tool_calls(contract)
+            
+            # Use the first tool's schema hash for the envelope, or a combined one if we want
+            envelope["tool_schema_hash"] = ",".join(schema_hash(tc.tool_name) for tc in tool_calls)
 
-            try:
-                validate_tool_call({"tool_name": tool_call.tool_name, "arguments": tool_call.arguments})
-                schema_valid = True
-                schema_error = None
-            except Exception as exc:
-                schema_valid = False
-                schema_error = str(exc)
+            schema_valid = True
+            schema_error = None
+            for tc in tool_calls:
+                try:
+                    validate_tool_call({"tool_name": tc.tool_name, "arguments": tc.arguments})
+                except Exception as exc:
+                    schema_valid = False
+                    schema_error = str(exc)
+                    break
 
             writer.write(
                 make_event(
                     **envelope,
                     event_type="tool_proposed",
                     payload={
-                        "tool_call": {"tool_name": tool_call.tool_name, "arguments": tool_call.arguments},
+                        "tool_calls": [{"tool_name": tc.tool_name, "arguments": tc.arguments} for tc in tool_calls],
                         "schema_valid": schema_valid,
                         "schema_error": schema_error,
                     },
@@ -322,13 +330,16 @@ class NiyamPipeline:
             if not schema_valid:
                 # Hard block before simulation — malformed tool call
                 _write_gate_block(writer, envelope, "TOOL_SCHEMA_INVALID", schema_error or "")
-                return _early_exit(trace_id, req, contract, tool_call, writer)
+                return _early_exit(trace_id, req, contract, tool_calls, writer)
 
             # ---------------------------------------------------------------
             # Event 6: tool_simulated
             # ---------------------------------------------------------------
             t0 = time.perf_counter()
-            predicted_delta = self._simulator.predict(tool_call)
+            predicted_delta = StateDelta(affected_record_ids=[], record_deltas=[], table=[], estimated_row_count=0)
+            for tc in tool_calls:
+                predicted_delta = predicted_delta + self._simulator.predict(tc)
+                
             writer.write(
                 make_event(
                     **envelope,
@@ -346,12 +357,21 @@ class NiyamPipeline:
             # Event 7: gate_decision
             # ---------------------------------------------------------------
             t0 = time.perf_counter()
-            gate_decision = self._gate.evaluate(
-                contract=contract,
-                predicted_delta=predicted_delta,
-                tool_call=tool_call,
-                evidence_verdict=evidence_verdict,
-            )
+            
+            # Evaluate all tool calls. If any fail, it's a BLOCK/ESCALATE. 
+            gate_decision = None
+            for tc in tool_calls:
+                tc_decision = self._gate.evaluate(
+                    contract=contract,
+                    predicted_delta=predicted_delta, # Note: gate checks aggregate delta
+                    tool_call=tc,
+                    evidence_verdict=evidence_verdict,
+                )
+                if gate_decision is None or tc_decision.verdict == "BLOCK" or (tc_decision.verdict == "ESCALATE" and gate_decision.verdict == "ALLOW"):
+                    gate_decision = tc_decision
+                if gate_decision.verdict == "BLOCK":
+                    break
+
             writer.write(
                 make_event(
                     **envelope,
@@ -376,7 +396,10 @@ class NiyamPipeline:
             # ---------------------------------------------------------------
             if gate_decision.verdict == "ALLOW":
                 t0 = time.perf_counter()
-                actual_delta = self._executor.execute(tool_call)
+                actual_delta = StateDelta(affected_record_ids=[], record_deltas=[], table=[], estimated_row_count=0)
+                for tc in tool_calls:
+                    actual_delta = actual_delta + self._executor.execute(tc)
+                    
                 writer.write(
                     make_event(
                         **envelope,
@@ -426,11 +449,13 @@ class NiyamPipeline:
                 )
             )
 
+            logger.info(f"Pipeline completed with verdict: {gate_decision.verdict} in {t_total:.1f}ms")
+
             return PipelineResult(
                 trace_id=trace_id,
                 task_id=req.task_id,
                 contract=contract,
-                tool_call=tool_call,
+                tool_calls=tool_calls,
                 predicted_delta=predicted_delta,
                 gate_decision=gate_decision,
                 actual_delta=actual_delta,
@@ -442,33 +467,71 @@ class NiyamPipeline:
 
 
 
-def _build_tool_call(contract: ActionContract) -> ToolCall:
+def _build_tool_calls(contract: ActionContract) -> list[ToolCall]:
     """
-    Build a ToolCall from the contract slots.
+    Build a list of ToolCalls from the contract slots.
+    Splits multi-intents if separated by '+'.
     """
-    args = {}
-    if "VENDOR_ID" in contract.slots:
-        args["vendor_id"] = int(contract.slots["VENDOR_ID"])
-    if "MONTH" in contract.slots:
-        args["month"] = int(contract.slots["MONTH"])
-    if "YEAR" in contract.slots:
-        args["year"] = int(contract.slots["YEAR"])
+    intents = contract.intent.split("+")
+    tool_calls = []
 
-    if contract.intent == "invoice.archive":
-        return ToolCall(
-            tool_name="archive_invoices",
-            arguments=args,
-            schema_version="1.0",
-            tool_schema_hash=schema_hash("archive_invoices"),
-        )
-    
-    # Placeholder for newer tool logic
-    return ToolCall(
-        tool_name="unknown_tool",
-        arguments=contract.slots,
-        schema_version="1.0",
-        tool_schema_hash="unknown",
-    )
+    for intent in intents:
+        args = {}
+        if "VENDOR_ID" in contract.slots:
+            args["vendor_id"] = int(contract.slots["VENDOR_ID"])
+        if "MONTH" in contract.slots:
+            args["month"] = int(contract.slots["MONTH"])
+        if "YEAR" in contract.slots:
+            args["year"] = int(contract.slots["YEAR"])
+        
+        # New tools mappings
+        if "USER_ID" in contract.slots:
+            args["user_id"] = contract.slots["USER_ID"]
+        if "DURATION_DAYS" in contract.slots:
+            args["duration_days"] = int(contract.slots["DURATION_DAYS"])
+        if "NEW_LIMIT_INR" in contract.slots:
+            args["new_limit_inr"] = float(contract.slots["NEW_LIMIT_INR"])
+        if "JUSTIFICATION" in contract.slots:
+            args["justification"] = contract.slots["JUSTIFICATION"]
+
+        if intent == "invoice.archive":
+            tool_calls.append(ToolCall(
+                tool_name="archive_invoices",
+                arguments=args,
+                schema_version="1.0",
+                tool_schema_hash=schema_hash("archive_invoices"),
+            ))
+        elif intent == "access.block":
+            tool_calls.append(ToolCall(
+                tool_name="block_user_access",
+                arguments=args,
+                schema_version="1.0",
+                tool_schema_hash=schema_hash("block_user_access"),
+            ))
+        elif intent == "limit.update":
+            tool_calls.append(ToolCall(
+                tool_name="update_credit_limit",
+                arguments=args,
+                schema_version="1.0",
+                tool_schema_hash=schema_hash("update_credit_limit"),
+            ))
+        elif intent == "vendor.suspend":
+            tool_calls.append(ToolCall(
+                tool_name="suspend_vendor",
+                arguments=args,
+                schema_version="1.0",
+                tool_schema_hash=schema_hash("suspend_vendor"),
+            ))
+        else:
+            # Placeholder for unknown tool logic
+            tool_calls.append(ToolCall(
+                tool_name="unknown_tool",
+                arguments=contract.slots,
+                schema_version="1.0",
+                tool_schema_hash="unknown",
+            ))
+
+    return tool_calls
 
 
 # ---------------------------------------------------------------------------
@@ -516,12 +579,12 @@ def _early_exit(
     trace_id: str,
     req: PipelineRequest,
     contract: ActionContract,
-    tool_call: ToolCall,
+    tool_calls: list[ToolCall],
     writer: TraceWriter,
 ) -> PipelineResult:
     """Return a minimal PipelineResult when pipeline exits early (e.g. schema error)."""
     empty_delta = StateDelta(
-        affected_record_ids=[], record_deltas=[], table="vendor_invoices", estimated_row_count=0
+        affected_record_ids=[], record_deltas=[], table="", estimated_row_count=0
     )
     block_decision = GateDecision(
         verdict="BLOCK",
@@ -549,7 +612,7 @@ def _early_exit(
         trace_id=trace_id,
         task_id=req.task_id,
         contract=contract,
-        tool_call=tool_call,
+        tool_calls=tool_calls,
         predicted_delta=empty_delta,
         gate_decision=block_decision,
         actual_delta=None,

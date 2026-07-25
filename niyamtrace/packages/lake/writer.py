@@ -98,6 +98,8 @@ class TraceWriter:
 # ---------------------------------------------------------------------------
 
 
+CURRENT_SCHEMA_VERSION = "1.0"
+
 def make_event(
     *,
     trace_id: str,
@@ -117,6 +119,7 @@ def make_event(
     tool_schema_hash: str = "",
     data_snapshot_id: str = "",
     latency_ms: float = 0.0,
+    schema_version: str = CURRENT_SCHEMA_VERSION,
 ) -> TraceEvent:
     return TraceEvent(
         trace_id=trace_id,
@@ -136,6 +139,7 @@ def make_event(
         tool_schema_hash=tool_schema_hash,
         data_snapshot_id=data_snapshot_id,
         latency_ms=latency_ms,
+        schema_version=schema_version,
         timestamp=datetime.now(_tz.utc),
     )
 

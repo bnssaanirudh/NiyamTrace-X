@@ -61,6 +61,25 @@ _SEED_ROWS: list[dict] = [
     {"invoice_id": "INV-8802-2401", "vendor_id": 8802, "month": 11, "year": 2024, "amount_usd": 11000.00, "status": "TOMBSTONED", "created_at": "2024-11-10"},
 ]
 
+# ---------------------------------------------------------------------------
+# Seed data for new tables (user_access, vendor_credit_limits)
+# ---------------------------------------------------------------------------
+
+_SEED_USER_ACCESS: list[dict] = [
+    {"user_id": "USR-PM-001", "role": "procurement_manager", "status": "ACTIVE",  "blocked_until": None},
+    {"user_id": "USR-PM-002", "role": "procurement_manager", "status": "ACTIVE",  "blocked_until": None},
+    {"user_id": "USR-FA-001", "role": "finance_admin",       "status": "ACTIVE",  "blocked_until": None},
+    {"user_id": "USR-IT-001", "role": "it_admin",            "status": "ACTIVE",  "blocked_until": None},
+    {"user_id": "USR-SEC-001","role": "security_officer",    "status": "ACTIVE",  "blocked_until": None},
+    {"user_id": "USR-VW-001", "role": "viewer",              "status": "BLOCKED", "blocked_until": "2025-06-30"},
+]
+
+_SEED_CREDIT_LIMITS: list[dict] = [
+    {"vendor_id": 4421, "credit_limit_inr": 500000.00, "updated_at": "2025-01-01"},
+    {"vendor_id": 8802, "credit_limit_inr": 300000.00, "updated_at": "2025-01-01"},
+    {"vendor_id": 3301, "credit_limit_inr": 750000.00, "updated_at": "2025-01-01"},
+]
+
 # Deterministic hash of seed state — used as data_snapshot_id in traces
 SEED_SNAPSHOT_ID = hashlib.sha256(
     json.dumps(_SEED_ROWS, sort_keys=True).encode()
@@ -92,6 +111,19 @@ def init_schema(conn: sqlite3.Connection) -> None:
             created_at   TEXT    NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS user_access (
+            user_id       TEXT PRIMARY KEY,
+            role          TEXT    NOT NULL,
+            status        TEXT    NOT NULL DEFAULT 'ACTIVE',
+            blocked_until TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS vendor_credit_limits (
+            vendor_id        INTEGER PRIMARY KEY,
+            credit_limit_inr REAL    NOT NULL,
+            updated_at       TEXT    NOT NULL
+        );
+
         CREATE INDEX IF NOT EXISTS idx_vi_vendor
             ON vendor_invoices (vendor_id);
         CREATE INDEX IF NOT EXISTS idx_vi_period
@@ -102,7 +134,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
 
 def reset_to_seed(conn: sqlite3.Connection) -> None:
     """
-    Wipe vendor_invoices and re-insert seed rows.
+    Wipe all tables and re-insert seed rows.
     Call this before every integration/replay test to guarantee a known state.
     """
     conn.execute("DELETE FROM vendor_invoices")
@@ -111,6 +143,18 @@ def reset_to_seed(conn: sqlite3.Connection) -> None:
                (invoice_id, vendor_id, month, year, amount_usd, status, created_at)
            VALUES (:invoice_id, :vendor_id, :month, :year, :amount_usd, :status, :created_at)""",
         _SEED_ROWS,
+    )
+    conn.execute("DELETE FROM user_access")
+    conn.executemany(
+        """INSERT INTO user_access (user_id, role, status, blocked_until)
+           VALUES (:user_id, :role, :status, :blocked_until)""",
+        _SEED_USER_ACCESS,
+    )
+    conn.execute("DELETE FROM vendor_credit_limits")
+    conn.executemany(
+        """INSERT INTO vendor_credit_limits (vendor_id, credit_limit_inr, updated_at)
+           VALUES (:vendor_id, :credit_limit_inr, :updated_at)""",
+        _SEED_CREDIT_LIMITS,
     )
     conn.commit()
 

@@ -104,3 +104,53 @@ class MinimalVariantDiscoverer:
 
         # No divergence found across all substitutions
         return None
+
+
+class BatchVariantDiscoverer:
+    """
+    Runs minimal variant discovery across an entire scenario dataset.
+    """
+    def __init__(self, discoverer: MinimalVariantDiscoverer | None = None) -> None:
+        self.discoverer = discoverer or MinimalVariantDiscoverer()
+
+    def discover_dataset(
+        self,
+        scenarios: list[dict[str, Any]],
+        pipeline_runner: Callable[[str], Any],
+    ) -> list[MinimalFailingVariant]:
+        """
+        Runs discovery on all canonical English ALLOW scenarios in the dataset.
+        Tests across hin_Latn, tel_Latn, and tel_Telu.
+        """
+        from packages.fuzz.transforms import _TABLE_MAP
+
+        results = []
+        canonicals = [
+            s for s in scenarios 
+            if s.get("language") == "eng_Latn" 
+            and "allow" in s.get("tags", [])
+        ]
+
+        for scenario in canonicals:
+            canonical_text = scenario.get("raw_text", "")
+            if not canonical_text:
+                continue
+
+            canonical_result = pipeline_runner(canonical_text)
+
+            for target_language, word_table in _TABLE_MAP.items():
+                variant_group_id = f"fuzz_{scenario.get('id', 'unknown')}_{target_language}"
+                
+                minimal_failing = self.discoverer.discover(
+                    canonical_text=canonical_text,
+                    canonical_result=canonical_result,
+                    target_language=target_language,
+                    word_table=word_table,
+                    pipeline_runner=pipeline_runner,
+                    variant_group_id=variant_group_id
+                )
+                
+                if minimal_failing:
+                    results.append(minimal_failing)
+
+        return results

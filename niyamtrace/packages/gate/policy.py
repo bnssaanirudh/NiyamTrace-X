@@ -45,20 +45,51 @@ from packages.contracts.schema import (
 @dataclass
 class PolicyBundle:
     """
-    Minimal policy representation for Week 2.
-    Replaced by a proper policy compiler (Week 5).
+    Policy configuration for NiyamGate.
+
+    Version 0.3.0 — extended with 3 new tool allowlists (Week 9).
+    Replaced by a YAML-driven policy compiler (Phase 2.1).
     """
 
-    # Maximum records allowed without GRANTED approval
+    # Maximum records allowed without GRANTED approval (applies to archive + suspend)
     cardinality_threshold: int = 10
 
-    # Roles allowed to archive invoices
+    # ---- archive_invoices ----
     allowed_roles_for_archive: list[str] = field(
         default_factory=lambda: ["procurement_manager", "finance_admin", "system"]
     )
 
+    # ---- block_user_access ----
+    allowed_roles_for_block_user: list[str] = field(
+        default_factory=lambda: ["it_admin", "security_officer"]
+    )
+    max_block_duration_days: int = 365
+
+    # ---- update_credit_limit ----
+    allowed_roles_for_credit_limit: list[str] = field(
+        default_factory=lambda: ["finance_admin", "credit_officer"]
+    )
+    # Increases above this threshold require co-approval
+    credit_limit_escalation_threshold_inr: float = 50_000.0
+
+    # ---- suspend_vendor ----
+    allowed_roles_for_suspend_vendor: list[str] = field(
+        default_factory=lambda: ["procurement_manager", "compliance_officer"]
+    )
+
+    # ---- attribute allowlists per tool ----
+    # Maps tool_name → set of fields the tool is allowed to mutate
+    allowed_attributes: dict[str, set[str]] = field(
+        default_factory=lambda: {
+            "archive_invoices": {"status"},
+            "block_user_access": {"status", "blocked_until"},
+            "update_credit_limit": {"credit_limit_inr"},
+            "suspend_vendor": {"status"},
+        }
+    )
+
     # Hash for trace envelope (deterministic from contents)
-    bundle_version: str = "0.2.0-hardcoded"
+    bundle_version: str = "0.3.0-hardcoded"
 
     def bundle_hash(self) -> str:
         import hashlib, json
@@ -66,12 +97,25 @@ class PolicyBundle:
             json.dumps(
                 {
                     "cardinality_threshold": self.cardinality_threshold,
-                    "allowed_roles": sorted(self.allowed_roles_for_archive),
+                    "allowed_roles_archive": sorted(self.allowed_roles_for_archive),
+                    "allowed_roles_block_user": sorted(self.allowed_roles_for_block_user),
+                    "allowed_roles_credit_limit": sorted(self.allowed_roles_for_credit_limit),
+                    "allowed_roles_suspend_vendor": sorted(self.allowed_roles_for_suspend_vendor),
                     "bundle_version": self.bundle_version,
                 },
                 sort_keys=True,
             ).encode()
         ).hexdigest()[:16]
+
+    def allowed_roles_for(self, tool_name: str) -> list[str]:
+        """Return the list of roles allowed to invoke the given tool."""
+        _map = {
+            "archive_invoices": self.allowed_roles_for_archive,
+            "block_user_access": self.allowed_roles_for_block_user,
+            "update_credit_limit": self.allowed_roles_for_credit_limit,
+            "suspend_vendor": self.allowed_roles_for_suspend_vendor,
+        }
+        return _map.get(tool_name, [])
 
 
 DEFAULT_POLICY = PolicyBundle()

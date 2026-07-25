@@ -165,6 +165,15 @@ class ToolCall(BaseModel):
     tool_schema_hash: str = ""
 
 
+class MultiToolContract(BaseModel):
+    """
+    A composite contract containing multiple independent tool calls 
+    parsed from a single user intent (e.g. archive AND suspend).
+    """
+    contracts: list[ActionContract]
+    tool_calls: list[ToolCall]
+
+
 # ---------------------------------------------------------------------------
 # State-delta representations (simulator output vs. actual execution output)
 # ---------------------------------------------------------------------------
@@ -188,11 +197,27 @@ class StateDelta(BaseModel):
 
     affected_record_ids: list[str]
     record_deltas: list[RecordDelta]
-    table: str
+    table: str | list[str]  # string for single table, list for composite delta
     estimated_row_count: int
 
     def record_id_set(self) -> set[str]:
         return set(self.affected_record_ids)
+
+    def __add__(self, other: "StateDelta") -> "StateDelta":
+        """Aggregate two state deltas (e.g. for MultiToolContract)."""
+        tables = set()
+        if isinstance(self.table, list): tables.update(self.table)
+        elif self.table: tables.add(self.table)
+        
+        if isinstance(other.table, list): tables.update(other.table)
+        elif other.table: tables.add(other.table)
+
+        return StateDelta(
+            affected_record_ids=list(set(self.affected_record_ids + other.affected_record_ids)),
+            record_deltas=self.record_deltas + other.record_deltas,
+            table=sorted(tables) if len(tables) > 1 else (list(tables)[0] if tables else ""),
+            estimated_row_count=self.estimated_row_count + other.estimated_row_count
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -273,6 +298,9 @@ class TraceEvent(BaseModel):
     policy_bundle_hash: str = ""
     tool_schema_hash: str = ""
     data_snapshot_id: str = ""  # hash of ERP seed state
+
+    # Schema Versioning (#2.4)
+    schema_version: str = "1.0"
 
     # Decision (populated from gate_decision event onward)
     decision: str = ""

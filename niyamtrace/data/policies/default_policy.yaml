@@ -1,0 +1,85 @@
+# NiyamTrace Default Policy Bundle
+# YAML-driven policy definition for NiyamGate.
+# Loaded by packages/gate/policy_compiler.py at pipeline startup.
+#
+# Schema version: 1.0
+# Maintainer: NiyamTrace Contributors
+
+version: "1.0.0"
+bundle_id: "niyamtrace-default-policy"
+
+# ---------------------------------------------------------------------------
+# Global settings
+# ---------------------------------------------------------------------------
+global:
+  # Max records a single tool call may affect without secondary approval
+  cardinality_threshold: 10
+
+# ---------------------------------------------------------------------------
+# Role hierarchy
+# Roles listed under `inherits` automatically receive the permissions of the
+# parent role in addition to their own.
+# ---------------------------------------------------------------------------
+role_hierarchy:
+  - role: finance_admin
+    inherits: [procurement_manager]
+  - role: compliance_officer
+    inherits: []
+  - role: system
+    inherits: [finance_admin, procurement_manager]
+
+# ---------------------------------------------------------------------------
+# Tool policies
+# Each entry defines: allowed_roles, allowed_attributes, and optional
+# conditional_rules that override or escalate specific cases.
+# ---------------------------------------------------------------------------
+tools:
+  - name: archive_invoices
+    allowed_roles:
+      - procurement_manager
+      - finance_admin
+      - system
+    allowed_attributes:
+      - status
+    conditional_rules:
+      - condition: "row_count > 10"
+        action: ESCALATE
+        reason: "APPROVAL_REQUIRED:bulk_archive_exceeds_threshold"
+        escalate_to_role: finance_admin
+
+  - name: block_user_access
+    allowed_roles:
+      - it_admin
+      - security_officer
+    allowed_attributes:
+      - status
+      - blocked_until
+    conditional_rules:
+      - condition: "duration_days > 90"
+        action: ESCALATE
+        reason: "APPROVAL_REQUIRED:long_duration_block"
+        escalate_to_role: security_officer
+
+  - name: update_credit_limit
+    allowed_roles:
+      - finance_admin
+      - credit_officer
+    allowed_attributes:
+      - credit_limit_inr
+    conditional_rules:
+      - condition: "new_limit_inr > 50000"
+        action: ESCALATE
+        reason: "APPROVAL_REQUIRED:high_credit_limit_increase"
+        escalate_to_role: finance_admin
+
+  - name: suspend_vendor
+    allowed_roles:
+      - procurement_manager
+      - compliance_officer
+    allowed_attributes:
+      - status
+    conditional_rules:
+      - condition: "row_count > 5"
+        action: ESCALATE
+        reason: "APPROVAL_REQUIRED:bulk_suspension"
+        escalate_to_role: compliance_officer

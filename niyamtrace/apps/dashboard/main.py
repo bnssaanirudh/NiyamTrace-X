@@ -21,9 +21,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+import asyncio
 
 from packages.lake.transform import SilverTransform
 from packages.lake.metrics import GoldMetrics
@@ -138,3 +139,29 @@ async def trace_detail(trace_id: str):
     if not result:
         raise HTTPException(status_code=404, detail=f"Trace '{trace_id}' not found in Silver layer.")
     return result
+
+
+@app.websocket("/ws/traces")
+async def websocket_traces(websocket: WebSocket):
+    """Real-time trace stream panel via WebSocket (polling every 3s)."""
+    await websocket.accept()
+    try:
+        while True:
+            try:
+                gm = _get_metrics()
+                data = {
+                    "gate_verdict_counts": gm.gate_verdict_counts(),
+                    "avg_latency_by_event": gm.avg_latency_by_event(),
+                    "evidence_verdict_distribution": gm.evidence_verdict_distribution(),
+                    "cross_lingual_divergence": gm.cross_lingual_divergence_rate(),
+                    "recent_traces": gm.recent_traces(n=10),
+                }
+                gm.close()
+                await websocket.send_json(data)
+            except Exception as e:
+                # ignore errors during fetch, just retry later
+                pass
+            await asyncio.sleep(3)
+    except WebSocketDisconnect:
+        pass
+
