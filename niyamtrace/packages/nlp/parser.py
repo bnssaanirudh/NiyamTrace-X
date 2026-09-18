@@ -48,6 +48,13 @@ class SlotParser:
             if not api_key:
                 raise RuntimeError("GEMINI_API_KEY not found in secrets manager")
             self.client_gemini = genai.Client(api_key=api_key)
+            self.client_gemini = genai.Client(api_key=api_key)
+        elif self.backend == "groq":
+            from groq import Groq
+            from packages.config import get_settings
+            self.client_openai = Groq(api_key=get_settings().groq_api_key)
+            self.model_name = "groq/compound-mini"
+            self.parser_version = f"1.0.0-groq-{self.model_name}"
         else:
             from openai import OpenAI
             self.model_name = os.environ.get("LOCAL_LLM_MODEL", "qwen2.5:7b")
@@ -66,7 +73,6 @@ class SlotParser:
     )
     def parse(self, actor_id: str, actor_role: str, raw_text: str, intake_result: IntakeResult) -> ActionContract:
         if "mock" in self.parser_version:
-            from packages.contracts.schema import ActionContract
             return ActionContract(
                 contract_id="test",
                 actor_id=actor_id,
@@ -111,6 +117,20 @@ class SlotParser:
                     ),
                 )
                 parsed = response.parsed
+            elif self.backend == "groq":
+                import json
+                schema_str = ParsedIntent.model_json_schema()
+                sys_msg = f"You are a precise data extraction system. You must output valid JSON matching the following schema EXACTLY. Do not wrap it in markdown.\n{json.dumps(schema_str)}"
+                completion = self.client_openai.chat.completions.create(
+                    model=self.model_name,
+                    messages=[
+                        {"role": "system", "content": sys_msg},
+                        {"role": "user", "content": prompt}
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.0
+                )
+                parsed = ParsedIntent.model_validate_json(completion.choices[0].message.content)
             else:
                 completion = self.client_openai.beta.chat.completions.parse(
                     model=self.model_name,

@@ -332,7 +332,7 @@ class NiyamPipeline:
             if not schema_valid:
                 # Hard block before simulation — malformed tool call
                 _write_gate_block(writer, envelope, "TOOL_SCHEMA_INVALID", schema_error or "")
-                return _early_exit(trace_id, req, contract, tool_calls, writer)
+                return _early_exit(trace_id, req, contract, tool_calls, writer, envelope)
 
             # ---------------------------------------------------------------
             # Event 6: tool_simulated
@@ -580,9 +580,10 @@ def _write_gate_block(
 def _early_exit(
     trace_id: str,
     req: PipelineRequest,
-    contract: ActionContract,
+    contract: ActionContract | None,
     tool_calls: list[ToolCall],
     writer: TraceWriter,
+    envelope: dict[str, Any],
 ) -> PipelineResult:
     """Return a minimal PipelineResult when pipeline exits early (e.g. schema error)."""
     empty_delta = StateDelta(
@@ -596,18 +597,18 @@ def _early_exit(
     )
     writer.write(
         make_event(
-            trace_id=trace_id,
-            task_id=req.task_id,
+            **envelope,
             event_type="tool_executed",
             decision="SKIPPED_EARLY_EXIT",
+            payload={}
         )
     )
     writer.write(
         make_event(
-            trace_id=trace_id,
-            task_id=req.task_id,
+            **envelope,
             event_type="evaluation_verdict",
             decision="BLOCK",
+            payload={}
         )
     )
     return PipelineResult(

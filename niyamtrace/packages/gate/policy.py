@@ -260,8 +260,8 @@ def check_attribute_containment(
     allowed = set()
     if contract.intent == "invoice.archive":
         allowed = {"status"}
-    elif contract.intent == "limit.update":
-        allowed = {"limit_amount"}
+    elif contract.intent == "vendor.credit_limit.update" or contract.intent == "limit.update":
+        allowed = {"credit_limit_inr", "limit_amount"}
     
     for row_delta in predicted_delta.record_deltas:
         if row_delta.field not in allowed:

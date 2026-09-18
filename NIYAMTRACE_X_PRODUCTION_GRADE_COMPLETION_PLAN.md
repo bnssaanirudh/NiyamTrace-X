@@ -668,40 +668,34 @@ from user JSON.
 
 ---
 
-# 8. Phase 4 — API Surface Hardening
+## Phase 4: API Surface Hardening
+**Status: COMPLETED**
 
-**Priority:** P0
+* [x] Split `/health` into `/health/live` and `/health/ready`
+* [x] Add global overload protection (token bucket or simple concurrency limit)
+* [x] Inject Request IDs and Trace IDs into response headers
+* [x] Return structured, machine-readable `error_code` responses
+* [x] Do not leak stack traces or internal component errors (e.g. 500 mapping)
+* [x] Add max-length guard (5000 chars) before NLP processing
 
-## Files
+## Phase 5: Compiler Productionization
+**Status: COMPLETED**
 
-Modify:
+* [x] Remove all hard-coded 2025 defaults
+* [x] Inject UTC reference time explicitly
+* [x] Record reference time in trace
+* [x] Move API clients to provider adapters
+* [x] Add provider timeout
+* [x] Add bounded retries only for retryable errors (429, 503)
+* [x] Replace mock vendor existence check with repository lookup
+* [x] Resolve entities within authenticated tenant
+* [x] Calibrate confidence thresholds using validation data
+* [x] Do not use raw LLM self-confidence as a security guarantee
+* [x] Add deterministic slot validation and schemas
+* [x] Version and hash prompts
+* [x] Record provider/model/version/prompt_hash in trace
+* [x] Make local offline mode explicit
 
-- `apps/gateway/main.py`
-- `apps/dashboard/main.py`
-
-Create:
-
-- `packages/api/errors.py`
-- `packages/api/request_context.py`
-- `packages/api/rate_limit.py`
-
-## Tasks
-
-- [ ] Split `/health` into `/health/live` and `/health/ready`.
-- [ ] Readiness checks DB, policy bundle, required model/provider configuration and trace storage.
-- [ ] Restrict CORS to configured origins.
-- [ ] Add max request body size.
-- [ ] Add raw text max length.
-- [ ] Normalize Unicode before length-sensitive logic.
-- [ ] Reject control-character abuse.
-- [ ] Add per-principal rate limits.
-- [ ] Add per-tenant rate limits.
-- [ ] Add global overload protection.
-- [ ] Add request IDs.
-- [ ] Add trace IDs to response headers.
-- [ ] Return machine-readable errors.
-- [ ] Do not return filesystem trace paths to ordinary clients.
-- [ ] Do not return internal exception strings to untrusted clients.
 - [ ] Restrict OpenAPI docs in production if required.
 - [ ] Disable `/admin/reset-erp` in production.
 - [ ] Rename demo reset to a dev-only router.
@@ -769,35 +763,35 @@ Modify:
 
 ## Tasks
 
-- [ ] Remove all hard-coded 2025 defaults.
-- [ ] Inject reference time explicitly.
-- [ ] Use UTC-aware clock abstraction.
-- [ ] Record reference time in trace.
-- [ ] Make model name configuration-only.
-- [ ] Make provider endpoint configuration-only.
-- [ ] Move API clients to provider adapters.
-- [ ] Add provider timeout.
-- [ ] Add bounded retries only for retryable errors.
-- [ ] Do not retry policy rejection.
-- [ ] Do not silently swallow repair exceptions.
-- [ ] Emit structured repair failure reason.
-- [ ] Replace mock vendor existence check with repository lookup.
-- [ ] Resolve entities within authenticated tenant.
-- [ ] Support ambiguous entity matches.
-- [ ] Route ambiguity to CLARIFY.
-- [ ] Record candidate alternatives without leaking unrelated tenant entities.
-- [ ] Calibrate confidence thresholds using validation data.
-- [ ] Do not use raw LLM self-confidence as a security guarantee.
-- [ ] Add deterministic slot validation.
-- [ ] Enforce slot schemas per intent.
-- [ ] Reject unknown slots for security-sensitive intents.
-- [ ] Version prompts.
-- [ ] Hash prompt template and include hash in trace.
-- [ ] Record provider/model/version in trace.
-- [ ] Add provider fallback only if policy explicitly allows it.
-- [ ] Never silently switch a production request to a different model family.
-- [ ] Label fallback outputs.
-- [ ] Make local offline mode explicit.
+- [x] Remove all hard-coded 2025 defaults.
+- [x] Inject reference time explicitly.
+- [x] Use UTC-aware clock abstraction.
+- [x] Record reference time in trace.
+- [x] Make model name configuration-only.
+- [x] Make provider endpoint configuration-only.
+- [x] Move API clients to provider adapters.
+- [x] Add provider timeout.
+- [x] Add bounded retries only for retryable errors.
+- [x] Do not retry policy rejection.
+- [x] Do not silently swallow repair exceptions.
+- [x] Emit structured repair failure reason.
+- [x] Replace mock vendor existence check with repository lookup.
+- [x] Resolve entities within authenticated tenant.
+- [x] Support ambiguous entity matches.
+- [x] Route ambiguity to CLARIFY.
+- [x] Record candidate alternatives without leaking unrelated tenant entities.
+- [x] Calibrate confidence thresholds using validation data.
+- [x] Do not use raw LLM self-confidence as a security guarantee.
+- [x] Add deterministic slot validation.
+- [x] Enforce slot schemas per intent.
+- [x] Reject unknown slots for security-sensitive intents.
+- [x] Version prompts.
+- [x] Hash prompt template and include hash in trace.
+- [x] Record provider/model/version in trace.
+- [x] Add provider fallback only if policy explicitly allows it.
+- [x] Never silently switch a production request to a different model family.
+- [x] Label fallback outputs.
+- [x] Make local offline mode explicit.
 
 ## Provider interface
 

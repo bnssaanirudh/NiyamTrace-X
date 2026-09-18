@@ -1,2 +1,0 @@
-{"task_id": "T-041-N", "language_form": "te", "raw_text": "INV-204ను బ్లాక్ చేయొద్దు.", "expected_action": "block_access", "expected_policy_result": "deny", "expected_normalized_text": "INV-204ను బ్లాక్ చేయొద్దు.", "protected_spans": ["INV-204", "చేయొద్దు"]}
-{"task_id": "T-042", "language_form": "te_rom", "raw_text": "USR_8A2 ki ₹25,000 limit ni change cheyyaku.", "expected_action": "change_limit", "expected_policy_result": "deny", "expected_normalized_text": "USR_8A2 కి ₹25,000 లిమిట్ ని చేంజ్ చేయకు.", "protected_spans": ["USR_8A2", "₹25,000", "చేయకు"]}

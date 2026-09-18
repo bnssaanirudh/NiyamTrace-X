@@ -16,7 +16,7 @@ class LLMProvider:
         elif self.backend == "groq":
             from groq import Groq
             self.client = Groq(api_key=settings.groq_api_key)
-            self.model_name = "llama3-8b-8192"
+            self.model_name = "groq/compound-mini"
         elif self.backend == "local":
             from openai import OpenAI
             self.client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")

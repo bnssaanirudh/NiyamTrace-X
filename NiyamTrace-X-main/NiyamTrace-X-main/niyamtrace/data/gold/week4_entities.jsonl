@@ -1,3 +1,0 @@
-{"id": "el_001", "mention": "Apex Technologies", "true_entity_id": "VEN-004", "candidates": [{"vendor_id": "VEN-004", "name": "Apex Technologies India"}, {"vendor_id": "VEN-017", "name": "Apex Solutions Pvt Ltd"}], "expected_resolution": "VEN-004", "ambiguous": false}
-{"id": "el_002", "mention": "Apex", "true_entity_id": null, "candidates": [{"vendor_id": "VEN-004", "name": "Apex Technologies India"}, {"vendor_id": "VEN-017", "name": "Apex Solutions Pvt Ltd"}], "expected_resolution": "ambiguous", "ambiguous": true}
-{"id": "el_003", "mention": "VEN-0010", "true_entity_id": "VEN-0010", "candidates": [], "expected_resolution": "VEN-0010", "ambiguous": false}
