@@ -33,6 +33,7 @@ import json
 import sqlite3
 import tempfile
 from pathlib import Path
+from datetime import datetime, timezone
 
 import pytest
 
@@ -102,6 +103,7 @@ def canonical_request():
         actor_id="user-pm-001",
         actor_role="procurement_manager",
         task_id="task-week2-canonical",
+        reference_dt=datetime(2025, 3, 15, tzinfo=timezone.utc),
     )
 
 

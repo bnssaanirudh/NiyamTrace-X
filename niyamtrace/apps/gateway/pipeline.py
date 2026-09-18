@@ -78,12 +78,14 @@ class PipelineRequest:
         actor_role: str,
         task_id: str | None = None,
         traces_dir: Path | None = None,
+        reference_dt: datetime | None = None,
     ) -> None:
         self.raw_text = raw_text
         self.actor_id = actor_id
         self.actor_role = actor_role
         self.task_id = task_id or str(uuid.uuid4())
         self.traces_dir = traces_dir
+        self.reference_dt = reference_dt
 
 
 class PipelineResult:
@@ -193,7 +195,7 @@ class NiyamPipeline:
             # ---------------------------------------------------------------
             t0 = time.perf_counter()
             compiler_result = self._compiler.compile(
-                req.actor_id, req.actor_role, req.raw_text, intake_result
+                req.actor_id, req.actor_role, req.raw_text, intake_result, req.reference_dt
             )
             
             contract = compiler_result.contract

@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from datetime import datetime, timezone
 
 import pytest
 
@@ -81,6 +82,7 @@ def _make_req(text: str) -> PipelineRequest:
         actor_id="user-pm-001",
         actor_role="procurement_manager",
         task_id=f"task-week3-{text[:20].replace(' ', '_')}",
+        reference_dt=datetime(2025, 3, 15, tzinfo=timezone.utc),
     )
 
 
@@ -260,4 +262,4 @@ class TestWeek2RegressionUnderWeek3:
 
     def test_parser_version_updated_to_week4(self, pipeline):
         result = pipeline.run(_make_req(CANONICAL_EN))
-        assert "0.4.0" in result.contract.parser_version
+        assert "2.0.0" in result.contract.parser_version

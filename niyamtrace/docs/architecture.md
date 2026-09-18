@@ -5,7 +5,7 @@ complete unless labeled IMPLEMENTED.
 
 ---
 
-## Module Status (as of Week 7)
+## Module Status (Current)
 
 | Module | Package | Status | Week |
 |---|---|---|---|
@@ -34,8 +34,8 @@ complete unless labeled IMPLEMENTED.
 | **NiyamLake (Silver/Parquet)** | `packages/lake/transform.py` | ✅ IMPLEMENTED | 7 |
 | **NiyamLake (Gold/DuckDB)** | `packages/lake/metrics.py` | ✅ IMPLEMENTED | 7 |
 | **Dashboard (FastAPI + HTML)** | `apps/dashboard/` | ✅ IMPLEMENTED | 7 |
-| **NiyamTrace-Bench** | `data/benchmark/` | 🔲 STUB | 8 |
-| **CI regression gate** | `infra/.github/` | 🔲 STUB | 9 |
+| **NiyamTrace-Bench** | `data/benchmark/` | ✅ IMPLEMENTED | 8 |
+| **CI regression gate** | `infra/.github/` | ⚠️ PARTIALLY IMPLEMENTED | 9 |
 
 Legend: ✅ IMPLEMENTED · ⚠️ PARTIALLY IMPLEMENTED / STUB LABELED · 🔲 NOT YET STARTED
 
@@ -115,8 +115,8 @@ data_snapshot_id, decision, latency_ms
 
 ## Honest-Claims Checklist
 
-- [ ] All metrics shown anywhere trace back to a committed run script.
-- [ ] "Deletion" always documented as retrieval-layer tombstoning.
-- [ ] No fabricated benchmark numbers in any file.
-- [ ] Every STUB is labeled with the week it will be implemented.
-- [ ] Evidence check (5) explicitly labeled as non-security in Week 2.
+- [x] All metrics shown anywhere trace back to a committed run script.
+- [x] "Deletion" always documented as retrieval-layer tombstoning.
+- [x] No fabricated benchmark numbers in any file.
+- [x] Every STUB is labeled with the week it will be implemented.
+- [x] Evidence check (5) explicitly labeled as non-security in Week 2.

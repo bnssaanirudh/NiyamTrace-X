@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from packages.contracts.schema import ActionContract, SourceSpan
 from packages.nlp.intake import IntakeResult
@@ -57,6 +58,12 @@ class SlotParser:
                 api_key="ollama" # required but ignored
             )
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        retry=retry_if_exception_type(Exception),
+        reraise=True
+    )
     def parse(self, actor_id: str, actor_role: str, raw_text: str, intake_result: IntakeResult) -> ActionContract:
         if "mock" in self.parser_version:
             from packages.contracts.schema import ActionContract
