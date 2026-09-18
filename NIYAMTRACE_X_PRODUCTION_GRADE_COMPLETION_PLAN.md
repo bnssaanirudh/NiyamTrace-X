@@ -893,21 +893,21 @@ class ToolCapability(BaseModel):
 
 ## Tasks
 
-- [ ] Create central capability registry.
-- [ ] Reject tools absent from registry.
-- [ ] Reject schema-version mismatch.
-- [ ] Bind intent to exactly allowed tools.
-- [ ] Bind principal scopes to tool capability.
-- [ ] Add risk class.
-- [ ] Require approval for high-risk classes.
-- [ ] Define idempotency semantics.
-- [ ] Define max affected rows per tool.
-- [ ] Define allowed fields per tool.
-- [ ] Define allowed tables per tool.
-- [ ] Define transactional boundary.
-- [ ] Add simulator and executor interface parity tests.
-- [ ] Add capability-version hash.
-- [ ] Include tool registry hash in traces.
+- [x] Create central capability registry.
+- [x] Reject tools absent from registry.
+- [x] Reject schema-version mismatch.
+- [x] Bind intent to exactly allowed tools.
+- [x] Bind principal scopes to tool capability.
+- [x] Add risk class.
+- [x] Require approval for high-risk classes.
+- [x] Define idempotency semantics.
+- [x] Define max affected rows per tool.
+- [x] Define allowed fields per tool.
+- [x] Define allowed tables per tool.
+- [x] Define transactional boundary.
+- [x] Add simulator and executor interface parity tests.
+- [x] Add capability-version hash.
+- [x] Include tool registry hash in traces.
 
 ---
 

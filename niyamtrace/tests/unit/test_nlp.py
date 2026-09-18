@@ -51,7 +51,7 @@ class TestLanguageIdentifier:
     def test_english_detected(self):
         profile = self.lid.identify(CANONICAL_EN)
         assert "eng_Latn" in profile["primary_language_mix"]
-        assert profile["requires_review"] is True # due to unknown 'archive'
+        assert profile["requires_review"] is False # 'archive' is now known
 
     def test_hinglish_detected(self):
         profile = self.lid.identify(CANONICAL_HI_ROM)
