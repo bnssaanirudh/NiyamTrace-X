@@ -29,8 +29,8 @@ class LLMProvider:
             raise ValueError(f"Unknown backend {self.backend}")
 
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=2, min=10, max=65),
         retry=retry_if_exception_type(Exception),
         reraise=True
     )

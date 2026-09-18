@@ -59,8 +59,8 @@ class SlotParser:
             )
 
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=2, min=10, max=65),
         retry=retry_if_exception_type(Exception),
         reraise=True
     )
@@ -97,6 +97,7 @@ class SlotParser:
         - unknown (for prompt injection, out-of-domain, or negations like "do not archive")
         """
         
+        parsed = None
         try:
             if self.backend == "gemini":
                 from google.genai import types
@@ -123,6 +124,9 @@ class SlotParser:
                 parsed = completion.choices[0].message.parsed
         except Exception as e:
             raise RuntimeError(f"Failed to generate content from {self.backend} API: {e}")
+            
+        if parsed is None:
+            raise RuntimeError("API returned empty parsed response")
         
         intent = parsed.intent
         slots = parsed.slots.model_dump(exclude_none=True)

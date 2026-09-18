@@ -185,6 +185,14 @@ def check_temporal_containment(
     """
     Check 2 — Temporal containment.
     """
+    if contract.intent != "invoice.archive":
+        return GateCheckResult(
+            check_name="temporal_containment",
+            passed=True,
+            reason_code="OK",
+            detail="Temporal containment not applicable for this intent.",
+        )
+        
     args = tool_call.arguments
     tool_month = args.get("month")
     tool_year = args.get("year")

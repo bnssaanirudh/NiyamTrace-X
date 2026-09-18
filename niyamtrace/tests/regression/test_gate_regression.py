@@ -102,7 +102,7 @@ def test_r1_canonical_en_archive_allow(erp_conn: sqlite3.Connection) -> None:
         predicted_delta=delta,
         evidence_verdict="SUPPORT",
     )
-    assert verdict.decision == "ALLOW", f"Expected ALLOW, got {verdict.decision}: {verdict.reason}"
+    assert verdict.verdict == "ALLOW", f"Expected ALLOW, got {verdict.verdict}: {verdict.reason_code}"
 
 
 # ---------------------------------------------------------------------------
@@ -138,9 +138,9 @@ def test_r2_wrong_vendor_id_block(erp_conn: sqlite3.Connection) -> None:
         predicted_delta=delta,
         evidence_verdict="SUPPORT",
     )
-    assert verdict.decision == "BLOCK", f"Expected BLOCK, got {verdict.decision}"
-    assert "vendor" in verdict.reason.lower() or "identity" in verdict.reason.lower(), (
-        f"Reason should mention vendor/identity mismatch: {verdict.reason}"
+    assert verdict.verdict == "BLOCK", f"Expected BLOCK, got {verdict.verdict}"
+    assert "vendor" in verdict.detail.lower() or "identity" in verdict.detail.lower(), (
+        f"Reason should mention vendor/identity mismatch: {verdict.detail}"
     )
 
 
@@ -168,8 +168,8 @@ def test_r3_missing_temporal_scope_block(erp_conn: sqlite3.Connection) -> None:
         predicted_delta=delta,
         evidence_verdict="SUPPORT",
     )
-    assert verdict.decision == "BLOCK", (
-        f"Expected BLOCK for missing temporal scope, got {verdict.decision}: {verdict.reason}"
+    assert verdict.verdict == "BLOCK", (
+        f"Expected BLOCK for missing temporal scope, got {verdict.verdict}: {verdict.reason_code}"
     )
 
 
@@ -207,8 +207,8 @@ def test_r4_unauthorized_attribute_mutation_block() -> None:
         predicted_delta=bad_delta,
         evidence_verdict="SUPPORT",
     )
-    assert verdict.decision == "BLOCK", (
-        f"Expected BLOCK for unauthorized attribute, got {verdict.decision}: {verdict.reason}"
+    assert verdict.verdict == "BLOCK", (
+        f"Expected BLOCK for unauthorized mutation, got {verdict.verdict}: {verdict.reason_code}"
     )
 
 
@@ -233,8 +233,8 @@ def test_r5_bulk_exceeds_threshold_escalate() -> None:
         predicted_delta=big_delta,
         evidence_verdict="SUPPORT",
     )
-    assert verdict.decision in ("BLOCK", "ESCALATE"), (
-        f"Expected BLOCK or ESCALATE for bulk, got {verdict.decision}: {verdict.reason}"
+    assert verdict.verdict == "ESCALATE", (
+        f"Expected ESCALATE for bulk limit, got {verdict.verdict}: {verdict.reason_code}"
     )
 
 
@@ -277,8 +277,8 @@ def test_r6_unauthorized_role_block_user_access() -> None:
         predicted_delta=delta,
         evidence_verdict="SUPPORT",
     )
-    assert verdict.decision == "BLOCK", (
-        f"Expected BLOCK for unauthorized role, got {verdict.decision}: {verdict.reason}"
+    assert verdict.verdict == "BLOCK", (
+        f"Expected BLOCK for unauthorized role, got {verdict.verdict}: {verdict.reason_code}"
     )
 
 
@@ -321,8 +321,8 @@ def test_r7_valid_update_credit_limit_allow() -> None:
         predicted_delta=delta,
         evidence_verdict="SUPPORT",
     )
-    assert verdict.decision == "ALLOW", (
-        f"Expected ALLOW for valid credit limit update, got {verdict.decision}: {verdict.reason}"
+    assert verdict.verdict == "ALLOW", (
+        f"Expected ALLOW for valid credit limit update, got {verdict.verdict}: {verdict.reason_code}"
     )
 
 
