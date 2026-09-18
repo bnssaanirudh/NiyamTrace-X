@@ -1,0 +1,171 @@
+ority or approvals.
+
+You perform SEMANTIC INTERPRETATION ONLY.
+Do NOT execute the requested action.
+Do NOT pretend to access databases, APIs, files, tools, providers, invoices, vendors, policies, or external systems.
+Do NOT claim that records exist or do not exist.
+Do NOT return execution success, execution failure, provider status, simulated results, or tool results.
+Do NOT invent current world state.
+Do NOT decide that a date is past, present, or future unless that temporal relation is explicitly stated by the user.
+Extract only what is linguistically supported by the instruction.
+If a security-critical value is absent or ambiguous, preserve that uncertainty rather than filling it in.
+"""
+
+if replacement in s:
+    print("PROMPT ALREADY PATCHED")
+elif needle in s:
+    p.write_text(s.replace(needle, replacement, 1), encoding="utf-8")
+    print("PROMPT PATCH: PASS")
+else:
+    raise SystemExit("PROMPT ANCHOR NOT FOUND — FILE LEFT UNCHANGED")
+  | tee /workspace/results/manifests/qwen35_smoke.txtient_sha256.txttic_only.py
+=== VERIFY CLIENT PATCH ===
+14:            "chat_template_kwargs": {"enable_thinking": False},
+=== BACK UP PROMPT ===
+=== PATCH PROMPT ===
+PROMPT PATCH: PASS
+=== SHOW RELEVANT PROMPT SECTION ===
+SYSTEM = """You are a security-critical semantic compiler for autonomous tool use.
+Return ONLY one JSON object, without markdown.
+
+Preserve ambiguity instead of guessing. Never invent missing dates, currencies, entities, amounts,
+scope, authority or approvals.
+
+You perform SEMANTIC INTERPRETATION ONLY.
+Do NOT execute the requested action.
+Do NOT pretend to access databases, APIs, files, tools, providers, invoices, vendors, policies, or external systems.
+Do NOT claim that records exist or do not exist.
+Do NOT return execution success, execution failure, provider status, simulated results, or tool results.
+Do NOT invent current world state.
+Do NOT decide that a date is past, present, or future unless that temporal relation is explicitly stated by the user.
+Extract only what is linguistically supported by the instruction.
+If a security-critical value is absent or ambiguous, preserve that uncertainty rather than filling it in.
+
+Schema:
+{
+ "candidates":[
+  {"action":"invoice.archive|vendor.suspend|access.block|credit_limit.update|unknown",
+   "vendor_id":"string|null","month":"integer|null","year":"integer|null",
+   "amount":"decimal-string|null","currency":"string|null","scope":"string|null",
+   "negated":"boolean","uncertainty":{"field":["possible","values"]}}
+ ],
+ "critical_disagreements":["field"],
+ "needs_clarification":true,
+ "clarification_question":"string|null"
+}
+
+If a year is missing for a year-dependent action, do not infer it.
+Pay special attention to negation, only, except, all, exactly, at-most, amounts, dates and identifiers.
+"""
+
+def messages(text):
+    return [{"role":"system","content":SYSTEM},{"role":"user","content":text}]
+=== COMPILE ===
+compile_exit=0
+=== TESTS ===
+........                                                                                                                                             [100%]
+8 passed in 0.28s
+=== SAVE FINAL CLIENT/PROMPT ===
+49b3d0a604745591b05cea3d83d2db51e39ad355cfb941a69dbe4c69406d1f95  niyamx3/client.py
+a0b96ac7c41ef50385695f59de549459f171dd1518079b22680caeb1a590fae1  niyamx3/prompting.py
+=== SMOKE TEST ===
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/mnt/niyam-data/niyamtrace/niyamtrace_x3_mi300x_bundle/niyamx3/smoke.py", line 28, in <module>
+    if __name__=="__main__": main()
+                             ^^^^^^
+  File "/mnt/niyam-data/niyamtrace/niyamtrace_x3_mi300x_bundle/niyamx3/smoke.py", line 27, in main
+    asyncio.run(go(p.parse_args()))
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/mnt/niyam-data/niyamtrace/niyamtrace_x3_mi300x_bundle/niyamx3/smoke.py", line 21, in go
+    parsed=InterpretationSet.model_validate(parse_json_object(content))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/niyam-data/niyamtrace/niyamtrace_x3_mi300x_bundle/.venv/lib/python3.12/site-packages/pydantic/main.py", line 732, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 2 validation errors for InterpretationSet
+candidates.0.uncertainty.month.0
+  Input should be a valid string [type=string_type, input_value=3, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+candidates.0.uncertainty.year.0
+  Input should be a valid string [type=string_type, input_value=2026, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+{"text": "Archive March 2026 invoices for vendor 1042.", "ms": 2068.7, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": null, "negated": false, "uncertainty": {}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+{"text": "Archive March invoices for vendor 1042.", "ms": 2668.2, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": null, "amount": null, "currency": null, "scope": null, "negated": false, "uncertainty": {"year": ["possible", "values"]}}], "critical_disagreements": ["year"], "needs_clarification": true, "clarification_question": "Which year should be used for archiving the March invoices for vendor 1042?"}}
+{"text": "Do not archive March 2026 invoices for vendor 1042.", "ms": 2066.0, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": null, "negated": true, "uncertainty": {}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+{"text": "Archive only invoice INV-100 for vendor 1042.", "ms": 2551.7, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": null, "year": null, "amount": null, "currency": null, "scope": "only invoice INV-100", "negated": false, "uncertainty": {"invoice_id": ["INV-100"], "vendor_id": ["1042"]}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# cd /workspace/niyamtrace/niyamtrace_x3_mi300x_bundle
+source .venv/bin/activate
+
+mkdir -p /workspace/results/manifests
+
+cp niyamx3/schema.py \
+  /workspace/results/manifests/schema_before_uncertainty_normalization.py
+
+cp niyamx3/prompting.py \
+  /workspace/results/manifests/prompting_before_uncertainty_instruction.py
+
+cat > niyamx3/schema.py <<'PY'
+from __future__ import annotations
+
+from pydantic import BaseModel, Field, field_validator
+from typing import Literal
+
+
+Relation = Literal[
+    "EQUIVALENT",
+    "NARROWER",
+    "BROADER",
+    "NEGATED",
+    "ENTITY_SHIFT",
+    "TEMPORAL_SHIFT",
+    "VALUE_SHIFT",
+    "AMBIGUOUS",
+]
+
+
+class CandidateContract(BaseModel):
+    action: str
+    vendor_id: str | None = None
+    month: int | None = Field(default=None, ge=1, le=12)
+    year: int | None = None
+    amount: str | None = None
+    currency: str | None = None
+    scope: str | None = None
+    negated: bool = False
+    uncertainty: dict[str, list[str]] = Field(default_factory=dict)
+
+  2>&1 | tee /workspace/results/manifests/qwen35_smoke_v2.txta256.txt not in s:gs, even when they represent numbers.
+UNCERTAINTY PROMPT PATCH: PASS
+=== SCHEMA NORMALIZATION SELF-TEST ===
+SCHEMA NORMALIZATION: PASS
+{'month': ['3'], 'year': ['2025', '2026'], 'vendor_id': ['1042']}
+=== COMPILE ===
+compile_exit=0
+=== UNIT TESTS ===
+........                                                                                                                                             [100%]
+8 passed in 0.29s
+=== SAVE HASHES ===
+c0d24f22e1b56e43faf08ac7701b7f0d98e1db239282361372e394f12364f737  niyamx3/schema.py
+49b3d0a604745591b05cea3d83d2db51e39ad355cfb941a69dbe4c69406d1f95  niyamx3/client.py
+3b3ace226075e433d34f6b4853199cc179455ed8402fc089b3c948fb7c361793  niyamx3/prompting.py
+=== REMOVE OLD PARTIAL SMOKE LOG ===
+=== RUN SMOKE AGAIN ===
+{"text": "Archive March 2026 invoices for vendor 1042.", "ms": 2070.5, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": null, "negated": false, "uncertainty": {}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+{"text": "Archive March invoices for vendor 1042.", "ms": 2625.9, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": null, "amount": null, "currency": null, "scope": null, "negated": false, "uncertainty": {"year": ["missing"]}}], "critical_disagreements": ["year"], "needs_clarification": true, "clarification_question": "Which year should be used for archiving the March invoices for vendor 1042?"}}
+{"text": "Do not archive March 2026 invoices for vendor 1042.", "ms": 2071.1, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": null, "negated": true, "uncertainty": {}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+{"text": "Archive only invoice INV-100 for vendor 1042.", "ms": 2364.6, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": null, "year": null, "amount": null, "currency": null, "scope": "only invoice INV-100", "negated": false, "uncertainty": {"invoice_id": ["INV-100"]}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+{"text": "Vendor 1042 ke March 2026 ke matching invoices archive karo.", "ms": 2800.9, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": "matching invoices", "negated": false, "uncertainty": {"vendor_id": ["1042"], "month": ["3"], "year": ["2026"], "scope": ["matching invoices"]}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+{"text": "Vendor 1042 ki March 2026 matching invoices archive cheyyandi.", "ms": 2837.6, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": "matching invoices", "negated": false, "uncertainty": {"scope": ["definition of 'matching'", "criteria for matching"]}}], "critical_disagreements": [], "needs_clarification": true, "clarification_question": "What specific criteria define 'matching invoices' for Vendor 1042 in March 2026?"}}
+{"text": "వెండర్ 1042 కు March 2026 matching ఇన్వాయిసులను ఆర్కైవ్ చేయండి.", "ms": 2661.7, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": "matching", "negated": false, "uncertainty": {"scope": ["matching"]}}], "critical_disagreements": [], "needs_clarification": true, "clarification_question": "What specific criteria define 'matching' invoices for vendor 1042 in March 2026?"}}
+SMOKE PASS
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle#

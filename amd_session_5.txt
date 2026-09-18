@@ -1,0 +1,236 @@
+}
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# curl -s http://127.0.0.1:8010/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model":"Qwen/Qwen3.5-122B-A10B-FP8",
+    "messages":[
+      {
+        "role":"system",
+        "content":"You are a security-critical semantic compiler. Return ONLY one valid JSON object. Never invent missing dates, entities, amounts, scope, authority, or approvals."
+      },
+      {
+        "role":"user",
+        "content":"Archive March 2026 invoices for vendor 1042."
+      }
+    ],
+    "temperature":0,
+    "max_tokens":300,
+    "chat_template_kwargs":{
+      "enable_thinking":false
+    }
+  }' | jq
+{
+  "id": "chatcmpl-90835ab1c8fae2d4",
+  "object": "chat.completion",
+  "created": 1787914213,
+  "model": "Qwen/Qwen3.5-122B-A10B-FP8",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"error\": \"No data available\",\n  \"message\": \"Cannot archive invoices for March 2026 as the date is in the future and no records exist for vendor 1042 in the system.\",\n  \"vendor_id\": \"1042\",\n  \"requested_period\": \"March 2026\",\n  \"action\": \"archive\",\n  \"status\": \"failed\",\n  \"reason\": \"future_date_no_records\"\n}",
+        "refusal": null,
+        "annotations": null,
+        "audio": null,
+        "function_call": null,
+        "reasoning": null
+      },
+      "logprobs": null,
+      "finish_reason": "stop",
+      "stop_reason": null,
+      "token_ids": null,
+      "routed_experts": null
+    }
+  ],
+  "service_tier": null,
+  "system_fingerprint": "vllm-0.28.0-ec5959e1",
+  "usage": {
+    "prompt_tokens": 65,
+    "total_tokens": 170,
+    "completion_tokens": 105,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "prompt_logprobs": null,
+  "prompt_token_ids": null,
+  "prompt_text": null,
+  "kv_transfer_params": null,
+  "ec_transfer_params": null,
+  "metrics": null
+}
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# payload={
+    "model": self.model,
+    "messages": messages(text),
+    "temperature": 0,
+    "max_tokens": 700
+}
+model:: command not found
+-bash: syntax error near unexpected token `('
+temperature:: command not found
+max_tokens:: command not found
+-bash: syntax error near unexpected token `}'
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# cd /workspace/niyamtrace/niyamtrace_x3_mi300x_bundle
+source .venv/bin/activate
+
+cp niyamx3/client.py \
+   /workspace/results/manifests/client_before_qwen_patch.py
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# cd /workspace/niyamtrace/niyamtrace_x3_mi300x_bundle
+source .venv/bin/activate
+
+cp niyamx3/client.py \
+   /workspace/results/manifests/client_before_qwen_patch.py
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# python - <<'PY'
+from pathlib import Path
+
+p = Path("niyamx3/client.py")
+s = p.read_text(encoding="utf-8")
+
+old = 'payload={"model":self.model,"messages":messages(text),"temperature":0,"max_tokens":700}'
+
+new = '''payload={
+            "model": self.model,
+            "messages": messages(text),
+            "temperature": 0,
+            "max_tokens": 700,
+            "chat_template_kwargs": {"enable_thinking": False},
+        }'''
+
+if old not in s:
+    raise SystemExit("EXPECTED PAYLOAD NOT FOUND — NO CHANGE MADE")
+
+p.write_text(s.replace(old, new), encoding="utf-8")
+print("CLIENT PATCH: PASS")
+PY
+CLIENT PATCH: PASS
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# "chat_template_kwargs": {"enable_thinking": False},
+chat_template_kwargs:: command not found
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# cd /workspace/niyamtrace/niyamtrace_x3_mi300x_bundle
+source .venv/bin/activate
+
+echo "=== VERIFY CLIENT PATCH ==="
+grep -n "chat_template_kwargs" niyamx3/client.py
+
+echo "=== BACK UP PROMPT ==="
+cp niyamx3/prompting.py /workspace/results/manifests/prompting_before_semantic_patch.py
+
+echo "=== PATCH PROMPT ==="
+python - <<'PY'
+from pathlib import Path
+
+p = Path("niyamx3/prompting.py")
+s = p.read_text(encoding="utf-8")
+
+needle = """Preserve ambiguity instead of guessing. Never invent missing dates, currencies, entities, amounts,
+scope, authority or approvals.
+"""
+
+replacement = """Preserve ambiguity instead of guessing. Never invent missing dates, currencies, entities, amounts,
+scope, authority or approvals.
+
+You perform SEMANTIC INTERPRETATION ONLY.
+Do NOT execute the requested action.
+Do NOT pretend to access databases, APIs, files, tools, providers, invoices, vendors, policies, or external systems.
+Do NOT claim that records exist or do not exist.
+Do NOT return execution success, execution failure, provider status, simulated results, or tool results.
+Do NOT invent current world state.
+Do NOT decide that a date is past, present, or future unless that temporal relation is explicitly stated by the user.
+Extract only what is linguistically supported by the instruction.
+If a security-critical value is absent or ambiguous, preserve that uncertainty rather than filling it in.
+"""
+
+if replacement in s:
+    print("PROMPT ALREADY PATCHED")
+elif needle in s:
+    p.write_text(s.replace(needle, replacement, 1), encoding="utf-8")
+    print("PROMPT PATCH: PASS")
+else:
+    raise SystemExit("PROMPT ANCHOR NOT FOUND — FILE LEFT UNCHANGED")
+  | tee /workspace/results/manifests/qwen35_smoke.txtient_sha256.txttic_only.py
+=== VERIFY CLIENT PATCH ===
+14:            "chat_template_kwargs": {"enable_thinking": False},
+=== BACK UP PROMPT ===
+=== PATCH PROMPT ===
+PROMPT PATCH: PASS
+=== SHOW RELEVANT PROMPT SECTION ===
+SYSTEM = """You are a security-critical semantic compiler for autonomous tool use.
+Return ONLY one JSON object, without markdown.
+
+Preserve ambiguity instead of guessing. Never invent missing dates, currencies, entities, amounts,
+scope, authority or approvals.
+
+You perform SEMANTIC INTERPRETATION ONLY.
+Do NOT execute the requested action.
+Do NOT pretend to access databases, APIs, files, tools, providers, invoices, vendors, policies, or external systems.
+Do NOT claim that records exist or do not exist.
+Do NOT return execution success, execution failure, provider status, simulated results, or tool results.
+Do NOT invent current world state.
+Do NOT decide that a date is past, present, or future unless that temporal relation is explicitly stated by the user.
+Extract only what is linguistically supported by the instruction.
+If a security-critical value is absent or ambiguous, preserve that uncertainty rather than filling it in.
+
+Schema:
+{
+ "candidates":[
+  {"action":"invoice.archive|vendor.suspend|access.block|credit_limit.update|unknown",
+   "vendor_id":"string|null","month":"integer|null","year":"integer|null",
+   "amount":"decimal-string|null","currency":"string|null","scope":"string|null",
+   "negated":"boolean","uncertainty":{"field":["possible","values"]}}
+ ],
+ "critical_disagreements":["field"],
+ "needs_clarification":true,
+ "clarification_question":"string|null"
+}
+
+If a year is missing for a year-dependent action, do not infer it.
+Pay special attention to negation, only, except, all, exactly, at-most, amounts, dates and identifiers.
+"""
+
+def messages(text):
+    return [{"role":"system","content":SYSTEM},{"role":"user","content":text}]
+=== COMPILE ===
+compile_exit=0
+=== TESTS ===
+........                                                                                                                                             [100%]
+8 passed in 0.28s
+=== SAVE FINAL CLIENT/PROMPT ===
+49b3d0a604745591b05cea3d83d2db51e39ad355cfb941a69dbe4c69406d1f95  niyamx3/client.py
+a0b96ac7c41ef50385695f59de549459f171dd1518079b22680caeb1a590fae1  niyamx3/prompting.py
+=== SMOKE TEST ===
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/mnt/niyam-data/niyamtrace/niyamtrace_x3_mi300x_bundle/niyamx3/smoke.py", line 28, in <module>
+    if __name__=="__main__": main()
+                             ^^^^^^
+  File "/mnt/niyam-data/niyamtrace/niyamtrace_x3_mi300x_bundle/niyamx3/smoke.py", line 27, in main
+    asyncio.run(go(p.parse_args()))
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/mnt/niyam-data/niyamtrace/niyamtrace_x3_mi300x_bundle/niyamx3/smoke.py", line 21, in go
+    parsed=InterpretationSet.model_validate(parse_json_object(content))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/niyam-data/niyamtrace/niyamtrace_x3_mi300x_bundle/.venv/lib/python3.12/site-packages/pydantic/main.py", line 732, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 2 validation errors for InterpretationSet
+candidates.0.uncertainty.month.0
+  Input should be a valid string [type=string_type, input_value=3, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+candidates.0.uncertainty.year.0
+  Input should be a valid string [type=string_type, input_value=2026, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+{"text": "Archive March 2026 invoices for vendor 1042.", "ms": 2068.7, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": null, "negated": false, "uncertainty": {}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+{"text": "Archive March invoices for vendor 1042.", "ms": 2668.2, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": null, "amount": null, "currency": null, "scope": null, "negated": false, "uncertainty": {"year": ["possible", "values"]}}], "critical_disagreements": ["year"], "needs_clarification": true, "clarification_question": "Which year should be used for archiving the March invoices for vendor 1042?"}}
+{"text": "Do not archive March 2026 invoices for vendor 1042.", "ms": 2066.0, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": null, "negated": true, "uncertainty": {}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+{"text": "Archive only invoice INV-100 for vendor 1042.", "ms": 2551.7, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": null, "year": null, "amount": null, "currency": null, "scope": "only invoice INV-100", "negated": false, "uncertainty": {"invoice_id": ["INV-100"], "vendor_id": ["1042"]}}], "critical_disagreements": [], "needs_clarification": false, "clarification_question": null}}
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle#

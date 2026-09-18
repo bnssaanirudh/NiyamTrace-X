@@ -1,0 +1,216 @@
+-bash: syntax error near unexpected token `('
+requires_review:: command not found
+-bash: syntax error near unexpected token `}'
+END: command not found
+Command '+++' not found, did you mean:
+  command 'g++' from deb g++ (4:13.2.0-2ubuntu1)
+  command 'p++' from deb pcc (1.2.0~DEVEL+20220331-1)
+  command 'c++' from deb g++ (4:13.2.0-2ubuntu1)
+  command 'c++' from deb clang (1:17.0-58~exp1)
+  command 'c++' from deb pcc (1.2.0~DEVEL+20220331-1)
+  command 'c++' from deb pentium-builder (0.21+nmu2ubuntu1)
+Try: apt install <deb name>
+@@: command not found
+f({result.expected_verdict} -> {result.actual_verdict}) : command not found
+f{result.latency_ms:.1f}ms{err_msg}: command not found
+-bash: syntax error near unexpected token `)'
+-: command not found
+-bash: syntax error near unexpected token `('
++: command not found
++: command not found
+-bash: syntax error near unexpected token `('
+-bash: syntax error near unexpected token `('
+diff: unrecognized option '--git'
+diff: Try 'diff --help' for more information.
+Command 'index' not found, did you mean:
+  command 'sindex' from deb biosquid (1.9g+cvs20050121-12)
+  command 'cindex' from deb codesearch (0.0~hg20120502-3ubuntu0.24.04.3)
+  command 'xindex' from deb texlive-extra-utils (2023.20231207-3)
+Try: apt install <deb name>
+---: command not found
+Command '+++' not found, did you mean:
+  command 'p++' from deb pcc (1.2.0~DEVEL+20220331-1)
+  command 'c++' from deb g++ (4:13.2.0-2ubuntu1)
+  command 'c++' from deb clang (1:17.0-58~exp1)
+  command 'c++' from deb pcc (1.2.0~DEVEL+20220331-1)
+  command 'c++' from deb pentium-builder (0.21+nmu2ubuntu1)
+  command 'g++' from deb g++ (4:13.2.0-2ubuntu1)
+Try: apt install <deb name>
+@@: command not found
+transliteration: command not found
+-bash: syntax error near unexpected token `{result.expected_verdict}'
+f{result.latency_ms:.1f}ms{err_msg}: command not found
+-bash: syntax error near unexpected token `)'
+-: command not found
+-bash: syntax error near unexpected token `('
++: command not found
++: command not found
+-bash: syntax error near unexpected token `('
+-bash: syntax error near unexpected token `('
+diff: unrecognized option '--git'
+diff: Try 'diff --help' for more information.
+Command 'index' not found, did you mean:
+  command 'sindex' from deb biosquid (1.9g+cvs20050121-12)
+  command 'xindex' from deb texlive-extra-utils (2023.20231207-3)
+  command 'cindex' from deb codesearch (0.0~hg20120502-3ubuntu0.24.04.3)
+Try: apt install <deb name>
+---: command not found
+Command '+++' not found, did you mean:
+  command 'g++' from deb g++ (4:13.2.0-2ubuntu1)
+  command 'c++' from deb g++ (4:13.2.0-2ubuntu1)
+  command 'c++' from deb clang (1:17.0-58~exp1)
+  command 'c++' from deb pcc (1.2.0~DEVEL+20220331-1)
+  command 'c++' from deb pentium-builder (0.21+nmu2ubuntu1)
+  command 'p++' from deb pcc (1.2.0~DEVEL+20220331-1)
+Try: apt install <deb name>
+@@: command not found
+transliteration: command not found
+> ^C
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# pwd
+/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# cd /workspace/niyamtrace/NiyamTrace-X
+git status
+git --no-pager diff --stat
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   niyamtrace/packages/bench/runner.py
+        modified:   niyamtrace/packages/nlp/normalizer.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+ niyamtrace/packages/bench/runner.py   |  4 ++--
+ niyamtrace/packages/nlp/normalizer.py | 11 +++++++----
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# cd /workspace/niyamtrace/NiyamTrace-X
+git status
+git --no-pager diff --stat
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   niyamtrace/packages/bench/runner.py
+        modified:   niyamtrace/packages/nlp/normalizer.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+ niyamtrace/packages/bench/runner.py   |  4 ++--
+ niyamtrace/packages/nlp/normalizer.py | 11 +++++++----
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# export HF_HOME=/workspace/hf-cache
+export HUGGINGFACE_HUB_CACHE=/workspace/hf-cache/hub
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# python - <<'PY'
+from huggingface_hub import snapshot_download
+from pathlib import Path
+
+p = Path(snapshot_download(
+    "Qwen/Qwen3.5-122B-A10B-FP8",
+    revision="a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9",
+    local_files_only=True
+))
+
+print("MODEL PATH:", p)
+print("config.json:", (p / "config.json").exists())
+print("tokenizer.json:", (p / "tokenizer.json").exists())
+print("safetensors:", len(list(p.glob("*.safetensors"))))
+print("CHECKPOINT OK")
+PY
+MODEL PATH: /mnt/niyam-data/hf-cache/hub/models--Qwen--Qwen3.5-122B-A10B-FP8/snapshots/a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9
+config.json: True
+tokenizer.json: True
+safetensors: 39
+CHECKPOINT OK
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# amd-smi
++------------------------------------------------------------------------------+
+| AMD-SMI            26.5.0+2b22ab01                                           |
+| amdgpu Version:    6.19.14.31400000                                          |
+| ROCm Version:      7.14.0                                                    |
+| VBIOS Version:     00159017                                                  |
+| FW PLDM:           01.25.03.12                                               |
+| Platform:          Linux Guest                                               |
+|-------------------------------------+----------------------------------------|
+| BDF                        GPU-Name | Mem-Uti   Temp   UEC       Power-Usage |
+| GPU  HIP-ID  OAM-ID  Partition-Mode | GFX-Uti    Fan               Mem-Usage |
+|=====================================+========================================|
+| 0000:83:00.0 AMD Instinct MI300X VF | 0 %      35 °C   0           137/750 W |
+|   0       0       0        SPX/NPS1 | 0 %        N/A           285/196288 MB |
++-------------------------------------+----------------------------------------+
++------------------------------------------------------------------------------+
+| Processes:                                                                   |
+|  GPU      PID  Process Name       GTT_MEM  VRAM_MEM  MEM_USAGE  CU %  SDMA   |
+|==============================================================================|
+|  No running processes found                                                  |
++------------------------------------------------------------------------------+
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker rm -f niyam-vllm 2>/dev/null || true
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker run -d \
+  --name niyam-vllm \
+  --device=/dev/kfd \
+  --device=/dev/dri \
+  --group-add=video \
+  --ipc=host \
+  --cap-add=SYS_PTRACE \
+  --security-opt seccomp=unconfined \
+  --shm-size=64g \
+  -e HF_HOME=/root/.cache/huggingface \
+  -e HF_HUB_OFFLINE=1 \
+  -v /mnt/niyam-data/hf-cache:/root/.cache/huggingface:ro \
+  -p 127.0.0.1:8000:8000 \
+  vllm/vllm-openai-rocm@sha256:e0a3b2bd3fe7ec563916c3a5d949898d133458c18d6b2f460c906885cfb32032 \
+  --model Qwen/Qwen3.5-122B-A10B-FP8 \
+  --revision a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9 \
+  --served-model-name Qwen/Qwen3.5-122B-A10B-FP8 \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.88 \
+  --max-num-seqs 32 \
+  --reasoning-parser qwen3 \
+  --enable-auto-tool-choice \
+  --tool-call-parser qwen3_coder \
+  --language-model-only \
+  --trust-remote-code
+591b4c70c07a7fd671d758dbf5dc7e70cbf4da33064269fcb36b636ebcfbed55
+docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint niyam-vllm (88a46c54a51015744984e4796c798637385fc95b7526acaec3ca52912d5b6b91): Bind for 0.0.0.0:8000 failed: port is already allocated
+
+Run 'docker run --help' for more information
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker ps -a --filter name=niyam-vllm
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS    PORTS     NAMES
+591b4c70c07a   e0a3b2bd3fe7   "vllm serve --model …"   11 seconds ago   Created             niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker logs --tail 100 niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker logs -f niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker logs -f niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# # first press Ctrl+C
+
+cd /workspace/niyamtrace/niyamtrace_x3_mi300x_bundle
+source .venv/bin/activate
+
+export HF_HOME=/workspace/hf-cache
+export HUGGINGFACE_HUB_CACHE=/workspace/hf-cache/hub
+
+amd-smi
+docker rm -f niyam-vllm 2>/dev/null || true
++------------------------------------------------------------------------------+
+| AMD-SMI            26.5.0+2b22ab01                                           |
+| amdgpu Version:    6.19.14.31400000                                          |
+| ROCm Version:      7.14.0                                                    |
+| VBIOS Version:     00159017                                                  |
+| FW PLDM:           01.25.03.12                                               |
+| Platform:          Linux Guest                                               |
+|-------------------------------------+----------------------------------------|
+| BDF                        GPU-Name | Mem-Uti   Temp   UEC       Power-Usage |
+| GPU  HIP-ID  OAM-ID  Partition-Mode | GFX-Uti    Fan               Mem-Usage |
+|=====================================+========================================|
+| 0000:83:00.0 AMD Instinct MI300X VF | 0 %      34 °C   0           137/750 W |
+|   0       0       0        SPX/NPS1 | 0 %        N/A           285/196288 MB |
++-------------------------------------+----------------------------------------+
++------------------------------------------------------------------------------+
+| Processes:                                                                   |
+|  GPU      PID  Process Name       GTT_MEM  VRAM_MEM  MEM_USAGE  CU %  SDMA   |
+|==============================================================================|
+|  No running processes found                                                  |
++------------------------------------------------------------------------------+
+niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle#

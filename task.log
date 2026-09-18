@@ -1,0 +1,24 @@
+2026-09-14 13:42:08.980 | DEBUG    | tau2.runner.batch:__enter__:308 - Task log file: /content/NTX_T4_EXTERNAL_CLOSURE/work/tau2-bench/data/simulations/ntx_t4_qwen25_3b_retail/artifacts/task_0/sim_c573f283-e1a2-44ff-b691-b93e57fac899/task.log
+2026-09-14 13:42:09.044 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+2026-09-14 13:42:09.044 | DEBUG    | tau2.runner.build:build_text_orchestrator:430 - Built text orchestrator: domain=retail, agent=llm_agent, user=user_simulator, task=0
+2026-09-14 13:42:09.045 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 0. Sending message from Role.AGENT to Role.USER
+2026-09-14 13:42:09.045 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 0.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: Hi! How can I help you today?
+is_final_chunk: True
+2026-09-14 13:42:09.045 | DEBUG    | tau2.user.user_simulator:_generate_next_message:222 - User responds to message: AssistantMessage
+content: Hi! How can I help you today?
+is_final_chunk: True
+2026-09-14 13:42:11.804 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen25_3b, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-09-14 13:42:11.806 | DEBUG    | tau2.user.user_simulator:_generate_next_message:244 - Response: Hello, I recently placed an order with your store and I'm calling to exchange my mechanical keyboard for one with clicky switches and to replace the smart thermostat with one that works with Google Home instead of Apple HomeKit. If there's no keyboard available with those specifications, I would prefer a keyboard without backlight. Could you please assist me with this?
+2026-09-14 13:42:11.806 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 1. Sending message from Role.USER to Role.AGENT
+2026-09-14 13:42:11.807 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 1.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Hello, I recently placed an order with your store and I'm calling to exchange my mechanical keyboard for one with clicky switches and to replace the smart thermostat with one that works with Google Home instead of Apple HomeKit. If there's no keyboard available with those specifications, I would prefer a keyboard without backlight. Could you please assist me with this?
+is_final_chunk: True
+2026-09-14 13:42:11.915 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.ContextWindowExceededError: litellm.BadRequestError: ContextWindowExceededError: OpenAIException - This model's maximum context length is 3072 tokens. However, you requested 768 output tokens and your prompt contains at least 2305 input tokens, for a total of at least 3073 tokens. Please reduce the length of the input prompt or the number of requested output tokens. (parameter=input_tokens, value=2305)
+2026-09-14 13:42:11.915 | WARNING  | tau2.orchestrator.orchestrator:run:287 - Simulation loop exited with an exception — running emergency cleanup

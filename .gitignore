@@ -1,118 +1,46 @@
-# Python
+# LaTeX build products
+*.aux
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.spl
+*.synctex.gz
+
+# Python/Jupyter
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+.ipynb_checkpoints/
+*.pyc
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# OS/editor
+.DS_Store
+Thumbs.db
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.hypothesis/
-.pytest_cache/
-.pytest_cache/
+# Local model/cache artifacts
+models/
+hf_cache/
+.cache/
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.pth
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Sphinx documentation
-doc/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if lock is not desired, it can be added here.
-#Pipfile.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#poetry.lock
-
-# pdm
-.pdm-plugins/
-.pdm-build/
-
-# PEP 582; used by e.g. github.com/lincolnloop/layman and pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
+# Secrets / environment
 .env
-.venv
-env/
+.env.*
+*.key
+*.pem
+secrets.*
+credentials.*
+
+# Python / notebooks
+__pycache__/
+.ipynb_checkpoints/
+.venv/
 venv/
-ENV/
-env.bak/
-venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# VS Code settings
-.vscode/
-
-# PyCharm settings
-.idea/
-
-# Local history
-.history/
-
-# OS files
+# OS/editor
 .DS_Store
 Thumbs.db

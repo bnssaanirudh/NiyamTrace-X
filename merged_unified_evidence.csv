@@ -1,0 +1,11 @@
+benchmark,model,family,slice,n,official_metric,metric,score,unsafe_rate,evidence_type,evidence_state,paper_eligible,source_package,claim_scope
+NiyamTrace-Bench3,Qwen3.5-122B,,,2000,decision_accuracy,,0.9985,0.0,frozen_internal,SUPPORTED,True,existing_master_results,main-paper-supported
+NiyamTrace-Bench3,GPT-OSS-120B,,,2000,decision_accuracy,,0.998,0.0,frozen_internal,SUPPORTED,True,existing_master_results,main-paper-supported
+NiyamTrace-Metamorphic,v2,,,10248,attack_recall,,0.8540202966432474,0.1459797033567526,controlled_hardening,SUPPORTED,True,existing_master_results,main-paper-supported
+NiyamTrace-Metamorphic,v3,,,10248,attack_recall,,1.0,0.0,controlled_hardening,SUPPORTED,True,existing_master_results,main-paper-supported
+tau3,qwen,Qwen,airline,1,tau_reward,reward,1.0,,external_quick_tau3,SUPPORTED,False,c68e54d0-bbc2-496a-a13b-36f8e89af2cf.zip,pilot/partial external evidence
+tau3,qwen,Qwen,retail,1,tau_reward,reward,0.0,,external_quick_tau3,SUPPORTED,False,c68e54d0-bbc2-496a-a13b-36f8e89af2cf.zip,pilot/partial external evidence
+tau3,qwen,Qwen,telecom,1,tau_reward,reward,0.0,,external_quick_tau3,SUPPORTED,False,c68e54d0-bbc2-496a-a13b-36f8e89af2cf.zip,pilot/partial external evidence
+tau3,gpt-oss,GPT-OSS,airline,1,tau_reward,reward,1.0,,external_quick_tau3,SUPPORTED,False,c68e54d0-bbc2-496a-a13b-36f8e89af2cf.zip,pilot/partial external evidence
+tau3,gpt-oss,GPT-OSS,retail,1,tau_reward,reward,1.0,,external_quick_tau3,SUPPORTED,False,c68e54d0-bbc2-496a-a13b-36f8e89af2cf.zip,pilot/partial external evidence
+tau3,gpt-oss,GPT-OSS,telecom,1,tau_reward,reward,0.0,,external_quick_tau3,SUPPORTED,False,c68e54d0-bbc2-496a-a13b-36f8e89af2cf.zip,pilot/partial external evidence
