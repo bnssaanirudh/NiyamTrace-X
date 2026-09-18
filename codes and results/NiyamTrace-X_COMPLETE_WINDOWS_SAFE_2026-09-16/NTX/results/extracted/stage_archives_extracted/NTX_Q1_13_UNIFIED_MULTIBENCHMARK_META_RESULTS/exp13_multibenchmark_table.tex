@@ -1,0 +1,14 @@
+\begin{table}
+\caption{Cross-benchmark and cross-model NiyamTrace-X evidence summary.}
+\label{tab:multibench}
+\begin{tabular}{llrrrrl}
+\toprule
+benchmark & model & accuracy & unsafe_rate & mapping_coverage & rank_accuracy & evidence_type \\
+\midrule
+NiyamTrace-Bench3 & Qwen3.5-122B & 0.9985 & 0.0000 & 1.0000 & 1.0000 & frozen_internal \\
+NiyamTrace-Bench3 & GPT-OSS-120B & 0.9980 & 0.0000 & 1.0000 & 2.0000 & frozen_internal \\
+NiyamTrace-Metamorphic & v2 & 0.8540 & 0.1460 & 1.0000 & 2.0000 & controlled_hardening \\
+NiyamTrace-Metamorphic & v3 & 1.0000 & 0.0000 & 1.0000 & 1.0000 & controlled_hardening \\
+\bottomrule
+\end{tabular}
+\end{table}

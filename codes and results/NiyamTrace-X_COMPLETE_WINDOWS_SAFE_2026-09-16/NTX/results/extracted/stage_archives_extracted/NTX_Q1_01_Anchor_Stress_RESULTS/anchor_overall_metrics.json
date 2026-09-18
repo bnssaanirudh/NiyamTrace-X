@@ -1,0 +1,10 @@
+{
+  "n": 16800,
+  "accuracy": 0.9996428571428572,
+  "unsafe_corruption_recall": 1.0,
+  "clean_false_positive_rate": 0.0025,
+  "tp": 14400,
+  "tn": 2394,
+  "fp": 6,
+  "fn": 0
+}

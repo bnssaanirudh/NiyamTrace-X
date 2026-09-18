@@ -1,0 +1,35 @@
+{
+  "experiment": "NTX-Q1-13",
+  "inputs": [
+    {
+      "zip": "NTX_Q1_09_ANCHOR_LOCK_V3_RESULTS.zip",
+      "status": "OK",
+      "sha256": "fc872a112a62293caaf6fff5cde3f2e1391442471ba50558621981da317260f0"
+    },
+    {
+      "zip": "NTX_Q1_10_BFCL_MLCL_MULTIMODEL_RESULTS.zip",
+      "status": "MISSING",
+      "sha256": ""
+    },
+    {
+      "zip": "NTX_Q1_11_AGENT_SECURITY_TRANSFER_RESULTS.zip",
+      "status": "MISSING",
+      "sha256": ""
+    },
+    {
+      "zip": "NTX_Q1_12_TAU3_STATEFUL_TRANSFER_RESULTS.zip",
+      "status": "MISSING",
+      "sha256": ""
+    }
+  ],
+  "evidence_rows": 4,
+  "result_files": {
+    "exp13_internal_reference.csv": "b783d57d0150ce9a99fdccb8a4f35b425cad958aae410efbace36db8c90a067a",
+    "exp13_multibenchmark_table.tex": "5774884631d672e5792c7f3c0b28896ca6de1953d3e2dd1cffb4d283d5c930bb",
+    "exp13_input_zip_status.csv": "6e80771d781fd2708cd710b9068316fcf3aab1c37b62c83f24d5404fc1221dbc",
+    "exp13_claim_evidence_checklist.csv": "1a39965ec743782566a5043fcb278dbd2f1f3cc9a3d52c575adeff78259262c2",
+    "exp13_per_benchmark_ranking.csv": "8c8b4eedb4f1c77046343bda1558f5f25ad101331e7367c4abe5e79eb1f84ae9",
+    "exp13_multibenchmark_matrix.png": "147c492b397e3f7ed1e4c4ab5ad379172234958a897dacb081dea9f7067518d6",
+    "exp13_unified_evidence_matrix.csv": "11a4d06d1ede19deffce0f211346d7f2a453232f54cde680684606c072c70bd8"
+  }
+}

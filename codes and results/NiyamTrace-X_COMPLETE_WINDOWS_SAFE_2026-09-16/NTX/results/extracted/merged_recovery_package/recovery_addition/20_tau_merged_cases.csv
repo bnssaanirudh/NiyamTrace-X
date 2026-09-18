@@ -1,0 +1,7 @@
+trajectory_index,task_id,trial,reward,error,benchmark,model,family,domain
+0,0,0,1.0,,tau3,qwen,Qwen,airline
+0,0,0,0.0,,tau3,qwen,Qwen,retail
+0,[mobile_data_issue]airplane_mode_on|user_abroad_roaming_enabled_off[PERSONA:None],0,0.0,,tau3,qwen,Qwen,telecom
+0,0,0,1.0,,tau3,gpt-oss,GPT-OSS,airline
+0,0,0,1.0,,tau3,gpt-oss,GPT-OSS,retail
+0,[mobile_data_issue]airplane_mode_on|user_abroad_roaming_enabled_off[PERSONA:None],0,0.0,,tau3,gpt-oss,GPT-OSS,telecom

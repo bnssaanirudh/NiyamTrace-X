@@ -1,0 +1,16 @@
+stage,notebook,result_archive,status,interpretation
+1,NTX_Q1_01_Semantic_Anchor_Stress.ipynb,01_Anchor_Stress_RESULTS.zip,COMPLETED,Parser false positives traced to 4-digit vendor IDs in 20xx range; not a fundamental guard failure.
+2,NTX_Q1_02_SIL_IIEA_Ablations.ipynb,02_SIL_IIEA_ABLATION_RESULTS.zip,PROPERTY_VALIDATION,Full=100% is partly circular/formal; do not present as independent empirical accuracy.
+3,NTX_Q1_03_Verified_Execution_Broker.ipynb,03_EXECUTION_BROKER_V1_RESULTS.zip,SUPERSEDED,V1 has TOCTOU/phantom-row flaw; retained only for history.
+4,NTX_Q1_04_Statistics_Reproducibility.ipynb,04_STATS_REPRO_RESULTS.zip,AUDIT_ONLY,Public 10k corpus duplicate audit; not the frozen 2k holdout.
+5,NTX_Q1_05_Frozen_Runtime_Ablation.ipynb,05_FROZEN_RUNTIME_ABLATION_RESULTS.zip,COMPLETED_PRIMARY,Primary frozen ablation; Anchor Lock is safety mechanism; clarification safe only after anchoring.
+6,NTX_Q1_06_Metamorphic_Semantic_Attack_Lab.ipynb,06_METAMORPHIC_ATTACK_LAB_RESULTS.zip,COMPLETED_DIAGNOSTIC,Exposed v2 matching-to-all weakness; superseded by v3 hardening for final defense claim.
+7,NTX_Q1_07_Verified_Execution_Broker_V2.ipynb,07_VERIFIED_EXECUTION_BROKER_V2_RESULTS.zip,COMPLETED_REFERENCE,1320 distinct randomized reference-broker scenarios; not production integration.
+8,NTX_Q1_08_Risk_Calibrated_Selective_Authorization.ipynb,08_RISK_CALIBRATED_AUTHORIZATION_RESULTS.zip,EXPLORATORY,"Threshold unstable across repeated splits; escalation aid, not safety guarantee."
+9,NTX_Q1_09_Anchor_Lock_V3_Hardening.ipynb,09_ANCHOR_LOCK_V3_RESULTS.zip,COMPLETED_STRONG,10248 critical attacks; v3 recall 100%; clean FPR 0; no new frozen triggers.
+10,NTX_Q1_10_BFCL_MLCL_MultiModel_External.ipynb,10_BFCL_MLCL_EXTERNAL_RESULTS.zip,INCOMPLETE,No valid benchmark-native BFCL/MLCL score retained.
+11,NTX_Q1_11_AgentDojo_AgentSafetyBench_Transfer.ipynb,11_AGENTDOJO_AGENTSAFETYBENCH_RESULTS.zip,INCOMPLETE,No valid official AgentDojo/Agent-SafetyBench scored transfer retained.
+12,NTX_Q1_12_Tau3_Stateful_MultiModel_Transfer.ipynb,12_TAU3_STATEFUL_TRANSFER_RESULTS.zip,INITIAL_INCOMPLETE,Initial run had environment/runtime issues; later targeted recovery yielded partial evidence.
+13,NTX_Q1_13_Unified_MultiBenchmark_MetaAnalysis.ipynb,13_UNIFIED_MULTIBENCHMARK_META_RESULTS.zip,META_ANALYSIS,Original meta-analysis had no genuine external evidence; final merged package supersedes external status.
+14,NTX_Q1_14_ICLR_TACL_Final_Validation.ipynb,14_FINAL_VALIDATION_QUICK_RUN_RESULTS.zip,VALIDATION_HARNESS,Useful integration evidence; failed external runs are not paper scores.
+15,NTX_Q1_15_Paper_Finisher_All_Formats.ipynb,15_PAPER_FINISHER_OUTPUT_ARCHIVE.zip,DOCUMENT_PIPELINE,"Paper-build pipeline; scientific claims come from experiment packages, not the finisher itself."

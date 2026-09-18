@@ -1,0 +1,4 @@
+comparison,b_full_correct,c_other_correct,exact_p
+full vs single_best,31504,0,0.0
+full vs intersection_only,5568,0,0.0
+full vs anchor_intersection,44,0,1.1368683772161603e-13

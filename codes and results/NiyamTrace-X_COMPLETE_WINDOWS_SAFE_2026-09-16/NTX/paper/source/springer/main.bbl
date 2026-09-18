@@ -1,0 +1,113 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{tau2bench2025}
+Barres, V., Dong, H., Ray, S., Si, X., Narasimhan, K.: $\tau^2$-bench:
+  Evaluating conversational agents in a dual-control environment (2025),
+  \url{https://arxiv.org/abs/2506.07982}
+
+\bibitem{agentdojo2024}
+Debenedetti, E., Zhang, J., Balunovi{\'c}, M., Beurer-Kellner, L., Fischer, M.,
+  Tram{\`e}r, F.: Agentdojo: A dynamic environment to evaluate prompt injection
+  attacks and defenses for llm agents (2024),
+  \url{https://arxiv.org/abs/2406.13352}
+
+\bibitem{vera2026}
+Feng, Y., Lin, R., Wen, M., He, Q., Guo, Y., Ding, Y., Wu, Y., Chen, J., Chen,
+  Y., Du, X., Ma, J., Chen, Z., Xu, Z., Ma, X., Deng, X.: Safety testing llm
+  agents at scale: From risk discovery to evidence-grounded verification
+  (2026), \url{https://arxiv.org/abs/2607.01793}
+
+\bibitem{attriguard2026}
+He, Y., Zhu, H., Li, Y., Shao, S., Yao, H., Liu, Z., Qin, Z.: Attriguard:
+  Defeating indirect prompt injection in llm agents via causal attribution of
+  tool invocations. In: 35th USENIX Security Symposium (USENIX Security 26).
+  pp. 1547--1566. USENIX Association (2026),
+  \url{https://www.usenix.org/conference/usenixsecurity26/presentation/he-yu}
+
+\bibitem{lostexecution2026}
+Luo, Z., Kutralingam, T.P., Okoani, O.N., Xu, W., Wei, H., Hu, X.: Lost in
+  execution: On the multilingual robustness of tool calling in large language
+  models. In: Proceedings of the 64th Annual Meeting of the Association for
+  Computational Linguistics (Volume 1: Long Papers). pp. 44059--44077.
+  Association for Computational Linguistics (2026).
+  \doi{10.18653/v1/2026.acl-long.2039}
+
+\bibitem{niyamtrace_repo}
+{NiyamTrace-X Authors}: Niyamtrace-x source repository. GitHub repository,
+  commit c14661dbd11c42ebd1019b6a1a5c49b8643da137 (2026),
+  \url{https://github.com/bnssaanirudh/NiyamTrace-X}
+
+\bibitem{gptoss120b}
+{OpenAI}: gpt-oss-120b and gpt-oss-20b model card (August 2025),
+  \url{https://openai.com/index/gpt-oss-model-card/}
+
+\bibitem{bfcl2025}
+Patil, S.G., Mao, H., Yan, F., Ji, C.C.J., Suresh, V., Stoica, I., Gonzalez,
+  J.E.: The berkeley function calling leaderboard (bfcl): From tool use to
+  agentic evaluation of large language models. In: Proceedings of the 42nd
+  International Conference on Machine Learning. vol.~267, pp. 48371--48392.
+  PMLR (2025), \url{https://proceedings.mlr.press/v267/patil25a.html}
+
+\bibitem{qwen35}
+{Qwen Team}: Qwen3.5: Towards native multimodal agents (February 2026),
+  \url{https://qwen.ai/blog?id=qwen3.5}, model repository:
+  Qwen/Qwen3.5-122B-A10B-FP8
+
+\bibitem{toolemu2024}
+Ruan, Y., Dong, H., Wang, A., Pitis, S., Zhou, Y., Ba, J., Dubois, Y.,
+  Maddison, C.J., Hashimoto, T.: Identifying the risks of lm agents with an
+  lm-emulated sandbox. In: International Conference on Learning Representations
+  (2024), \url{https://arxiv.org/abs/2309.15817}
+
+\bibitem{agentflow2026}
+Shivakumar, B.A., Priya, S., Gao, P.: Agentflow: A flow-centric policy language
+  and framework for securing llm agent systems (2026),
+  \url{https://arxiv.org/abs/2608.22868}
+
+\bibitem{aidguard2026}
+Tong, Y., Dai, L., Guo, S.: Aid-guard: Stateful authorization for delegated
+  agent effects (2026), \url{https://arxiv.org/abs/2608.21159}
+
+\bibitem{clawsentry2026}
+Wang, K., Wei, Z., Zeng, B., Jin, C., Wang, A., Luan, X., Lin, Z., Qu, J., Hu,
+  X., Xu, X.: Clawsentry: A progressive multi-tier security monitor for
+  safeguarding autonomous llm agents (2026),
+  \url{https://arxiv.org/abs/2608.21101}
+
+\bibitem{taubench2024}
+Yao, S., Shinn, N., Razavi, P., Narasimhan, K.: $\tau$-bench: A benchmark for
+  tool-agent-user interaction in real-world domains (2024),
+  \url{https://arxiv.org/abs/2406.12045}
+
+\bibitem{react2023}
+Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K., Cao, Y.: React:
+  Synergizing reasoning and acting in language models. In: International
+  Conference on Learning Representations (2023),
+  \url{https://arxiv.org/abs/2210.03629}
+
+\bibitem{injecagent2024}
+Zhan, Q., Liang, Z., Ying, Z., Kang, D.: Injecagent: Benchmarking indirect
+  prompt injections in tool-integrated large language model agents. In:
+  Findings of the Association for Computational Linguistics: ACL 2024. pp.
+  10471--10506 (2024). \doi{10.18653/v1/2024.findings-acl.624}
+
+\bibitem{asb2025}
+Zhang, H., Huang, J., Mei, K., Yao, Y., Wang, Z., Zhan, C., Wang, H., Zhang,
+  Y.: Agent security bench (asb): Formalizing and benchmarking attacks and
+  defenses in llm-based agents. In: International Conference on Learning
+  Representations (2025), \url{https://arxiv.org/abs/2410.02644}
+
+\bibitem{authcontinuity2026}
+Zhang, Z., Zhang, X.: Are you still the agent i authorized? earned authority
+  under a fixed ceiling for evolving agents (2026),
+  \url{https://arxiv.org/abs/2607.23586}
+
+\bibitem{agentsafetybench2024}
+Zhang, Z., Cui, S., Lu, Y., Zhou, J., Yang, J., Wang, H., Huang, M.:
+  Agent-safetybench: Evaluating the safety of llm agents (2024),
+  \url{https://arxiv.org/abs/2412.14470}
+
+\end{thebibliography}

@@ -1,0 +1,513 @@
+\section{Introduction}
+
+LLM agents increasingly combine language reasoning with external tools, databases, files, communication systems, and transactional APIs \cite{react2023,taubench2024}. This transition changes the safety problem: an error is no longer merely an incorrect answer; it can become an incorrect external effect. Benchmarks such as ToolEmu, AgentDojo, InjecAgent, Agent Security Bench, and Agent-SafetyBench document substantial failure rates under realistic tool use and adversarial conditions \cite{toolemu2024,agentdojo2024,injecagent2024,asb2025,agentsafetybench2024}.
+
+A common architecture can be summarized as
+\begin{equation}
+  u \rightarrow \hat{i} \rightarrow t \rightarrow e,
+\end{equation}
+where a natural-language instruction $u$ is mapped to a single inferred intent $\hat{i}$, then to a tool call $t$, and finally to an external effect $e$. Most downstream authorization logic begins after $\hat{i}$ has already been chosen. That creates a semantic single-point-of-failure: if the selected interpretation silently loses a negation, alters a quantifier, changes an entity, or resolves ambiguity incorrectly, a downstream policy engine may faithfully authorize the wrong meaning.
+
+Multilingual tool use magnifies this problem. Recent work reports that models can preserve high-level intent while corrupting execution-critical parameter values across languages \cite{lostexecution2026}. In our own holdout, exact semantic accuracy for Qwen on Romanized Telugu is only 62.6\%, yet the final authorization decision remains correct in 99.8\% of those cases. This gap motivates a different objective: rather than requiring the semantic model to be perfectly right, the runtime should prevent model uncertainty from expanding authority.
+
+We therefore ask:
+\begin{quote}
+\emph{What is the largest real-world effect trajectory that is safe under every still-plausible meaning of a user instruction?}
+\end{quote}
+
+\system answers this question by preserving a set of plausible semantic contracts, compiling them into effect programs, and authorizing only their common safe core. The runtime also performs a separate surface-to-contract check---Semantic Anchor Lock---for high-risk tokens and relations such as identifiers, dates, amounts, negations, and quantifiers. A clarification gate then restores utility only when remaining semantic differences are effect-equivalent to authenticated authorization.
+
+\paragraph{Contributions.}
+This paper makes six contributions:
+\begin{enumerate}
+  \item \textbf{Set-valued semantic authorization.} We authorize over the set of still-plausible meanings rather than one selected intent.
+  \item \textbf{Interpretation-intersected effects.} We define a Semantic Interpretation Lattice (SIL) and Interpretation-Intersected Effect Automaton (IIEA) whose accepted language is the intersection of effect languages induced by plausible interpretations.
+  \item \textbf{Anchor-constrained utility recovery.} Semantic Anchor Lock preserves critical surface constraints, while the Clarification Evidence Gate recovers utility only after those constraints have been enforced.
+  \item \textbf{Frozen cross-model evaluation and real component ablation.} On the same 2,000-case group-disjoint holdout, two 120B-class model families end with zero observed unsafe \allow decisions and zero false blocks; frozen per-case logs permit a non-synthetic component ablation and group-clustered uncertainty analysis.
+  \item \textbf{Post-freeze adversarial hardening.} Metamorphic testing discovers a scope-broadening weakness in v2 and Anchor Lock v3 closes all 1,496 discovered misses without adding a trigger on any evaluable frozen model output.
+  \item \textbf{Execution-boundary reference design and reproducibility.} We retain the exact frozen dataset, per-case outputs, runtime source hashes, and a separate transaction-first execution-broker prototype, while explicitly distinguishing reference results from production integration.
+\end{enumerate}
+
+\section{Threat Model and Scope}
+
+We consider an LLM agent that receives a natural-language instruction, constructs a semantic contract, proposes one or more tool calls, and passes them to an authorization layer. Failures may arise from ambiguity, multilingual translation, transliteration, model hallucination, or adversarially chosen wording. Security-relevant semantic failures include:
+\begin{itemize}
+  \item entity substitution or widening;
+  \item temporal scope loss;
+  \item negation deletion;
+  \item quantifier drift (e.g., \emph{all} $\rightarrow$ \emph{matching});
+  \item value, currency, recipient, or permission drift;
+  \item hallucinated critical slots; and
+  \item malformed structured output.
+\end{itemize}
+
+The evaluated protection target is the boundary
+\[
+\text{language interpretation}\rightarrow\text{effect authorization decision}.
+\]
+We do \emph{not} claim complete mediation of external providers, replay-safe execution, crash recovery, or commit-time state revalidation in the current prototype. Our repository audit in \cref{sec:audit} makes this limitation explicit.
+
+\section{From Meanings to Effect Sets}
+
+\subsection{Interpretation Sets}
+For instruction $u$, let
+\begin{equation}
+I(u)=\{C_1,C_2,\dots,C_k\}
+\end{equation}
+denote the set of still-plausible semantic contracts. Each $C_i$ contains an action and security-critical slots such as entity, temporal scope, amount, currency, recipient, negation, quantifier, and unresolved uncertainty.
+
+We distinguish two objects that are often conflated. \texttt{semantic\_expected} records the meaning literally supported by the language, whereas \texttt{authorized\_contract} records the meaning permitted by policy and authentication. This separation lets an instruction be semantically well understood but unauthorized, or linguistically ambiguous but safely resolvable only through clarification.
+
+\subsection{Semantic Interpretation Lattice}
+The SIL labels relations between candidate interpretations as \texttt{EQUIVALENT}, \texttt{NARROWER}, \texttt{BROADER}, \texttt{DISJOINT}, \texttt{CONTRADICTORY}, or \texttt{PARTIAL\_OVERLAP}. The relation is security-relevant: a narrower reading may lose utility, whereas a broader reading can introduce unauthorized effects.
+
+\subsection{Effect Programs and the Safe Core}
+Each contract compiles to an effect language $L_i$ describing the effect trajectories compatible with $C_i$. The robust safe core is
+\begin{equation}
+  \safeCore = \bigcap_i L_i,
+  \label{eq:safecore}
+\end{equation}
+and the union of effects compatible with at least one interpretation is
+\begin{equation}
+  \unionEff = \bigcup_i L_i.
+\end{equation}
+The ambiguous fringe is
+\begin{equation}
+  \fringe = \unionEff - \safeCore.
+\end{equation}
+For a proposed effect $e$, \system applies
+\begin{equation}
+\operatorname{decision}(e)=
+\begin{cases}
+\allow, & e\in\safeCore\text{ and policy permits},\\
+\clarify, & e\in\fringe,\\
+\block, & e\notin\unionEff.
+\end{cases}
+\end{equation}
+Thus semantic uncertainty contracts authority rather than expanding it.
+
+\subsection{Interpretation-Intersected Effect Automaton}
+For interpretation $C_i$, let
+\[
+M_i=(Q_i,\Sigma,\delta_i,q_i^0,F_i)
+\]
+be an automaton over effect-relevant transitions. We define
+\begin{equation}
+M^\star=\bigcap_i M_i
+\end{equation}
+such that
+\begin{equation}
+L(M^\star)=\bigcap_i L(M_i).
+\end{equation}
+The automaton view matters for multi-step tools because two interpretations may share an initial prefix yet diverge near an irreversible frontier.
+
+\section{NiyamTrace-X Runtime}
+
+\begin{figure*}[t]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=4mm and 6mm,
+  box/.style={draw,rounded corners=2pt,align=center,minimum height=8mm,minimum width=24mm,font=\small,fill=white},
+  guard/.style={box,draw=safe,very thick},
+  model/.style={box,draw=softblue,very thick},
+  decision/.style={box,draw=warn,very thick},
+  arr/.style={-{Latex[length=2mm]},thick}
+]
+\node[box] (u) {User\\instruction};
+\node[model,right=of u] (views) {Multilingual\\semantic views};
+\node[model,right=of views] (iset) {Interpretation\\set $I(u)$};
+\node[guard,right=of iset] (anchor) {Semantic\\Anchor Lock};
+\node[box,right=of anchor] (effect) {Effect-program\\compilation};
+\node[guard,right=of effect] (iiea) {IIEA /\\safe core $\safeCore$};
+\node[decision,right=of iiea] (dec) {\allow / \clarify /\\\block};
+\draw[arr] (u)--(views);
+\draw[arr] (views)--(iset);
+\draw[arr] (iset)--(anchor);
+\draw[arr] (anchor)--(effect);
+\draw[arr] (effect)--(iiea);
+\draw[arr] (iiea)--(dec);
+\node[decision,below=6mm of iiea] (clar) {Clarification Evidence Gate};
+\draw[arr] (iset.south) |- (clar.west);
+\draw[arr] (clar.east) -| (dec.south);
+\end{tikzpicture}%
+}
+\caption{Evaluated semantic-to-effect authorization path. The present paper evaluates the path through the final authorization decision; complete provider-side execution mediation remains future work.}
+\label{fig:architecture}
+\end{figure*}
+
+\subsection{Multilingual Semantic Views}
+For a surface instruction $u$, the implementation can reason over views such as
+\[
+\begin{aligned}
+V(u)=\{&u_{\text{native}},u_{\text{normalized}},u_{\text{transliterated}},\\
+         &u_{\text{pivot}},u_{\text{paraphrase}}\}.
+\end{aligned}
+\]
+These views may help enumerate interpretations but do not independently authorize effects.
+
+\subsection{Semantic Anchor Lock}
+The semantic model is not trusted merely because it emits schema-valid JSON. Anchor Lock independently checks security-critical surface information, including:
+\begin{itemize}
+  \item entity IDs and recipients;
+  \item dates and durations;
+  \item amounts and currencies;
+  \item negations and exceptions;
+  \item quantifiers such as \emph{all}, \emph{only}, \emph{exactly}, and \emph{at most}; and
+  \item permission or destructive-action terms.
+\end{itemize}
+
+For example, if the surface instruction explicitly contains a broad quantifier but the candidate contract silently contracts it to \texttt{matching}, the surface-to-contract mapping is rejected. This is precisely the failure observed in both GPT-OSS raw unsafe \allow cases in our holdout.
+
+\subsection{Clarification Evidence Gate}
+Conservative set-valued semantics can over-clarify. The clarification gate suppresses a model-requested clarification only when all surviving candidates are effect-equivalent to the authenticated authorization, no unresolved critical disagreement remains, required slots remain surface-grounded, and no hallucinated critical field is introduced. In the intended composition, the gate runs only after anchor enforcement: it may recover utility relative to a conservative clarification, but it is not itself a standalone safety boundary. The ablation in Section~\ref{tab:ablation} makes this dependency explicit.
+
+\subsection{Decision and Error Taxonomy}
+We track semantic and execution-relevant error classes including \texttt{ENTITY\_ERROR}, \texttt{TIME\_ERROR}, \texttt{VALUE\_ERROR}, \texttt{SCOPE\_ERROR}, \texttt{NEGATION\_ERROR}, \texttt{QUANTIFIER\_ERROR}, \texttt{AUTHORITY\_ERROR}, \texttt{POLICY\_ERROR}, \texttt{SIMULATION\_ERROR}, and \texttt{EXECUTION\_ERROR}. The present benchmark evaluates the semantic-to-authorization portion of this taxonomy.
+
+\section{NiyamTrace-Bench 3}
+
+\subsection{Grouped Multilingual Construction}
+\bench contains 2,500 semantic groups, each rendered in four language/script conditions:
+\begin{itemize}
+  \item English Latin script (\texttt{eng\_Latn});
+  \item Romanized Hindi (\texttt{hin\_Latn});
+  \item Romanized Telugu (\texttt{tel\_Latn}); and
+  \item Telugu script (\texttt{tel\_Telu}).
+\end{itemize}
+This yields 10,000 generated cases. Relations are approximately balanced across EQUIVALENT, NARROWER, BROADER, NEGATED, ENTITY\_SHIFT, TEMPORAL\_SHIFT, VALUE\_SHIFT, and AMBIGUOUS.
+
+\subsection{Group-Disjoint Internal Holdout}
+The primary evaluation uses 500 semantic groups (2,000 cases) with no overlap with development groups. The holdout contains 360 LOW, 788 MEDIUM, 588 HIGH, and 264 CRITICAL risk cases. We deliberately call this an \emph{internal group-disjoint holdout}; it is not an external benchmark.
+
+\subsection{Metrics}
+We report decision accuracy, semantic accuracy, schema validity, critical-slot accuracy, clarification precision/recall/match, safe-action completion, unsafe-\allow rate, false-block rate, unnecessary clarification, runtime errors, per-language/per-relation results, and cross-lingual consistency. We define an unsafe \allow as
+\begin{equation}
+  \hat y=\allow \land y\neq\allow.
+\end{equation}
+This metric is security-distinct from ordinary classification error because it authorizes an effect that should not proceed.
+
+\section{Experimental Setup}
+
+\paragraph{Models.}
+We evaluate Qwen3.5-122B-A10B-FP8 \cite{qwen35} at revision \texttt{a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9} and GPT-OSS-120B \cite{gptoss120b} at revision \texttt{b5c939de8f754692c1647ca79fbf85e8c1e70f8a}. Both are served with vLLM on one AMD Instinct MI300X GPU.
+
+\paragraph{Freeze discipline.}
+The interpretation client, prompt, schema, scoring, IIEA, runner, Anchor Lock, clarification gate, and holdout dataset were hash-frozen before the GPT-OSS holdout. Holdout observations were not used to patch v2. This is important because several visible failures would otherwise be easy to repair post hoc. We additionally verified the retained emergency archive byte-for-byte: its SHA-256 exactly matches the value in the frozen reproducibility record. The archive contains the complete 2,000-case holdout and both 2,000-row per-case model result files; their SHA-256 values also match the frozen dataset, Qwen, and GPT-OSS hashes.
+
+\paragraph{Inference.}
+Each model receives the same semantic extraction prompt and schema. Qwen inference disables model reasoning for structured output. GPT-OSS returns reasoning separately from content. The benchmark records individual latency but we do not use cross-model latency as a primary conclusion because cache/warm-start conditions differ between the two large runs.
+
+\section{Results}
+
+\begin{table*}[t]
+\centering
+\caption{Primary 2,000-case group-disjoint internal holdout. ``Raw unsafe'' is measured before the frozen Anchor Lock / clarification interventions; ``final unsafe'' is measured after the full v2 runtime.}
+\label{tab:main}
+\begin{tabular}{lrr}
+\toprule
+Metric & Qwen3.5-122B & GPT-OSS-120B \\
+\midrule
+Decision accuracy & \textbf{99.85\%} & \textbf{99.80\%} \\
+Decision correct & 1,997 / 2,000 & 1,996 / 2,000 \\
+Semantic accuracy & 85.25\% & 85.75\% \\
+Schema validity & 100.00\% & 99.80\% \\
+Critical-slot accuracy & 99.41\% & 99.54\% \\
+Clarification match & 89.65\% & 89.25\% \\
+Clarification precision & 99.20\% & 100.00\% \\
+Clarification recall & 99.60\% & 98.79\% \\
+Safe-action completion & 99.60\% & 100.00\% \\
+Raw unsafe \allow decisions & 80 & 2 \\
+Anchor-prevented unsafe \allow & 80 / 80 & 2 / 2 \\
+Final unsafe \allow decisions & \textbf{0} & \textbf{0} \\
+False blocks & \textbf{0} & \textbf{0} \\
+Runtime / parse errors & 0 & 4 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Qwen: Safety and Utility Interventions}
+Before runtime guards, Qwen obtains 94.55\% decision accuracy and produces 80 unsafe \allow decisions. The full frozen runtime reaches 99.85\% decision accuracy. Across paired cases, 106 raw-wrong decisions become correct, while zero raw-correct decisions become wrong. Exact McNemar testing yields
+\[
+p=2.465190328815662\times10^{-32}.
+\]
+
+Anchor Lock triggers 87 times: 80 unsafe \allow decisions are intercepted, six raw \clarify decisions are conservatively hardened to \block, and one already-blocked case remains blocked. All 87 triggered cases have expected verdict \block. Violation types are 62 negation failures, 24 broad-quantifier failures, and one vendor-identity failure. No Anchor Lock false positive is observed.
+
+The clarification gate suppresses 20 clarifications; all 20 cases have expected verdict \allow and all 20 finish as \allow. Thus the gate recovers utility without an observed unsafe suppression on this holdout.
+
+\subsection{Frozen Runtime Component Ablation}
+Using the recovered per-case frozen logs, we reconstruct a $2\times2$ component ablation without re-querying either language model. The four stages are the raw policy verdict (base), Anchor Lock alone, the Clarification Evidence Gate alone, and the frozen full runtime. This is a deterministic replay of recorded interventions rather than a new model-generation experiment.
+
+\begin{table*}[t]
+\centering
+\caption{Component ablation reconstructed from the frozen 2,000-case per-model logs. Unsafe \allow counts cases predicted \allow when the expected verdict is not \allow.}
+\label{tab:ablation}
+\begin{tabular}{lrrrr}
+\toprule
+Stage & Qwen accuracy & Qwen unsafe \allow & GPT-OSS accuracy & GPT-OSS unsafe \allow \\
+\midrule
+Base & 94.55\% & 80 & 99.70\% & 2 \\
+Anchor only & 98.85\% & 0 & 99.80\% & 0 \\
+Clarification only & 95.55\% & 80 & 99.70\% & 6 \\
+Full & \textbf{99.85\%} & \textbf{0} & \textbf{99.80\%} & \textbf{0} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+For Qwen, the two-component Shapley-style decomposition attributes $+4.30$ percentage points of decision accuracy to Anchor Lock and $+1.00$ point to clarification recovery, with zero residual interaction in the recorded intervention pattern. Anchor Lock accounts for the full reduction of 80 unsafe \allow decisions, whereas clarification recovery corrects 20 utility errors. GPT-OSS exposes an important composition effect: the base stage has two unsafe \allow decisions, Anchor Lock alone removes both, but the clarification gate \emph{without} Anchor Lock produces six unsafe \allow decisions. The intended full ordering still finishes with zero. Thus the clarification gate should be interpreted as a utility-recovery mechanism downstream of an authority-constraining guard, not as an independent safety mechanism.
+
+
+
+\subsection{GPT-OSS: Different Raw Failure Mode}
+GPT-OSS is much stronger before the guard: 99.70\% raw accuracy with only two unsafe \allow decisions. Both are Hindi BROADER cases containing \emph{sabhi} (``all'') in the surface instruction. The model contracts the candidate scope to \texttt{matching}; Anchor Lock flags \texttt{quantifier\_all} and changes both raw \allow decisions to \block. The full v2 runtime reaches 99.80\% accuracy. Because only two paired errors are corrected, the accuracy improvement alone is not statistically significant ($p=0.5$); the security-relevant observation is 2/2 observed unsafe raw authorizations intercepted with zero regression.
+
+GPT-OSS has four final failures, all in Romanized Hindi: one Pydantic schema error, one null-handling error, and two malformed JSON outputs. All four result in ERROR rather than \allow and are retained as failures.
+
+\subsection{Cross-Model Replication}
+\begin{table}[t]
+\centering
+\caption{Paired final-decision comparison on identical holdout cases.}
+\label{tab:paired}
+\begin{tabular}{lr}
+\toprule
+Outcome & Count \\
+\midrule
+Both correct & 1,993 \\
+Qwen correct, GPT-OSS wrong & 4 \\
+GPT-OSS correct, Qwen wrong & 3 \\
+Both wrong & 0 \\
+Different final verdicts & 7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The models disagree on 7/2,000 final verdicts (0.35\%). Paired McNemar testing has $b=4$, $c=3$, and exact two-sided $p=1.0$, providing no evidence that their final decision accuracies differ. A 50,000-replicate cluster bootstrap that resamples the 500 semantic groups while keeping each four-language group intact estimates the Qwen--GPT-OSS final-accuracy difference as $+0.05$ percentage points with a 95\% percentile interval of $[-0.15,+0.25]$ points, again spanning zero. No case is wrong for both models. We treat the latter as a retrospective observation, not as a 100\% deployable ensemble result because no safe arbitration rule is evaluated.
+
+\subsection{Semantic Accuracy Is Not Effect Safety}
+\begin{table}[t]
+\centering
+\caption{Qwen semantic vs. final decision accuracy by language.}
+\label{tab:lang}
+\begin{tabular}{lrr}
+\toprule
+Language & Semantic & Decision \\
+\midrule
+English & 96.2\% & 100.0\% \\
+Romanized Hindi & 90.2\% & 99.6\% \\
+Romanized Telugu & 62.6\% & 99.8\% \\
+Telugu script & 92.0\% & 100.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Romanized Telugu provides the clearest separation between model interpretation quality and authorization safety: exact semantic accuracy is only 62.6\%, yet final decision accuracy is 99.8\%. The architecture does not make semantic errors harmless; it prevents many semantic errors from automatically becoming unauthorized effects.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.96\textwidth]{figures/paper_semantic_decision_gap.png}
+\caption{Decision--semantic accuracy separation by model and language. The largest gap occurs for Qwen on Romanized Telugu (37.2 percentage points), while final authorization accuracy remains 99.8\%. The plot visualizes the manuscript values; it does not imply that semantic errors are harmless.}
+\label{fig:semantic-gap}
+\end{figure*}
+
+\subsection{Post-Freeze Metamorphic Hardening: Anchor Lock V3}
+The frozen v2 runtime is retained unchanged for the primary holdout. We then run a separate post-freeze metamorphic campaign designed to stress entity, date, month, amount, currency, negation, and quantifier preservation. The campaign contains 10,248 critical attacks and 2,000 clean controls. V2 detects 85.40\% of attacks with zero clean false positives; all 1,496 misses are concentrated in \texttt{matching}$\rightarrow$\texttt{all} scope broadening. Anchor Lock v3 treats explicit matching scope as a first-class authority ceiling and closes all discovered misses.
+
+\begin{table}[t]
+\centering
+\caption{Post-freeze controlled metamorphic hardening. These results are separate from the frozen v2 primary holdout.}
+\label{tab:v3}
+\begin{tabular}{lrr}
+\toprule
+Metric & Anchor v2 & Anchor v3 \\
+\midrule
+Critical attacks & 10,248 & 10,248 \\
+Attack recall & 85.40\% & \textbf{100.00\%} \\
+Misses & 1,496 & \textbf{0} \\
+Clean controls & 2,000 & 2,000 \\
+Clean false-positive rate & 0.00\% & \textbf{0.00\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/master09_anchor_v3_recall.png}
+\caption{Metamorphic recall before and after post-freeze hardening. The v2 deficit is entirely due to the controlled matching-scope broadening family; v3 closes all 1,496 discovered misses.}
+\label{fig:v3}
+\end{figure}
+
+To check non-regression against recorded primary outputs, we replay v3 over all evaluable frozen model results. It introduces zero new triggers on 2,000/2,000 Qwen outputs and 1,996/2,000 GPT-OSS outputs; four GPT-OSS rows are not evaluable because the original model output itself failed schema/JSON parsing. This is a non-regression replay, not a re-estimation of the frozen v2 headline accuracy.
+
+\subsection{Zero-Event Interpretation}
+The holdout contains 1,496 cases whose expected verdict is not \allow. For each model, zero unsafe final \allow decisions are observed. For zero events in $n$ Bernoulli opportunities, the one-sided 95\% exact upper bound is
+\begin{equation}
+  p_{\mathrm{upper}}=1-0.05^{1/n}.
+\end{equation}
+For $n=1496$,
+\[
+p_{\mathrm{upper}}\approx0.0020005\approx0.20\%.
+\]
+We therefore report \emph{zero observed unsafe \allow decisions}, not zero true risk. Because both models are evaluated on the same cases, we do not pool the runs as 2,992 independent safety opportunities. At the dependence-aware semantic-group level, 374 of the 500 groups contain at least one non-\allow case and zero such groups contain a final unsafe \allow. Treating these 374 semantic groups as the sampling unit gives a one-sided 95\% zero-event upper bound of approximately 0.80\% on the probability that an eligible group contains at least one unsafe \allow. This is a different, more conservative group-level estimand than the 0.20\% per-case bound.
+
+
+\paragraph{Case- and group-level uncertainty.}
+Recomputing two-sided exact binomial intervals from the final counts gives 99.562--99.969\% for Qwen (1,997/2,000) and 99.489--99.945\% for GPT-OSS (1,996/2,000). Because four language realizations share each semantic group, we also use the recovered frozen per-case files to run a 50,000-replicate group-clustered bootstrap, resampling the 500 semantic groups with replacement while preserving all four language realizations within each sampled group. The resulting 95\% percentile intervals are 99.65--100.00\% for Qwen decision accuracy and 99.60--99.95\% for GPT-OSS. Semantic-accuracy intervals are 83.30--87.10\% and 82.85--88.50\%, respectively. For Qwen, the final-minus-raw decision-accuracy gain is $+5.30$ percentage points with a clustered 95\% interval of $[+4.40,+6.20]$ points.
+
+\begin{table*}[t]
+\centering
+\caption{Group-clustered bootstrap over 500 semantic groups (50,000 replicates; all four language realizations kept within cluster). Intervals are percentile 95\% intervals and quantify sampling variability over semantic groups rather than treating the 2,000 rows as independent.}
+\label{tab:cluster-bootstrap}
+\begin{tabular}{lrr}
+\toprule
+Quantity & Point estimate & Clustered 95\% interval \\
+\midrule
+Qwen final decision accuracy & 99.85\% & [99.65\%, 100.00\%] \\
+GPT-OSS final decision accuracy & 99.80\% & [99.60\%, 99.95\%] \\
+Qwen semantic accuracy & 85.25\% & [83.30\%, 87.10\%] \\
+GPT-OSS semantic accuracy & 85.75\% & [82.85\%, 88.50\%] \\
+Qwen final $-$ raw decision accuracy & +5.30 pp & [+4.40, +6.20] pp \\
+Qwen $-$ GPT-OSS final decision accuracy & +0.05 pp & [-0.15, +0.25] pp \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Reference Verified Execution Broker V2}
+A first reference broker exposed a time-of-check/time-of-use window because state verification preceded acquisition of the write transaction. We therefore rebuilt the prototype around a transaction-first critical section: the broker acquires a SQLite write transaction before nonce, snapshot, predicted-target, and policy validation, recomputes the current effect set under the same transaction, checks exact predicted-versus-actual deltas, records the nonce persistently, and commits only if every equality holds.
+
+The corrected reference design is evaluated on 1,320 distinct randomized scenarios (120 independently generated database/argument states for each of 11 conditions). All 120 valid cases commit. Across argument tampering, forged signatures, policy changes, predicted-target tampering, replay, stale snapshots, expiry, actor mismatch, tool mismatch, and crash-before-commit, all 1,200 non-valid trials fail closed or roll back. Each condition contains 120 unique database states and 120 unique argument sets. A targeted regression also reproduces the former phantom-row race and confirms that the transaction-first ordering prevents the extra row from entering the committed effect set. These results evaluate an isolated reference broker; the public executor remains unchanged and is not claimed to provide complete mediation.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/exp07_attack_matrix.png}
+\caption{Verified Execution Broker V2 reference stress test. Each condition uses 120 distinct randomized states/arguments; valid cases commit and all tested invalid/crash conditions fail closed. This figure is evidence for the isolated reference broker, not production integration.}
+\label{fig:veb-v2}
+\end{figure}
+
+
+\subsection{Targeted External $\tau^3$ Pilot}
+After repairing the external-evaluation harness, a targeted QUICK recovery run produced six benchmark-native $\tau^3$ trajectories across two hosted model families, with one task per model in each of the airline, retail, and telecom domains. Qwen obtained rewards $[1,0,0]$ (mean 0.33), while GPT-OSS obtained $[1,1,0]$ (mean 0.67), for an overall mean reward of 0.50 across the six completed trajectories. Table~\ref{tab:tau-pilot} reports the native rewards without pooling them with any internal metric.
+
+\begin{table}[t]
+\centering
+\caption{Targeted external $\tau^3$ QUICK pilot. Each cell is one native task reward; the pilot is partial evidence, not a benchmark-level generalization claim.}
+\label{tab:tau-pilot}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Model & Airline & Retail & Telecom & Mean \\
+\midrule
+Qwen & 1.0 & 0.0 & 0.0 & 0.33 \\
+GPT-OSS & 1.0 & 1.0 & 0.0 & 0.67 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The pilot establishes that the repaired harness can complete and retain native stateful trajectories, but its statistical scope is intentionally narrow: $n=1$ task per domain/model and only two completed model families. A GLM recovery attempt produced no valid evaluated trajectory, and retained BFCL and AgentDojo recovery attempts produced no valid benchmark-native score. We therefore classify $\tau^3$ as \emph{partial external evidence} and continue to exclude BFCL, AgentDojo, MLCL, and three-family external generalization from the paper's supported claims.
+
+\subsection{Local T4 Open-Weight Transfer Pilot}
+To probe whether the evaluation harness also survives local, quota-free inference, we ran a bounded replication on a single NVIDIA T4 (15~GB) using an isolated vLLM 0.29 runtime. The objective was portability and failure diagnosis rather than a full benchmark sweep. Six ungated checkpoints reached local preflight. Four returned a valid \emph{automatic} function call under an OpenAI-compatible interface: Granite-3.3-2B, Qwen2.5-3B, Qwen2.5-7B-AWQ, and xLAM-2-3B. Phi-4-mini and xLAM-1B answered ordinary chat requests and obeyed a forced function call, but did not autonomously invoke the function under the preflight prompt, so they were excluded from agent benchmarks. The gated Llama checkpoint was not attempted.
+
+\begin{table*}[t]
+\centering
+\caption{Bounded local-T4 transfer pilot. ``Auto tool'' is the preflight automatic function-call test. AgentDojo reports the two retained banking traces as attacked utility/security and no-injection utility/security. $\tau^3$ cells are native rewards; NE means not evaluable. BFCL produced no retained score before timeout for the four auto-tool-capable checkpoints.}
+\label{tab:local-t4-pilot}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
+\toprule
+Checkpoint & Auto tool & BFCL & AgentDojo banking & Local $\tau^3$ \\
+\midrule
+Granite-3.3-2B & yes & timeout/no score & attack 0/0; base 1/1 & airline 1; retail 0; telecom NE \\
+Qwen2.5-3B & yes & timeout/no score & attack 0/0; base 0/1 & airline NE; retail NE; telecom NE \\
+xLAM-2-3B & yes & timeout/no score & not run & not run \\
+Qwen2.5-7B-AWQ & yes & timeout/no score & not run & not run \\
+Phi-4-mini & no (forced: yes) & not run & not run & not run \\
+xLAM-1B & no (forced: yes) & not run & not run & not run \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+The local run is useful mainly because it makes the external boundary conditions explicit. AgentDojo banking produced two retained traces per fully benchmarked model. Under the attacked banking task, both Granite and Qwen obtained utility/security $(0,0)$; without injection, Granite obtained $(1,1)$ while Qwen obtained $(0,1)$. The workspace, travel, and Slack slices exceeded the configured 3,072-token context and were not scored. In local $\tau^3$, Granite completed airline and retail with rewards $1$ and $0$, while telecom exceeded the context budget; all three Qwen trajectories exceeded that budget. The BFCL runners timed out without a retained official metric. A Ministral-3-3B-BF16 attempt also failed before inference because of a vLLM/Transformers Pixtral compatibility error. These outcomes are therefore reported as \emph{diagnostic external evidence}, not as benchmark success, and they do not upgrade the three-family generalization claim.
+
+
+\section{Related Work}
+\paragraph{Tool use and function-calling evaluation.}
+ReAct established the now-standard pattern of interleaving reasoning and environment actions \cite{react2023}. ToolEmu showed that realistic tool use creates failures with material external consequences and introduced scalable sandboxed risk evaluation \cite{toolemu2024}. BFCL provides a broad function-calling benchmark spanning serial, parallel, abstention, multi-turn, and agentic settings \cite{bfcl2025}. The $\tau$-bench and $\tau^2$-bench lines evaluate policy-constrained conversational agents in stateful environments, including dual-control interaction where users can also act on shared state \cite{taubench2024,tau2bench2025}.
+
+\paragraph{Agent security benchmarks.}
+InjecAgent measures indirect prompt injection against tool-integrated agents \cite{injecagent2024}; AgentDojo supplies an extensible environment with benign tasks, attacks, and defenses \cite{agentdojo2024}; Agent Security Bench systematizes attacks and defenses across many tools and scenarios \cite{asb2025}; and Agent-SafetyBench broadens evaluation across interaction environments and safety-risk categories \cite{agentsafetybench2024}. These suites motivate defenses that mediate agent actions rather than relying only on model-level refusal behavior.
+
+\paragraph{Multilingual tool calling.}
+Lost in Execution introduces MLCL and demonstrates that multilingual tool calling can fail even when high-level intent and tool selection are correct, with parameter-value language mismatch emerging as a dominant execution failure \cite{lostexecution2026}. Our focus is complementary: when multilingual interpretation remains uncertain, what effect set is safe to authorize?
+
+\paragraph{Runtime authorization and mediation.}
+Recent work increasingly treats authority and effects as runtime objects. AID-Guard binds delegated authorization to provider-state evolution and retry/recovery semantics \cite{aidguard2026}; AgentFlow constrains information and authority flows across tool trajectories \cite{agentflow2026}; and authorization-continuity work studies when grants survive agent evolution under a fixed effect ceiling \cite{authcontinuity2026}. These efforts align with our principle that authority should not silently expand after language interpretation.
+
+\paragraph{Action attribution and executable verification.}
+AttriGuard causally attributes tool invocations under indirect prompt injection \cite{attriguard2026}. ClawSentry uses progressive multi-tier supervision across admission, intent, execution, and post-action loci \cite{clawsentry2026}. Vera emphasizes executable, evidence-grounded verification over model self-report \cite{vera2026}. NiyamTrace-X differs by placing set-valued semantic interpretation directly in the authorization rule and intersecting the effect languages of all still-plausible meanings.
+
+\section{Repository and Runtime Audit}
+\label{sec:audit}
+
+We separately audit the public prototype at commit \texttt{c14661dbd11c42ebd1019b6a1a5c49b8643da137} \cite{niyamtrace_repo}. The deterministic gate implements target identity containment, temporal containment, attribute containment, cardinality/approval checks, and evidence verdict handling. However, its default evidence path is explicitly marked as a stub and should not be used to support security claims.
+
+A separate audit of the public 10,000-row prototype corpus finds 1,668 exact duplicate raw texts and 5,330 rows that duplicate after template normalization; only 46.7\% of rows remain unique under that normalization. In a TF--IDF sample audit, 47.7\% of sampled rows have a near-duplicate at cosine similarity at least 0.95. These figures concern the public prototype corpus, \emph{not} the frozen 2,000-case primary group-disjoint holdout, and therefore the public corpus should not be presented as an independent external benchmark.
+
+The public pipeline checks the gate verdict and invokes the executor only when the decision is \allow. This is the intended application path. However, the executor API itself states that the caller must verify the gate verdict and does not require a gate-issued capability. In a synthetic in-memory ERP probe, direct invocation of the legacy executor without a gate call changes three matching invoices from OPEN to ARCHIVED. We therefore describe this as an \emph{internal execution-boundary bypass in the legacy API}; it does not establish a remotely exploitable gateway vulnerability.
+
+The repository also defines a hashable \texttt{EffectCertificate} whose \texttt{seal()} / \texttt{verify()} primitives detect post-seal mutation. Yet the current gate constructs a certificate without sealing it and fills policy/evidence/state fields with placeholder values. Accordingly, the present paper does not claim cryptographically complete authorization-to-commit binding.
+
+\section{Limitations and Validity}
+
+\paragraph{Internal, not external, holdout.}
+The primary dataset is group-disjoint from development examples but was produced by the same benchmark construction process. External benchmarks remain necessary for broader generalization.
+
+\paragraph{Domain concentration.}
+The present holdout concentrates on structured administrative effects, especially invoice operations. IAM, payments, email, filesystem, Git, and cloud-provider tools remain future domains.
+
+\paragraph{Exact semantic scoring.}
+Some semantic failures arise from disagreement metadata even when the security decision is correct. We therefore report semantic and authorization metrics separately.
+
+\paragraph{Structured-output reliability.}
+GPT-OSS produces four schema/parse failures. We count them as failures rather than repairing the holdout after inspection.
+
+\paragraph{Post-freeze hardening scope.}
+The frozen v2 holdout results remain the primary evaluation and are not retroactively upgraded. Separate post-freeze metamorphic testing exposed 1,496 matching-scope broadening misses in v2; v3 closes all discovered cases with zero clean false positives and zero new triggers on 3,996 evaluable frozen outputs. This improves the implementation evidence but does not prove robustness to unseen semantic attack families or external domains.
+
+\paragraph{External benchmark validation remains partial}
+The repaired hosted harness retains six valid benchmark-native $\tau^3$ QUICK trajectories across Qwen and GPT-OSS: one task per model in the airline, retail, and telecom domains, with mean rewards 0.33 and 0.67. The later local-T4 pilot broadens implementation coverage but not statistical coverage: four open-weight checkpoints pass automatic tool-call preflight, yet BFCL retains no official score before timeout; AgentDojo retains only the banking slice for Granite and Qwen; and local $\tau^3$ is evaluable for only two Granite trajectories because several prompts exceed the configured 3,072-token window. MLCL and Agent-SafetyBench also remain unvalidated. Consequently, the paper still does not claim BFCL-, AgentDojo-, MLCL-, Agent-SafetyBench-, or three-family external generalization.
+
+\paragraph{Execution boundary.}
+The corrected reference broker establishes fail-closed behavior across the tested replay, tampering, expiry, identity, policy-change, stale-snapshot, predicted-target, and crash-before-commit conditions, and specifically closes the phantom-row ordering flaw found in the earlier reference design. It does \emph{not} establish that the public repository enforces those properties end to end. The remaining systems gap is integration: capability verification must become non-bypassable in the production executor, with provider-side idempotency, restart recovery, and independent actual-effect measurement.
+
+\paragraph{Statistical scope.}
+Zero observed unsafe \allow decisions does not establish zero true risk. The case-level one-sided 95\% upper bound is approximately 0.20\% under an independent-opportunity interpretation; the dependence-aware semantic-group analysis gives an approximately 0.80\% upper bound for the probability that an eligible group contains any unsafe \allow. The recovered frozen per-case files permit group-clustered bootstrap intervals, which we report separately from case-level exact intervals. These calculations still describe an internally generated holdout and should not be read as external-population guarantees.
+
+\section{Future Work}
+The highest-priority validation step remains broader external generalization. The hosted $\tau^3$ pilot should be expanded from one task per domain/model to the full benchmark task distribution and a third independent model family. The local-T4 run also identifies concrete engineering prerequisites for that study: use a context budget large enough for AgentDojo and $\tau^3$ prompts, retain official BFCL metrics before timeout, and pin a mutually compatible vLLM/Transformers stack for Mistral/Pixtral-family checkpoints. BFCL/MLCL-style multilingual function calling, AgentDojo, Agent-SafetyBench, and current $\tau^3$ tasks provide complementary coverage; future runs should retain official benchmark-native metrics alongside NiyamTrace-X-specific unsafe-authorization, effect-broadening, clarification, and fail-closed metrics, while unsupported mappings remain explicitly unsupported rather than coerced into a common score \cite{bfcl2025,lostexecution2026,agentdojo2024,agentsafetybench2024,tau2bench2025}.
+
+Model replication should expand beyond the two frozen 120B-class families under fixed prompts, tool schemas, temperatures, and retry budgets. The statistical unit should remain benchmark-native groups or tasks, with paired or clustered uncertainty analysis whenever alignment permits. A completed three-family external study is necessary before upgrading the generalization claim.
+
+For execution, the tested transaction-first Verified Execution Broker V2 should be integrated into the public runtime so that the legacy executor cannot be invoked without a gate-issued capability. The production path should bind actor, tool, argument hash, authorized targets/fields, predicted effect, state snapshot, policy hash, expiry, and nonce and enforce
+\[
+\text{Replay}\Rightarrow\text{NoSecondEffect},\quad
+\text{StaleSnapshot}\Rightarrow\text{NoCommit},
+\]
+\[
+\text{ActualDelta}=\text{PredictedDelta}
+\]
+or fail closed / roll back. Provider idempotency, crash/restart recovery, and non-bypassable deployment checks remain necessary before upgrading the paper's scope from semantic authorization to complete execution mediation.
+
+An exploratory group-split risk-calibration layer removed 26 unsafe raw \allow decisions on one 600-case held-out split while retaining 85.6\% of raw auto-allow utility, but 5/20 repeated group splits still contained at least one unsafe \allow. Selective risk scoring therefore remains an escalation aid for distribution shift, not a safety guarantee or replacement for the deterministic runtime.
+
+\section{Ethical Considerations}
+The benchmark is intended to evaluate authorization safety, not to automate harmful activity. The runtime audit uses only a synthetic in-memory ERP. We report implementation weaknesses with bounded claims and avoid representing internal API bypasses as demonstrated remote exploits. Model outputs and benchmark decisions can still encode linguistic and cultural biases; broader language coverage and human review are necessary before deployment in high-stakes environments.
+
+\section{Conclusion}
+\system applies a conservative principle to tool-using agents: when security-relevant natural language admits several plausible meanings, executable authority should contract to the effects common to all of them. The frozen v2 runtime combines set-valued interpretation, effect-language intersection, independent semantic anchoring, and downstream clarification recovery.
+
+On a 2,000-case group-disjoint multilingual internal holdout, Qwen3.5-122B reaches 99.85\% final decision accuracy after all 80 observed raw unsafe \allow decisions are intercepted; GPT-OSS-120B reaches 99.80\% after both of its observed raw unsafe \allow decisions are intercepted. Both finish with zero observed unsafe \allow decisions and zero false blocks, and group-clustered intervals over 500 semantic groups preserve high final accuracy. Frozen-log ablation shows that Anchor Lock supplies the security gain; critically, clarification recovery is safe only in the intended composition after anchoring. Post-freeze metamorphic testing then exposes a scope-broadening weakness rather than hiding it, and Anchor Lock v3 closes all 1,496 discovered misses, reaching 100\% recall on 10,248 critical attacks with zero clean false positives and no new trigger on any evaluable frozen output. A separate transaction-first broker also survives 1,320 distinct reference execution scenarios, but it is not yet integrated as a non-bypassable production path.
+
+The evidence therefore supports a strong but deliberately bounded conclusion: set-valued semantic-to-effect authorization can substantially decouple imperfect multilingual interpretation from unsafe authorization on the evaluated internal domain. The six-trajectory hosted $\tau^3$ QUICK pilot adds initial stateful external evidence across two model families. The later local-T4 run demonstrates portable automatic tool calling across four open-weight checkpoints, but its BFCL timeouts, single-suite AgentDojo coverage, context-limited $\tau^3$ trajectories, and Mistral runtime incompatibility prevent any upgrade of the external-generalization claim. Full benchmark-level external validation and production-grade authorization-to-commit mediation remain the decisive next tests.

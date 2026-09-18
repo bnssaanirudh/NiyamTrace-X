@@ -1,0 +1,5 @@
+model,suite,status,returncode,commit
+qwen3-coder-exacto,banking,ERROR,2.0,089ed468cf3ed0322acc66b0211f26d9d90dbf60
+qwen3-coder-exacto,workspace,ERROR,2.0,089ed468cf3ed0322acc66b0211f26d9d90dbf60
+gpt-oss-120b-exacto,,UNSUPPORTED_ADAPTER,,089ed468cf3ed0322acc66b0211f26d9d90dbf60
+glm-4.6-exacto,,UNSUPPORTED_ADAPTER,,089ed468cf3ed0322acc66b0211f26d9d90dbf60

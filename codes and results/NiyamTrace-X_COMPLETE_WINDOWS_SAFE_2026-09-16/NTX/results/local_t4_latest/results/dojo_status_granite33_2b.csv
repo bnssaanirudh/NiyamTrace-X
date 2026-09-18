@@ -1,0 +1,5 @@
+suite,status,valid,errors,returncode
+banking,SUPPORTED,2,0,0
+workspace,FAILED,0,0,1
+travel,FAILED,0,0,1
+slack,FAILED,0,0,1

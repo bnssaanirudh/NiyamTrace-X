@@ -1,0 +1,4 @@
+model,suite,status,returncode,commit
+qwen3-coder-exacto,shopping,OK,0.0,5353cf7615b135cace8d07c8f12dac53a16b6db3
+gpt-oss-120b-exacto,,UNSUPPORTED_ADAPTER,,5353cf7615b135cace8d07c8f12dac53a16b6db3
+glm-4.6-exacto,,UNSUPPORTED_ADAPTER,,5353cf7615b135cace8d07c8f12dac53a16b6db3

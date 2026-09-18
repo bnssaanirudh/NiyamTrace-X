@@ -1,0 +1,9 @@
+{
+  "slug": "granite33_2b",
+  "family": "Granite",
+  "repo": "ibm-granite/granite-3.3-2b-instruct",
+  "chat_ok": true,
+  "auto_tool_ok": true,
+  "forced_tool_ok": true,
+  "error": ""
+}

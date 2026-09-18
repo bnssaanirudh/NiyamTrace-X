@@ -1,0 +1,73 @@
+benchmark,model,status,returncode,seconds,output_dir,error_tail
+BFCL-v4,qwen3-coder-exacto,ERROR,1,45.89728808403015,/content/NTX_MASTER_WAVE3/work/bfcl_runs/qwen3-coder-exacto,"entry_result = compute_entry_result(
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/evalscope/benchmarks/bfcl/v4/utils.py"", line 430, in compute_entry_result
+    from bfcl_eval.eval_checker.eval_runner import (
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/bfcl_eval/eval_checker/eval_runner.py"", line 7, in <module>
+    from bfcl_eval.constants.model_config import MODEL_CONFIG_MAPPING
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/bfcl_eval/constants/model_config.py"", line 27, in <module>
+    from bfcl_eval.model_handler.api_inference.qwen import (
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/bfcl_eval/model_handler/api_inference/qwen.py"", line 8, in <module>
+    from qwen_agent.llm import get_chat_model
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/__init__.py"", line 16, in <module>
+    from .agent import Agent
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/agent.py"", line 21, in <module>
+    from qwen_agent.llm import get_chat_model
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/llm/__init__.py"", line 18, in <module>
+    from .azure import TextChatAtAzure
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/llm/azure.py"", line 20, in <module>
+    from qwen_agent.llm.base import register_llm
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/llm/base.py"", line 29, in <module>
+    from qwen_agent.utils.utils import (extract_text_from_message, format_as_multimodal_message, format_as_text_message,
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/utils/utils.py"", line 34, in <module>
+    import soundfile as sf
+ModuleNotFoundError: No module named 'soundfile'
+"
+BFCL-v4,gpt-oss-120b-exacto,ERROR,1,3313.601546049118,/content/NTX_MASTER_WAVE3/work/bfcl_runs/gpt-oss-120b-exacto,"entry_result = compute_entry_result(
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/evalscope/benchmarks/bfcl/v4/utils.py"", line 430, in compute_entry_result
+    from bfcl_eval.eval_checker.eval_runner import (
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/bfcl_eval/eval_checker/eval_runner.py"", line 7, in <module>
+    from bfcl_eval.constants.model_config import MODEL_CONFIG_MAPPING
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/bfcl_eval/constants/model_config.py"", line 27, in <module>
+    from bfcl_eval.model_handler.api_inference.qwen import (
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/bfcl_eval/model_handler/api_inference/qwen.py"", line 8, in <module>
+    from qwen_agent.llm import get_chat_model
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/__init__.py"", line 16, in <module>
+    from .agent import Agent
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/agent.py"", line 21, in <module>
+    from qwen_agent.llm import get_chat_model
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/llm/__init__.py"", line 18, in <module>
+    from .azure import TextChatAtAzure
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/llm/azure.py"", line 20, in <module>
+    from qwen_agent.llm.base import register_llm
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/llm/base.py"", line 29, in <module>
+    from qwen_agent.utils.utils import (extract_text_from_message, format_as_multimodal_message, format_as_text_message,
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/utils/utils.py"", line 34, in <module>
+    import soundfile as sf
+ModuleNotFoundError: No module named 'soundfile'
+"
+BFCL-v4,glm-4.6-exacto,ERROR,1,25.047184944152832,/content/NTX_MASTER_WAVE3/work/bfcl_runs/glm-4.6-exacto,"entry_result = compute_entry_result(
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/evalscope/benchmarks/bfcl/v4/utils.py"", line 430, in compute_entry_result
+    from bfcl_eval.eval_checker.eval_runner import (
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/bfcl_eval/eval_checker/eval_runner.py"", line 7, in <module>
+    from bfcl_eval.constants.model_config import MODEL_CONFIG_MAPPING
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/bfcl_eval/constants/model_config.py"", line 27, in <module>
+    from bfcl_eval.model_handler.api_inference.qwen import (
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/bfcl_eval/model_handler/api_inference/qwen.py"", line 8, in <module>
+    from qwen_agent.llm import get_chat_model
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/__init__.py"", line 16, in <module>
+    from .agent import Agent
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/agent.py"", line 21, in <module>
+    from qwen_agent.llm import get_chat_model
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/llm/__init__.py"", line 18, in <module>
+    from .azure import TextChatAtAzure
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/llm/azure.py"", line 20, in <module>
+    from qwen_agent.llm.base import register_llm
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/llm/base.py"", line 29, in <module>
+    from qwen_agent.utils.utils import (extract_text_from_message, format_as_multimodal_message, format_as_text_message,
+  File ""/content/NTX_MASTER_WAVE3/envs/bfcl_py312/lib/python3.12/site-packages/qwen_agent/utils/utils.py"", line 34, in <module>
+    import soundfile as sf
+ModuleNotFoundError: No module named 'soundfile'
+"

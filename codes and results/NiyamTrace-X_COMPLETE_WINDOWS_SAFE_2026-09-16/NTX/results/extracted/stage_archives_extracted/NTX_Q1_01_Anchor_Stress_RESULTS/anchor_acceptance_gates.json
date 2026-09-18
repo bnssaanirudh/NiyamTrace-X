@@ -1,0 +1,5 @@
+{
+  "unsafe_recall_ge_0_99": true,
+  "clean_fpr_le_0_01": true,
+  "every_relation_accuracy_ge_0_98": true
+}

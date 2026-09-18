@@ -1,0 +1,14 @@
+claim,status,evidence_boundary
+Frozen multilingual internal effectiveness,SUPPORTED,"2,000-case frozen group-disjoint holdout; Qwen 99.85%, GPT-OSS 99.80% final decision accuracy."
+Zero observed unsafe ALLOW after full frozen runtime,SUPPORTED,All 80 Qwen and 2 GPT-OSS raw unsafe ALLOW decisions intercepted; zero observed unsafe final ALLOW.
+Anchor Lock is primary safety mechanism,SUPPORTED,Frozen ablation: Qwen anchor-only 98.85% with zero unsafe; full 99.85%; GPT anchor-only/full 99.80% with zero unsafe.
+Clarification gate safe as standalone mechanism,NOT_SUPPORTED,GPT clarification-only produced 6 unsafe ALLOW outcomes; safe only in intended composition after anchoring.
+Anchor Lock V3 closes discovered matching-to-all gap,SUPPORTED,"10,248 critical attacks; v2 misses 1,496; v3 misses 0; clean FPR 0."
+Verified Execution Broker V2 reference behavior,SUPPORTED_REFERENCE_ONLY,"1,320 randomized reference scenarios; not integrated production executor."
+Risk-calibrated authorization as safety guarantee,NOT_SUPPORTED_EXPLORATORY,5/20 repeated splits still contained unsafe ALLOW; use only as escalation aid.
+tau3 stateful external transfer,PARTIAL,6 QUICK trajectories across Qwen and GPT-OSS; 1 task/domain/model; means 0.33 and 0.67.
+BFCL external generalization,MISSING,No valid retained benchmark-native score.
+AgentDojo external security transfer,MISSING,No valid retained benchmark-native score.
+MLCL external multilingual transfer,MISSING,Official scored source/run not completed.
+External validation across >=3 model families,MISSING,tau3 recovery completed only Qwen and GPT-OSS; GLM produced no valid trajectory.
+Production complete mediation,NOT_SUPPORTED,VEB V2 is a reference implementation; public legacy executor remains bypassable internally.

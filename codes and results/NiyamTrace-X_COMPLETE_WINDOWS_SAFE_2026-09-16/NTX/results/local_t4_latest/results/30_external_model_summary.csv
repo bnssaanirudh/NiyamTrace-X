@@ -1,0 +1,7 @@
+benchmark,slug,family,metric,n,mean
+AgentDojo,granite33_2b,Granite,utility,2,0.5
+AgentDojo,granite33_2b,Granite,security,2,0.5
+AgentDojo,qwen25_3b,Qwen,utility,2,0.0
+AgentDojo,qwen25_3b,Qwen,security,2,0.5
+tau3,granite33_2b,Granite,reward,2,0.5
+tau3,qwen25_3b,Qwen,reward,0,

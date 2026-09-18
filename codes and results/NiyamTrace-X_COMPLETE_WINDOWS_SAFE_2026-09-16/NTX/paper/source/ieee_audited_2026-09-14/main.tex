@@ -1,0 +1,33 @@
+\documentclass[journal]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,multirow,array}
+\usepackage{enumitem}
+\usepackage{xcolor,graphicx,tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,shapes.geometric}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{xspace}
+\usepackage{balance}
+\definecolor{safe}{RGB}{28,120,87}\definecolor{warn}{RGB}{186,116,0}\definecolor{block}{RGB}{165,47,47}\definecolor{softblue}{RGB}{57,94,147}
+\newcommand{\system}{\textsc{NiyamTrace-X}}
+\newcommand{\bench}{\textsc{NiyamTrace-Bench 3}}
+\newcommand{\allow}{\textsc{Allow}\xspace}\newcommand{\block}{\textsc{Block}\xspace}\newcommand{\clarify}{\textsc{Clarify}\xspace}\newcommand{\escalate}{\textsc{Escalate}\xspace}
+\newcommand{\safeCore}{\mathcal{K}}\newcommand{\unionEff}{\mathcal{U}}\newcommand{\fringe}{\mathcal{F}}
+\title{NiyamTrace-X: Set-Valued Semantic-to-Effect Authorization for Multilingual Tool-Using LLM Agents}
+\author{Anonymous Authors}
+\begin{document}
+\maketitle
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+\begin{IEEEkeywords}
+LLM agents, tool use, authorization, multilingual robustness, semantic ambiguity, agent security, runtime safety.
+\end{IEEEkeywords}
+\input{body}
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\end{document}

@@ -1,0 +1,38 @@
+NiyamTrace-X updated manuscript audit - 2026-09-14
+
+Integrated evidence:
+- Frozen 2,000-case multilingual holdout and 500 semantic groups.
+- Frozen-log component ablations for Qwen3.5-122B and GPT-OSS-120B.
+- 50,000-replicate semantic-group clustered bootstrap.
+- Anchor Lock V3 metamorphic hardening and frozen-output compatibility audit.
+- Verified Execution Broker V2 1,320-scenario reference-prototype stress test.
+- Exploratory risk-selective calibration (kept exploratory only).
+- Hosted tau3 QUICK pilot: six native trajectories across Qwen and GPT-OSS.
+- Latest local-T4 pilot: automatic tool-call preflight, bounded AgentDojo banking traces, bounded local tau3 trajectories, BFCL timeouts, and runtime/context failures.
+
+Claim discipline:
+- Internal multilingual effectiveness: SUPPORTED.
+- Anchor Lock V3 hardening: SUPPORTED.
+- VEB V2: SUPPORTED AS A REFERENCE PROTOTYPE ONLY.
+- Hosted tau3 external transfer: PARTIAL.
+- Local-T4 external transfer: DIAGNOSTIC/PARTIAL.
+- BFCL benchmark generalization: NOT SUPPORTED.
+- AgentDojo benchmark generalization: NOT SUPPORTED.
+- MLCL / Agent-SafetyBench: NOT SUPPORTED.
+- >=3-family external generalization: NOT SUPPORTED.
+- Production complete mediation: NOT SUPPORTED.
+
+Latest local-T4 specifics:
+- Automatic tool preflight: Granite-3.3-2B, Qwen2.5-3B, xLAM-2-3B, Qwen2.5-7B-AWQ.
+- Forced-only preflight: Phi-4-mini and xLAM-1B.
+- AgentDojo banking retained traces: Granite attacked U/S=0/0 and no-injection U/S=1/1; Qwen attacked U/S=0/0 and no-injection U/S=0/1.
+- Workspace/travel/slack not scored because configured 3072-token context was exceeded.
+- Local tau3: Granite airline=1, retail=0, telecom not evaluable; Qwen all three not evaluable because of the same context bound.
+- BFCL: no retained native score before timeout.
+- Ministral-3-3B-BF16: startup failure from vLLM/Transformers Pixtral compatibility mismatch.
+
+Build verification:
+- IEEE: 10 pages; no undefined citations/references; no overfull boxes in final pass.
+- Springer LNCS: 20 pages; no undefined citations/references; no overfull boxes in final pass.
+- Elsevier: 11 pages; no undefined citations/references; no overfull boxes in final pass.
+- PDFs rendered and visually inspected after final compile.

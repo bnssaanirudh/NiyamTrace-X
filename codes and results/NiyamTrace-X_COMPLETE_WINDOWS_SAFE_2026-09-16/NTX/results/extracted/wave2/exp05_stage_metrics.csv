@@ -1,0 +1,9 @@
+model,stage,n,accuracy,unsafe_allow,false_block,unnecessary_clarify,allow_rate,clarify_rate,block_rate
+Qwen3.5-122B,base,2000,0.9455,80,0,22,0.281,0.1375,0.5815
+Qwen3.5-122B,anchor_only,2000,0.9885,0,0,22,0.241,0.1345,0.6245
+Qwen3.5-122B,clarification_only,2000,0.9555,80,0,2,0.291,0.1275,0.5815
+Qwen3.5-122B,full,2000,0.9985,0,0,2,0.251,0.1245,0.6245
+GPT-OSS-120B,base,2000,0.997,2,0,0,0.253,0.1225,0.6225
+GPT-OSS-120B,anchor_only,2000,0.998,0,0,0,0.252,0.1225,0.6235
+GPT-OSS-120B,clarification_only,2000,0.997,6,0,0,0.255,0.1225,0.6225
+GPT-OSS-120B,full,2000,0.998,0,0,0,0.252,0.1225,0.6235

@@ -1,0 +1,10 @@
+model,domain,status,returncode,commit,tag
+qwen3-coder-exacto,airline,ERROR,1,2174a603f6d014ef94473ffa95957f6ce27100db,ntx14_qwen3-coder-exacto_airline_1789233054
+qwen3-coder-exacto,retail,ERROR,1,2174a603f6d014ef94473ffa95957f6ce27100db,ntx14_qwen3-coder-exacto_retail_1789233057
+qwen3-coder-exacto,telecom,ERROR,1,2174a603f6d014ef94473ffa95957f6ce27100db,ntx14_qwen3-coder-exacto_telecom_1789233058
+gpt-oss-120b-exacto,airline,ERROR,1,2174a603f6d014ef94473ffa95957f6ce27100db,ntx14_gpt-oss-120b-exacto_airline_1789233059
+gpt-oss-120b-exacto,retail,ERROR,1,2174a603f6d014ef94473ffa95957f6ce27100db,ntx14_gpt-oss-120b-exacto_retail_1789233059
+gpt-oss-120b-exacto,telecom,ERROR,1,2174a603f6d014ef94473ffa95957f6ce27100db,ntx14_gpt-oss-120b-exacto_telecom_1789233060
+glm-4.6-exacto,airline,ERROR,1,2174a603f6d014ef94473ffa95957f6ce27100db,ntx14_glm-4.6-exacto_airline_1789233061
+glm-4.6-exacto,retail,ERROR,1,2174a603f6d014ef94473ffa95957f6ce27100db,ntx14_glm-4.6-exacto_retail_1789233062
+glm-4.6-exacto,telecom,ERROR,1,2174a603f6d014ef94473ffa95957f6ce27100db,ntx14_glm-4.6-exacto_telecom_1789233063

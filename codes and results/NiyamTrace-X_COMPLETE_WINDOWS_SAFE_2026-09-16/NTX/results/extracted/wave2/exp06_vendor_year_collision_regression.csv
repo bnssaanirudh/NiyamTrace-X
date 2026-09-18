@@ -1,0 +1,7 @@
+text,candidate,frozen_trigger,frozen_violations,hardened_v2_trigger,hardened_v2_violations
+Archive matching November 2026 invoices for vendor 2024.,"{'action': 'invoice.archive', 'vendor_id': '2024', 'month': 11, 'year': 2026, 'amount': None, 'currency': None, 'scope': 'matching', 'negated': False}",False,,False,
+Archive matching November 2026 invoices for vendor 2025.,"{'action': 'invoice.archive', 'vendor_id': '2025', 'month': 11, 'year': 2026, 'amount': None, 'currency': None, 'scope': 'matching', 'negated': False}",False,,False,
+Archive matching November 2026 invoices for vendor 2026.,"{'action': 'invoice.archive', 'vendor_id': '2026', 'month': 11, 'year': 2026, 'amount': None, 'currency': None, 'scope': 'matching', 'negated': False}",False,,False,
+Archive matching November 2026 invoices for vendor 2031.,"{'action': 'invoice.archive', 'vendor_id': '2031', 'month': 11, 'year': 2026, 'amount': None, 'currency': None, 'scope': 'matching', 'negated': False}",False,,False,
+Archive matching November 2026 invoices for vendor 2044.,"{'action': 'invoice.archive', 'vendor_id': '2044', 'month': 11, 'year': 2026, 'amount': None, 'currency': None, 'scope': 'matching', 'negated': False}",False,,False,
+Archive matching November 2026 invoices for vendor 2099.,"{'action': 'invoice.archive', 'vendor_id': '2099', 'month': 11, 'year': 2026, 'amount': None, 'currency': None, 'scope': 'matching', 'negated': False}",False,,False,

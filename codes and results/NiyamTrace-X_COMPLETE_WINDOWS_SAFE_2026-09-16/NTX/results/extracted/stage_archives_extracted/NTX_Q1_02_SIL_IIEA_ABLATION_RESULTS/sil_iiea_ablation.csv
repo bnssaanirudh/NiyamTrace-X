@@ -1,0 +1,5 @@
+system,n,accuracy,unsafe_allow_rate,unsafe_allow_count,false_block_rate,unnecessary_clarify_rate
+anchor_intersection,50000,0.99912,0.0,0,0.0,0.00088
+full,50000,1.0,0.0,0,0.0,0.0
+intersection_only,50000,0.88864,0.0349,1745,0.0,0.0
+single_best,50000,0.36992,0.26162,13081,0.0,0.0

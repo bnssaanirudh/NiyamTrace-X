@@ -1,0 +1,11 @@
+attack,n,success_rate,committed_rate
+args_tamper,250,1.0,0.0
+expired,250,1.0,0.0
+forged_signature,250,1.0,0.0
+policy_change,250,1.0,0.0
+predicted_ids_tamper,250,1.0,0.0
+replay,250,1.0,0.0
+stale_snapshot,250,1.0,0.0
+valid,250,1.0,1.0
+wrong_actor,250,1.0,0.0
+wrong_tool,250,1.0,0.0

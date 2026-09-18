@@ -1,0 +1,6 @@
+{
+  "n_trials": 2500,
+  "all_expected_behaviors": true,
+  "attack_block_rate_excluding_valid": 1.0,
+  "valid_commit_rate": 1.0
+}

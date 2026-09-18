@@ -1,0 +1,6 @@
+{
+  "monotonic_authority": true,
+  "no_unsafe_allow_under_intersection": true,
+  "anchor_fails_closed": true,
+  "clarification_never_broadens": true
+}

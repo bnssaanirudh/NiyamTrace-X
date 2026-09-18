@@ -1,0 +1,4 @@
+benchmark,model,metric,score,n,evidence_type,paper_eligible,notes
+NiyamTrace-Bench3,Qwen3.5-122B,decision_accuracy,0.9985,2000,internal,False,frozen/internal
+NiyamTrace-Bench3,GPT-OSS-120B,decision_accuracy,0.998,2000,internal,False,frozen/internal
+AgentDyn,qwen3-coder-exacto,run_completed,1.0,1,external_run_only,False,Runner completed; official benchmark score parser must promote this row.

@@ -1,0 +1,10 @@
+benchmark,model,family,domain,status,returncode,tag,commit
+tau3,qwen,Qwen,airline,OK,0,ntxv2_qwen_airline_1789234568602,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,qwen,Qwen,retail,OK,0,ntxv2_qwen_retail_1789234593043,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,qwen,Qwen,telecom,OK,0,ntxv2_qwen_telecom_1789234610355,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,gpt-oss,GPT-OSS,airline,OK,0,ntxv2_gpt-oss_airline_1789234627820,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,gpt-oss,GPT-OSS,retail,OK,0,ntxv2_gpt-oss_retail_1789234648067,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,gpt-oss,GPT-OSS,telecom,OK,0,ntxv2_gpt-oss_telecom_1789234666792,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,glm,GLM,airline,OK,0,ntxv2_glm_airline_1789234685444,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,glm,GLM,retail,OK,0,ntxv2_glm_retail_1789234704708,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,glm,GLM,telecom,OK,0,ntxv2_glm_telecom_1789234721848,2174a603f6d014ef94473ffa95957f6ce27100db

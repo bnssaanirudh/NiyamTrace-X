@@ -1,0 +1,9 @@
+{
+  "slug": "xlam2_3b",
+  "family": "xLAM",
+  "repo": "Salesforce/xLAM-2-3b-fc-r",
+  "chat_ok": true,
+  "auto_tool_ok": true,
+  "forced_tool_ok": true,
+  "error": ""
+}

@@ -1,0 +1,4 @@
+policy,n,accuracy,unsafe_allow,false_block,unnecessary_clarify,auto_allow_count,auto_allow_rate,raw_allow_retention
+gpt_raw_policy,600,0.995,1,0,0,165,0.275,1.0
+qwen_calibrated_transfer,600,0.995,0,0,0,164,0.2733333333333333,0.9939393939393939
+gpt_frozen_full,600,0.9966666666666667,0,0,0,164,0.2733333333333333,0.9939393939393939

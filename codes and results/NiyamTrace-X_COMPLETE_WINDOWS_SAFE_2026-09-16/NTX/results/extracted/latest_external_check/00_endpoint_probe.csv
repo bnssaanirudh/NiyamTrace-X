@@ -1,0 +1,5 @@
+model,family,status,latency_s,reply
+qwen,Qwen,OK,1.3147218227386475,OK
+gpt-oss,GPT-OSS,OK,0.44191884994506836,None
+glm,GLM,OK,0.5600218772888184,"
+"

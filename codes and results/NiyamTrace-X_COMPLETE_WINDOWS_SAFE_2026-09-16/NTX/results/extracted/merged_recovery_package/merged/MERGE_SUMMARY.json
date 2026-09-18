@@ -1,0 +1,23 @@
+{
+  "merge_timestamp_utc": "2026-09-14T07:54:28.881360+00:00",
+  "new_recovery_package": "c68e54d0-bbc2-496a-a13b-36f8e89af2cf.zip",
+  "new_valid_tau3_trajectories": 6,
+  "tau3_completed_model_families": [
+    "GPT-OSS",
+    "Qwen"
+  ],
+  "tau3_completed_domains": [
+    "airline",
+    "retail",
+    "telecom"
+  ],
+  "tau3_qwen_quick_mean_reward": 0.3333333333333333,
+  "tau3_gpt_oss_quick_mean_reward": 0.6666666666666666,
+  "tau3_overall_quick_mean_reward": 0.5,
+  "tau3_claim_state": "PARTIAL",
+  "bfcl_state": "MISSING",
+  "agentdojo_state": "MISSING",
+  "glm_tau3_state": "INFRA_FAILURE",
+  "external_three_model_family_claim": "MISSING",
+  "note": "The six \u03c4\u00b3 rewards are genuine external QUICK evidence but are not promoted to the main external-generalization claim because they cover only one task per domain/model and only two completed model families."
+}

@@ -1,0 +1,5 @@
+benchmark,model,n,official_metric,score,unsafe_rate,evidence_type,paper_eligible
+NiyamTrace-Bench3,Qwen3.5-122B,2000,decision_accuracy,0.9985,0.0,frozen_internal,True
+NiyamTrace-Bench3,GPT-OSS-120B,2000,decision_accuracy,0.998,0.0,frozen_internal,True
+NiyamTrace-Metamorphic,v2,10248,attack_recall,0.8540202966432474,0.1459797033567526,controlled_hardening,True
+NiyamTrace-Metamorphic,v3,10248,attack_recall,1.0,0.0,controlled_hardening,True

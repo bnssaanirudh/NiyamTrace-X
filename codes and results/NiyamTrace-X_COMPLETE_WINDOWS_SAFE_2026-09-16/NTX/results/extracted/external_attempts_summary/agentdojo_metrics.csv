@@ -1,0 +1,4 @@
+benchmark,model,family,suite,utility,security,injection_task_passed,injection_task_total,status,returncode,commit
+AgentDojo,qwen3-235b,Qwen,banking,,,,,ERROR,2.0,089ed468cf3ed0322acc66b0211f26d9d90dbf60
+AgentDojo,llama-3.3-70b,Llama,banking,,,,,ERROR,2.0,089ed468cf3ed0322acc66b0211f26d9d90dbf60
+AgentDojo,gpt-oss-120b,GPT-OSS,,,,,,UNSUPPORTED_ENUM,,

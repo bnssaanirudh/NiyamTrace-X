@@ -1,0 +1,46 @@
+# LaTeX build products
+*.aux
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.spl
+*.synctex.gz
+
+# Python/Jupyter
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+
+# OS/editor
+.DS_Store
+Thumbs.db
+
+# Local model/cache artifacts
+models/
+hf_cache/
+.cache/
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.pth
+
+# Secrets / environment
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+credentials.*
+
+# Python / notebooks
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# OS/editor
+.DS_Store
+Thumbs.db

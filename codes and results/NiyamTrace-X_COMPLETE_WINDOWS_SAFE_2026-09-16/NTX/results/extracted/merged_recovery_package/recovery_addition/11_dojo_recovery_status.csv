@@ -1,0 +1,4 @@
+model,family,resolved_model,status,n,utility,security,errors,returncode
+qwen,Qwen,qwen/qwen3-30b-a3b-instruct-2507,INFRA_FAILURE,0,,,0,1
+gpt-oss,GPT-OSS,openai/gpt-oss-20b,INFRA_FAILURE,0,,,0,1
+glm,GLM,z-ai/glm-4.5-air,INFRA_FAILURE,0,,,0,1

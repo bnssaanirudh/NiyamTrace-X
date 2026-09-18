@@ -1,0 +1,22 @@
+{
+  "feature_columns": [
+    "anchor_n",
+    "num_candidates",
+    "needs_clarification",
+    "model_disagreement_n",
+    "effective_disagreement_n",
+    "candidate_authorized_mismatch_n",
+    "uncertainty_value_n",
+    "schema_valid",
+    "raw_is_allow",
+    "raw_is_clarify",
+    "raw_is_block"
+  ],
+  "forbidden_overlap": [],
+  "group_split": {
+    "train_groups": 200,
+    "calibration_groups": 150,
+    "test_groups": 150
+  },
+  "target_risk": 0.05
+}

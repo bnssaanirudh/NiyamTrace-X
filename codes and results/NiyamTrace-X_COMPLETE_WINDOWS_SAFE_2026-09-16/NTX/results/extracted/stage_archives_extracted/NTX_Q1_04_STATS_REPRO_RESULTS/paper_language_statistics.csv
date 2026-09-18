@@ -1,0 +1,9 @@
+model,language,semantic_accuracy,decision_accuracy,gap
+Qwen3.5-122B,English,0.962,1.0,0.038000000000000034
+Qwen3.5-122B,Romanized Hindi,0.902,0.996,0.09399999999999997
+Qwen3.5-122B,Romanized Telugu,0.626,0.998,0.372
+Qwen3.5-122B,Telugu script,0.92,1.0,0.07999999999999996
+GPT-OSS-120B,English,0.88,1.0,0.12
+GPT-OSS-120B,Romanized Hindi,0.872,0.992,0.12
+GPT-OSS-120B,Romanized Telugu,0.802,1.0,0.19799999999999995
+GPT-OSS-120B,Telugu script,0.876,1.0,0.124

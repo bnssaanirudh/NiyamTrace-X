@@ -1,0 +1,4 @@
+policy,n,accuracy,unsafe_allow,false_block,unnecessary_clarify,auto_allow_count,auto_allow_rate,raw_allow_retention
+raw_policy,600,0.94,26,0,9,181,0.3016666666666667,1.0
+risk_selective,600,0.94,0,0,9,155,0.25833333333333336,0.856353591160221
+frozen_full_runtime,600,0.9983333333333333,0,0,1,163,0.27166666666666667,0.856353591160221

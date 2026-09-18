@@ -1,0 +1,11 @@
+attack,expected_commit,committed,reason,actual_ids,pass
+valid,True,True,OK,"['I1', 'I2', 'I3']",True
+replay,False,False,REPLAY,[],True
+args_tamper,False,False,ARGS_TAMPERED,[],True
+stale_snapshot,False,False,STALE_SNAPSHOT,[],True
+policy_change,False,False,POLICY_CHANGED,[],True
+expired,False,False,EXPIRED,[],True
+wrong_actor,False,False,ACTOR_MISMATCH,[],True
+wrong_tool,False,False,TOOL_MISMATCH,[],True
+forged_signature,False,False,BAD_SIGNATURE,[],True
+predicted_ids_tamper,False,False,BAD_SIGNATURE,[],True

@@ -1,0 +1,9 @@
+[
+  {
+    "domain": "airline",
+    "candidate": "z-ai/glm-4.5-air",
+    "returncode": 0,
+    "n_evaluated": 0,
+    "errors": 1
+  }
+]

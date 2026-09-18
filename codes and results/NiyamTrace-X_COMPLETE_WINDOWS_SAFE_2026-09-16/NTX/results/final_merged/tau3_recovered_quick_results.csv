@@ -1,0 +1,9 @@
+model,family,domain,n,mean_reward,evidence_state,interpretation
+gpt-oss,GPT-OSS,airline,1,1.0,PARTIAL,QUICK pilot only; 1 task/domain/model
+gpt-oss,GPT-OSS,retail,1,1.0,PARTIAL,QUICK pilot only; 1 task/domain/model
+gpt-oss,GPT-OSS,telecom,1,0.0,PARTIAL,QUICK pilot only; 1 task/domain/model
+qwen,Qwen,airline,1,1.0,PARTIAL,QUICK pilot only; 1 task/domain/model
+qwen,Qwen,retail,1,0.0,PARTIAL,QUICK pilot only; 1 task/domain/model
+qwen,Qwen,telecom,1,0.0,PARTIAL,QUICK pilot only; 1 task/domain/model
+gpt-oss,GPT-OSS,ALL_3_DOMAINS,3,0.6666666666666666,PARTIAL,QUICK pilot only; 1 task/domain/model
+qwen,Qwen,ALL_3_DOMAINS,3,0.3333333333333333,PARTIAL,QUICK pilot only; 1 task/domain/model

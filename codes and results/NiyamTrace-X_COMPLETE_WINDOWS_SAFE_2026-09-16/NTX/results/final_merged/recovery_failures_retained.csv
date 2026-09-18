@@ -1,0 +1,7 @@
+benchmark,model,family,resolved_model,status,n,utility,security,errors,returncode,domain,n_evaluated
+AgentDojo,qwen,Qwen,qwen/qwen3-30b-a3b-instruct-2507,INFRA_FAILURE,0.0,,,0,1,,
+AgentDojo,gpt-oss,GPT-OSS,openai/gpt-oss-20b,INFRA_FAILURE,0.0,,,0,1,,
+AgentDojo,glm,GLM,z-ai/glm-4.5-air,INFRA_FAILURE,0.0,,,0,1,,
+tau3-GLM,glm,GLM,,INFRA_FAILURE,,,,0,-1,airline,0.0
+tau3-GLM,glm,GLM,,INFRA_FAILURE,,,,0,-1,retail,0.0
+tau3-GLM,glm,GLM,,INFRA_FAILURE,,,,0,-1,telecom,0.0

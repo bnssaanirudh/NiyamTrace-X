@@ -1,0 +1,11 @@
+claim,status,source
+Frozen internal multilingual effectiveness,SUPPORTED,frozen
+Anchor Lock V3 controlled hardening,SOURCE_REQUIRED,Q9
+BFCL external function-calling score,MISSING,BFCL
+MLCL multilingual external score,MISSING,MLCL official only
+AgentDojo prompt-injection transfer,MISSING,AgentDojo
+AgentDyn dynamic injection transfer,RUN_ONLY,AgentDyn
+MCP-SafetyBench real MCP transfer,MISSING,MCP
+τ³ stateful transfer,MISSING,tau3
+External validation on >=3 benchmark families,MISSING,unified
+External validation on >=3 model families,MISSING,coverage

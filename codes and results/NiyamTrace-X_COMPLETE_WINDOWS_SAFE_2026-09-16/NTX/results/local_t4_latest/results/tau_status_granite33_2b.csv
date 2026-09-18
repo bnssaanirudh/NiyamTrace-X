@@ -1,0 +1,4 @@
+domain,status,evaluated,errors,returncode
+airline,SUPPORTED,1,0,0
+retail,SUPPORTED,1,0,0
+telecom,FAILED,0,1,0

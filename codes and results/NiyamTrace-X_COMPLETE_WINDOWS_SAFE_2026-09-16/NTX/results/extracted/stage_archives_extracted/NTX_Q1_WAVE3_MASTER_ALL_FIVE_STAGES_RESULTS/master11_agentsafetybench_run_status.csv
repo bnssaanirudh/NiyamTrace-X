@@ -1,0 +1,2 @@
+model,status,generation_file,score_status
+NONE,SKIPPED_NO_MODEL_CONFIG,,

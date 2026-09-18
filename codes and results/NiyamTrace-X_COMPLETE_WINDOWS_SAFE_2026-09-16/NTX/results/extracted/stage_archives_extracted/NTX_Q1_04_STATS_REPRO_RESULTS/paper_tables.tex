@@ -1,0 +1,34 @@
+% Aggregate manuscript statistics
+\begin{tabular}{lrrrrrrrr}
+\toprule
+model & n & decision_accuracy & accuracy_ci95_low & accuracy_ci95_high & semantic_accuracy & observed_unsafe_allow_rate & zero_unsafe_one_sided_95_upper & raw_unsafe_allow \\
+\midrule
+Qwen3.5-122B & 2000 & 0.998500 & 0.995623 & 0.999691 & 0.852500 & 0.000000 & 0.002000 & 80 \\
+GPT-OSS-120B & 2000 & 0.998000 & 0.994887 & 0.999455 & 0.857500 & 0.000000 & 0.002000 & 2 \\
+\bottomrule
+\end{tabular}
+
+
+% Exact paired tests
+\begin{tabular}{lrrr}
+\toprule
+comparison & b & c & exact_p \\
+\midrule
+Qwen3.5-122B: raw vs final & 106 & 0 & 2.46519e-32 \\
+GPT-OSS-120B: raw vs final & 2 & 0 & 0.5 \\
+Qwen final vs GPT-OSS final & 4 & 3 & 1 \\
+\bottomrule
+\end{tabular}
+
+
+% Public dataset language audit
+\begin{tabular}{lrrr}
+\toprule
+primary_lang & n & unique_raw & unique_normalized \\
+\midrule
+eng_Latn & 2500 & 2105 & 1271 \\
+hin_Latn & 2500 & 2083 & 1187 \\
+tel_Latn & 2500 & 2085 & 1159 \\
+tel_Telu & 2500 & 2059 & 1053 \\
+\bottomrule
+\end{tabular}

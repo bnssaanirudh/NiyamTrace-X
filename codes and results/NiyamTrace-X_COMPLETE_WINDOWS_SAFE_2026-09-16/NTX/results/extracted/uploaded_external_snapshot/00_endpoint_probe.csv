@@ -1,0 +1,5 @@
+model,family,status,latency_s,reply
+qwen3-coder-exacto,Qwen,OK,1.288867712020874,OK
+gpt-oss-120b-exacto,GPT-OSS,OK,0.7682549953460693,None
+glm-4.6-exacto,GLM,OK,2.0890233516693115,"
+"

@@ -1,0 +1,4 @@
+model,family,domain,resolved_model,status,n_evaluated,errors,returncode
+glm,GLM,airline,,INFRA_FAILURE,0,0,-1
+glm,GLM,retail,,INFRA_FAILURE,0,0,-1
+glm,GLM,telecom,,INFRA_FAILURE,0,0,-1

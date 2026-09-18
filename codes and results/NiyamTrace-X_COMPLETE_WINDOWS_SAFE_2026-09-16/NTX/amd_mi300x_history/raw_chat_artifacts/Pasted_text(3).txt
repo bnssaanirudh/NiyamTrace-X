@@ -1,0 +1,217 @@
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# amd-smi
++------------------------------------------------------------------------------+
+| AMD-SMI            26.5.0+2b22ab01                                           |
+| amdgpu Version:    6.19.14.31400000                                          |
+| ROCm Version:      7.14.0                                                    |
+| VBIOS Version:     00159017                                                  |
+| FW PLDM:           01.25.03.12                                               |
+| Platform:          Linux Guest                                               |
+|-------------------------------------+----------------------------------------|
+| BDF                        GPU-Name | Mem-Uti   Temp   UEC       Power-Usage |
+| GPU  HIP-ID  OAM-ID  Partition-Mode | GFX-Uti    Fan               Mem-Usage |
+|=====================================+========================================|
+| 0000:83:00.0 AMD Instinct MI300X VF | 0 %      35 °C   0           137/750 W |
+|   0       0       0        SPX/NPS1 | 0 %        N/A           285/196288 MB |
++-------------------------------------+----------------------------------------+
++------------------------------------------------------------------------------+
+| Processes:                                                                   |
+|  GPU      PID  Process Name       GTT_MEM  VRAM_MEM  MEM_USAGE  CU %  SDMA   |
+|==============================================================================|
+|  No running processes found                                                  |
++------------------------------------------------------------------------------+
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker rm -f niyam-vllm 2>/dev/null || true
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker run -d \
+  --name niyam-vllm \
+  --device=/dev/kfd \
+  --device=/dev/dri \
+  --group-add=video \
+  --ipc=host \
+  --cap-add=SYS_PTRACE \
+  --security-opt seccomp=unconfined \
+  --shm-size=64g \
+  -e HF_HOME=/root/.cache/huggingface \
+  -e HF_HUB_OFFLINE=1 \
+  -v /mnt/niyam-data/hf-cache:/root/.cache/huggingface:ro \
+  -p 127.0.0.1:8000:8000 \
+  vllm/vllm-openai-rocm@sha256:e0a3b2bd3fe7ec563916c3a5d949898d133458c18d6b2f460c906885cfb32032 \
+  --model Qwen/Qwen3.5-122B-A10B-FP8 \
+  --revision a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9 \
+  --served-model-name Qwen/Qwen3.5-122B-A10B-FP8 \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.88 \
+  --max-num-seqs 32 \
+  --reasoning-parser qwen3 \
+  --enable-auto-tool-choice \
+  --tool-call-parser qwen3_coder \
+  --language-model-only \
+  --trust-remote-code
+591b4c70c07a7fd671d758dbf5dc7e70cbf4da33064269fcb36b636ebcfbed55
+docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint niyam-vllm (88a46c54a51015744984e4796c798637385fc95b7526acaec3ca52912d5b6b91): Bind for 0.0.0.0:8000 failed: port is already allocated
+
+Run 'docker run --help' for more information
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker ps -a --filter name=niyam-vllm
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS    PORTS     NAMES
+591b4c70c07a   e0a3b2bd3fe7   "vllm serve --model …"   11 seconds ago   Created             niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker logs --tail 100 niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker logs -f niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# docker logs -f niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/NiyamTrace-X# # first press Ctrl+C
+
+cd /workspace/niyamtrace/niyamtrace_x3_mi300x_bundle
+source .venv/bin/activate
+
+export HF_HOME=/workspace/hf-cache
+export HUGGINGFACE_HUB_CACHE=/workspace/hf-cache/hub
+
+amd-smi
+docker rm -f niyam-vllm 2>/dev/null || true
++------------------------------------------------------------------------------+
+| AMD-SMI            26.5.0+2b22ab01                                           |
+| amdgpu Version:    6.19.14.31400000                                          |
+| ROCm Version:      7.14.0                                                    |
+| VBIOS Version:     00159017                                                  |
+| FW PLDM:           01.25.03.12                                               |
+| Platform:          Linux Guest                                               |
+|-------------------------------------+----------------------------------------|
+| BDF                        GPU-Name | Mem-Uti   Temp   UEC       Power-Usage |
+| GPU  HIP-ID  OAM-ID  Partition-Mode | GFX-Uti    Fan               Mem-Usage |
+|=====================================+========================================|
+| 0000:83:00.0 AMD Instinct MI300X VF | 0 %      34 °C   0           137/750 W |
+|   0       0       0        SPX/NPS1 | 0 %        N/A           285/196288 MB |
++-------------------------------------+----------------------------------------+
++------------------------------------------------------------------------------+
+| Processes:                                                                   |
+|  GPU      PID  Process Name       GTT_MEM  VRAM_MEM  MEM_USAGE  CU %  SDMA   |
+|==============================================================================|
+|  No running processes found                                                  |
++------------------------------------------------------------------------------+
+niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# ss -ltnp | grep ':8000 ' || true
+LISTEN 0      4096         0.0.0.0:8000       0.0.0.0:*    users:(("docker-proxy",pid=3568,fd=8))
+LISTEN 0      4096            [::]:8000          [::]:*    users:(("docker-proxy",pid=3574,fd=8))
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# docker ps --format 'table {{.ID}}\t{{.Names}}\t{{.Ports}}' | grep -E '8000|NAMES' || true
+CONTAINER ID   NAMES     PORTS
+fde207ba77ab   rocm      0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp, 0.0.0.0:8888->8888/tcp, [::]:8888->8888/tcp, 0.0.0.0:30000->30000/tcp, [::]:30000->30000/tcp
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# docker ps --format 'table {{.ID}}\t{{.Names}}\t{{.Ports}}' | grep -E '8000|NAMES' || true
+CONTAINER ID   NAMES     PORTS
+fde207ba77ab   rocm      0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp, 0.0.0.0:8888->8888/tcp, [::]:8888->8888/tcp, 0.0.0.0:30000->30000/tcp, [::]:30000->30000/tcp
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# docker rm -f niyam-vllm 2>/dev/null || true
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# docker ps -a --filter name=niyam-vllm
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# ss -ltnp | grep ':8010 ' || echo "PORT 8010 FREE"
+PORT 8010 FREE
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# docker run -d \
+  --name niyam-vllm \
+  --device=/dev/kfd \
+  --device=/dev/dri \
+  --group-add=video \
+  --ipc=host \
+  --cap-add=SYS_PTRACE \
+  --security-opt seccomp=unconfined \
+  --shm-size=64g \
+  -e HF_HOME=/root/.cache/huggingface \
+  -e HF_HUB_OFFLINE=1 \
+  -v /mnt/niyam-data/hf-cache:/root/.cache/huggingface:ro \
+  -p 127.0.0.1:8010:8000 \
+  vllm/vllm-openai-rocm@sha256:e0a3b2bd3fe7ec563916c3a5d949898d133458c18d6b2f460c906885cfb32032 \
+  --model Qwen/Qwen3.5-122B-A10B-FP8 \
+  --revision a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9 \
+  --served-model-name Qwen/Qwen3.5-122B-A10B-FP8 \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.88 \
+  --max-num-seqs 32 \
+  --reasoning-parser qwen3 \
+  --enable-auto-tool-choice \
+  --tool-call-parser qwen3_coder \
+  --language-model-only \
+  --trust-remote-code
+8973aacfa42163e2d8161664edfe43f809ca09aee5f046150e0619acd1575370
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# docker ps -a --filter name=niyam-vllm
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                      NAMES
+8973aacfa421   e0a3b2bd3fe7   "vllm serve --model …"   24 seconds ago   Up 23 seconds   127.0.0.1:8010->8000/tcp   niyam-vllm
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# docker logs --tail 100 niyam-vllm
+WARNING 08-28 10:33:38 [argparse_utils.py:257] With `vllm serve`, you should provide the model as a positional argument or in a config file instead of via the `--model` option. The `--model` option will be removed in a future version.
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]        █     █     █▄   ▄█
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.28.0
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]   █▄█▀ █     █     █     █  model   Qwen/Qwen3.5-122B-A10B-FP8
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:272] non-default args: {'model_tag': 'Qwen/Qwen3.5-122B-A10B-FP8', 'enable_auto_tool_choice': True, 'tool_call_parser': 'qwen3_coder', 'host': '0.0.0.0', 'model': 'Qwen/Qwen3.5-122B-A10B-FP8', 'trust_remote_code': True, 'revision': 'a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9', 'max_model_len': 32768, 'served_model_name': ['Qwen/Qwen3.5-122B-A10B-FP8'], 'reasoning_parser': 'qwen3', 'gpu_memory_utilization': 0.88, 'language_model_only': True, 'max_num_seqs': 32}
+(APIServer pid=1) INFO 08-28 10:33:38 [arg_utils.py:813] HF_HUB_OFFLINE is True, replace model_id [Qwen/Qwen3.5-122B-A10B-FP8] to model_path [/root/.cache/huggingface/hub/models--Qwen--Qwen3.5-122B-A10B-FP8/snapshots/a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9]
+(APIServer pid=1) INFO 08-28 10:33:45 [model.py:672] Resolved architecture: Qwen3_5MoeForConditionalGeneration
+(APIServer pid=1) INFO 08-28 10:33:45 [model.py:1965] Using max model len 32768
+(APIServer pid=1) [ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+(APIServer pid=1) [ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+(APIServer pid=1) INFO 08-28 10:33:46 [registry.py:141] All limits of multimodal modalities supported by the model are set to 0, running in text-only mode.
+(APIServer pid=1) INFO 08-28 10:33:46 [model.py:875] Disabled mm_prefix attention mode because multimodal inputs are configuration-disabled. Attention backends without mm_prefix support may now be selected.
+(APIServer pid=1) INFO 08-28 10:33:46 [scheduler.py:242] Chunked prefill is enabled with max_num_batched_tokens=16384.
+(APIServer pid=1) INFO 08-28 10:33:46 [config.py:605] Mamba cache mode is set to 'align' for Qwen3_5MoeForConditionalGeneration by default when prefix caching is enabled
+(APIServer pid=1) INFO 08-28 10:33:46 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=1) INFO 08-28 10:33:46 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant
+(EngineCore pid=180) INFO 08-28 10:33:54 [core.py:122] Initializing a V1 LLM engine (v0.28.0) with config: model='/root/.cache/huggingface/hub/models--Qwen--Qwen3.5-122B-A10B-FP8/snapshots/a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9', speculative_config=None, tokenizer='/root/.cache/huggingface/hub/models--Qwen--Qwen3.5-122B-A10B-FP8/snapshots/a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9', skip_tokenizer_init=False, tokenizer_mode=auto, revision=a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9, tokenizer_revision=a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=32768, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=fp8, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='qwen3', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=Qwen/Qwen3.5-122B-A10B-FP8, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['+quant_fp8', '+sparse_attn_indexer', 'none', '+quant_fp8'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::linear_attention', 'vllm::qwen_gdn_attention_core', 'vllm::qwen_gdn_attention_core_fused_norm_packed', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::hpc_rope_norm_forward', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [16384], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.FULL_AND_PIECEWISE: (2, 1)>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_mla_dual_rms_norm': False, 'fuse_rope_kvcache': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 64, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=180) [ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+(EngineCore pid=180) [ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+(EngineCore pid=180) INFO 08-28 10:33:55 [registry.py:141] All limits of multimodal modalities supported by the model are set to 0, running in text-only mode.
+(EngineCore pid=180) INFO 08-28 10:33:55 [parallel_state.py:1638] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_6c5475724b614e6bab08d489e923df34 backend=nccl
+(EngineCore pid=180) INFO 08-28 10:33:55 [parallel_state.py:1982] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank 0, EPLB rank N/A
+(EngineCore pid=180) INFO 08-28 10:33:56 [gpu_model_runner.py:5419] Starting to load model /root/.cache/huggingface/hub/models--Qwen--Qwen3.5-122B-A10B-FP8/snapshots/a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9...
+(EngineCore pid=180) INFO 08-28 10:33:56 [rocm.py:757] Using Flash Attention backend for ViT model.
+(EngineCore pid=180) WARNING 08-28 10:33:56 [activation.py:808] [ROCm] PyTorch's native GELU with tanh approximation is unstable. Falling back to GELU(approximate='none').
+(EngineCore pid=180) INFO 08-28 10:33:56 [mm_encoder_attention.py:375] Using AttentionBackendEnum.FLASH_ATTN for MMEncoderAttention.
+(EngineCore pid=180) INFO 08-28 10:33:56 [__init__.py:689] Selected TritonFp8BlockScaledMMKernel for Fp8LinearMethod
+(EngineCore pid=180) INFO 08-28 10:33:56 [qwen_gdn_linear_attn.py:158] Using Triton/FLA GDN prefill kernel (requested=auto, head_k_dim=128).
+(EngineCore pid=180) INFO 08-28 10:33:56 [qwen_gdn_linear_attn.py:500] Falling back to the Triton GDN decode path: torch.ops._C.fused_gdn_decode_post_conv_mtp is not built
+(EngineCore pid=180) INFO 08-28 10:33:56 [qwen_gdn_linear_attn.py:505] GDN decode kernel: triton
+(EngineCore pid=180) INFO 08-28 10:33:56 [fp8.py:411] Using TRITON Fp8 MoE backend out of potential backends: ['AITER', 'FLASHINFER_TRTLLM', 'FLASHINFER_CUTLASS', 'DEEPGEMM', 'TRITON', 'MARLIN', 'HUMMING', 'BATCHED_DEEPGEMM', 'BATCHED_TRITON', 'XPU', 'CPU', 'HPC'].
+(EngineCore pid=180) INFO 08-28 10:33:57 [rocm.py:703] Found incompatible backend(s) [TURBOQUANT] with AttentionType.DECODER. Overriding with ROCM_ATTN out of potential backends: ['ROCM_ATTN', 'ROCM_AITER_UNIFIED_ATTN', 'TRITON_ATTN'].
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# docker logs --tail 100 niyam-vllm
+WARNING 08-28 10:33:38 [argparse_utils.py:257] With `vllm serve`, you should provide the model as a positional argument or in a config file instead of via the `--model` option. The `--model` option will be removed in a future version.
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]        █     █     █▄   ▄█
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.28.0
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]   █▄█▀ █     █     █     █  model   Qwen/Qwen3.5-122B-A10B-FP8
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:333]
+(APIServer pid=1) INFO 08-28 10:33:38 [api_utils.py:272] non-default args: {'model_tag': 'Qwen/Qwen3.5-122B-A10B-FP8', 'enable_auto_tool_choice': True, 'tool_call_parser': 'qwen3_coder', 'host': '0.0.0.0', 'model': 'Qwen/Qwen3.5-122B-A10B-FP8', 'trust_remote_code': True, 'revision': 'a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9', 'max_model_len': 32768, 'served_model_name': ['Qwen/Qwen3.5-122B-A10B-FP8'], 'reasoning_parser': 'qwen3', 'gpu_memory_utilization': 0.88, 'language_model_only': True, 'max_num_seqs': 32}
+(APIServer pid=1) INFO 08-28 10:33:38 [arg_utils.py:813] HF_HUB_OFFLINE is True, replace model_id [Qwen/Qwen3.5-122B-A10B-FP8] to model_path [/root/.cache/huggingface/hub/models--Qwen--Qwen3.5-122B-A10B-FP8/snapshots/a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9]
+(APIServer pid=1) INFO 08-28 10:33:45 [model.py:672] Resolved architecture: Qwen3_5MoeForConditionalGeneration
+(APIServer pid=1) INFO 08-28 10:33:45 [model.py:1965] Using max model len 32768
+(APIServer pid=1) [ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+(APIServer pid=1) [ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+(APIServer pid=1) INFO 08-28 10:33:46 [registry.py:141] All limits of multimodal modalities supported by the model are set to 0, running in text-only mode.
+(APIServer pid=1) INFO 08-28 10:33:46 [model.py:875] Disabled mm_prefix attention mode because multimodal inputs are configuration-disabled. Attention backends without mm_prefix support may now be selected.
+(APIServer pid=1) INFO 08-28 10:33:46 [scheduler.py:242] Chunked prefill is enabled with max_num_batched_tokens=16384.
+(APIServer pid=1) INFO 08-28 10:33:46 [config.py:605] Mamba cache mode is set to 'align' for Qwen3_5MoeForConditionalGeneration by default when prefix caching is enabled
+(APIServer pid=1) INFO 08-28 10:33:46 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=1) INFO 08-28 10:33:46 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant
+(EngineCore pid=180) INFO 08-28 10:33:54 [core.py:122] Initializing a V1 LLM engine (v0.28.0) with config: model='/root/.cache/huggingface/hub/models--Qwen--Qwen3.5-122B-A10B-FP8/snapshots/a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9', speculative_config=None, tokenizer='/root/.cache/huggingface/hub/models--Qwen--Qwen3.5-122B-A10B-FP8/snapshots/a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9', skip_tokenizer_init=False, tokenizer_mode=auto, revision=a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9, tokenizer_revision=a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=32768, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=fp8, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='qwen3', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=Qwen/Qwen3.5-122B-A10B-FP8, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['+quant_fp8', '+sparse_attn_indexer', 'none', '+quant_fp8'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::linear_attention', 'vllm::qwen_gdn_attention_core', 'vllm::qwen_gdn_attention_core_fused_norm_packed', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::hpc_rope_norm_forward', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [16384], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.FULL_AND_PIECEWISE: (2, 1)>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_mla_dual_rms_norm': False, 'fuse_rope_kvcache': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 64, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=180) [ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+(EngineCore pid=180) [ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+(EngineCore pid=180) INFO 08-28 10:33:55 [registry.py:141] All limits of multimodal modalities supported by the model are set to 0, running in text-only mode.
+(EngineCore pid=180) INFO 08-28 10:33:55 [parallel_state.py:1638] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_6c5475724b614e6bab08d489e923df34 backend=nccl
+(EngineCore pid=180) INFO 08-28 10:33:55 [parallel_state.py:1982] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank 0, EPLB rank N/A
+(EngineCore pid=180) INFO 08-28 10:33:56 [gpu_model_runner.py:5419] Starting to load model /root/.cache/huggingface/hub/models--Qwen--Qwen3.5-122B-A10B-FP8/snapshots/a099dee70ccfcd8d5dda56aaa0b60cb8ecadabc9...
+(EngineCore pid=180) INFO 08-28 10:33:56 [rocm.py:757] Using Flash Attention backend for ViT model.
+(EngineCore pid=180) WARNING 08-28 10:33:56 [activation.py:808] [ROCm] PyTorch's native GELU with tanh approximation is unstable. Falling back to GELU(approximate='none').
+(EngineCore pid=180) INFO 08-28 10:33:56 [mm_encoder_attention.py:375] Using AttentionBackendEnum.FLASH_ATTN for MMEncoderAttention.
+(EngineCore pid=180) INFO 08-28 10:33:56 [__init__.py:689] Selected TritonFp8BlockScaledMMKernel for Fp8LinearMethod
+(EngineCore pid=180) INFO 08-28 10:33:56 [qwen_gdn_linear_attn.py:158] Using Triton/FLA GDN prefill kernel (requested=auto, head_k_dim=128).
+(EngineCore pid=180) INFO 08-28 10:33:56 [qwen_gdn_linear_attn.py:500] Falling back to the Triton GDN decode path: torch.ops._C.fused_gdn_decode_post_conv_mtp is not built
+(EngineCore pid=180) INFO 08-28 10:33:56 [qwen_gdn_linear_attn.py:505] GDN decode kernel: triton
+(EngineCore pid=180) INFO 08-28 10:33:56 [fp8.py:411] Using TRITON Fp8 MoE backend out of potential backends: ['AITER', 'FLASHINFER_TRTLLM', 'FLASHINFER_CUTLASS', 'DEEPGEMM', 'TRITON', 'MARLIN', 'HUMMING', 'BATCHED_DEEPGEMM', 'BATCHED_TRITON', 'XPU', 'CPU', 'HPC'].
+(EngineCore pid=180) INFO 08-28 10:33:57 [rocm.py:703] Found incompatible backend(s) [TURBOQUANT] with AttentionType.DECODER. Overriding with ROCM_ATTN out of potential backends: ['ROCM_ATTN', 'ROCM_AITER_UNIFIED_ATTN', 'TRITON_ATTN'].
+(EngineCore pid=180) WARNING 08-28 10:34:00 [compilation.py:1348] Op 'sparse_attn_indexer' not present in model, enabling with '+sparse_attn_indexer' has no effect
+(EngineCore pid=180) INFO 08-28 10:34:00 [weight_utils.py:858] Filesystem type for checkpoints: EXT4. Checkpoint size: 118.43 GiB. Available RAM: 226.54 GiB.
+(EngineCore pid=180) INFO 08-28 10:34:00 [weight_utils.py:881] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+Loading safetensors checkpoint shards:   0% Completed | 0/39 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:   3% Completed | 1/39 [00:01<01:01,  1.62s/it]
+Loading safetensors checkpoint shards:   5% Completed | 2/39 [00:03<01:02,  1.68s/it]
+Loading safetensors checkpoint shards:   8% Completed | 3/39 [00:05<01:01,  1.70s/it]
+Loading safetensors checkpoint shards:  10% Completed | 4/39 [00:06<00:59,  1.71s/it]
+Loading safetensors checkpoint shards:  13% Completed | 5/39 [00:08<00:57,  1.69s/it]
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle#

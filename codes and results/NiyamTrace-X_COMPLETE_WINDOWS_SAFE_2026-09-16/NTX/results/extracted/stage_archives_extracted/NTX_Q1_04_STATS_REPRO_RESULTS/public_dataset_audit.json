@@ -1,0 +1,20 @@
+{
+  "n_rows": 10000,
+  "columns": [
+    "id",
+    "raw_text",
+    "primary_lang",
+    "expected_intent",
+    "expected_slots",
+    "expected_gate_verdict",
+    "expected_reason_code",
+    "_norm"
+  ],
+  "exact_duplicate_raw_text": 1668,
+  "template_normalized_duplicate_rows": 5330,
+  "unique_template_normalized_fraction": 0.467,
+  "semantic_groups": 7380,
+  "groups_spanning_multiple_languages": 156,
+  "near_duplicate_rate_sample_cosine_ge_0.95": 0.477,
+  "near_duplicate_rate_sample_cosine_ge_0.90": 0.5595
+}

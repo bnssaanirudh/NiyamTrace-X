@@ -1,0 +1,12 @@
+feature,standardized_coefficient
+anchor_n,2.4157698464598116
+model_disagreement_n,-0.6861539441471503
+candidate_authorized_mismatch_n,-0.5720472552444961
+raw_is_allow,0.5427923148891403
+effective_disagreement_n,-0.45655535466631475
+needs_clarification,-0.4524886392527462
+raw_is_clarify,-0.35020681334072407
+raw_is_block,-0.2729027195779078
+uncertainty_value_n,0.18470129623870224
+num_candidates,0.0
+schema_valid,0.0

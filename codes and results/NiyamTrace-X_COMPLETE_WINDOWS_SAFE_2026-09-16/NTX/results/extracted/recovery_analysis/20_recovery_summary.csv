@@ -1,0 +1,7 @@
+benchmark,model,family,slice,metric,evidence_state,n,mean_score
+tau3,gpt-oss,GPT-OSS,airline,reward,SUPPORTED,1,1.0
+tau3,gpt-oss,GPT-OSS,retail,reward,SUPPORTED,1,1.0
+tau3,gpt-oss,GPT-OSS,telecom,reward,SUPPORTED,1,0.0
+tau3,qwen,Qwen,airline,reward,SUPPORTED,1,1.0
+tau3,qwen,Qwen,retail,reward,SUPPORTED,1,0.0
+tau3,qwen,Qwen,telecom,reward,SUPPORTED,1,0.0

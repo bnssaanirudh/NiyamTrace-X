@@ -1,0 +1,12 @@
+{
+  "experiment": "NTX_Q1_06_Metamorphic_Semantic_Attack_Lab",
+  "seed": 20260911,
+  "n_rows": 21762,
+  "n_families": 14,
+  "input_sha256": {
+    "holdout2000.jsonl": "4dad5dad9ea4a3258f6139407664ab2584678b440622871fa1b5d5da24f95d3a",
+    "qwen_results.jsonl": "7d1b3bf2b0b34d0101c1a885847d6d511a54014c16f43e4cea778b6078123eb7",
+    "gptoss_results.jsonl": "991812849fb9f5a0651b6277b7bc71d6c2c1ca8796b166eb182ec8fac221e81d"
+  },
+  "warning": "Controlled metamorphic stress test; do not describe as natural-distribution LLM accuracy."
+}

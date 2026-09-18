@@ -1,0 +1,10 @@
+benchmark,model,family,domain,status,returncode,tag,commit
+tau3,qwen3-235b,Qwen,airline,ERROR,1,ntx_external_qwen3-235b_airline_1789233872,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,qwen3-235b,Qwen,retail,ERROR,1,ntx_external_qwen3-235b_retail_1789233875,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,qwen3-235b,Qwen,telecom,ERROR,1,ntx_external_qwen3-235b_telecom_1789233875,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,llama-3.3-70b,Llama,airline,ERROR,1,ntx_external_llama-3.3-70b_airline_1789233876,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,llama-3.3-70b,Llama,retail,ERROR,1,ntx_external_llama-3.3-70b_retail_1789233877,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,llama-3.3-70b,Llama,telecom,ERROR,1,ntx_external_llama-3.3-70b_telecom_1789233878,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,gpt-oss-120b,GPT-OSS,airline,ERROR,1,ntx_external_gpt-oss-120b_airline_1789233879,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,gpt-oss-120b,GPT-OSS,retail,ERROR,1,ntx_external_gpt-oss-120b_retail_1789233880,2174a603f6d014ef94473ffa95957f6ce27100db
+tau3,gpt-oss-120b,GPT-OSS,telecom,ERROR,1,ntx_external_gpt-oss-120b_telecom_1789233880,2174a603f6d014ef94473ffa95957f6ce27100db

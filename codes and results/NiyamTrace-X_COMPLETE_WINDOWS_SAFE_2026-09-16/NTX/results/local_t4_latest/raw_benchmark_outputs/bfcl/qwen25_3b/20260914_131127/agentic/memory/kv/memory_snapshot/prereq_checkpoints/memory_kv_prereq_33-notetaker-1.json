@@ -1,0 +1,12 @@
+{
+    "core_memory": {
+        "monday_tasks": "team_meeting_over_by_30_minutes,finalize_q1_budget_report_before_friday,it_updated_security_protocols_change_passwords_asap,client_call_with_jacob_delayed_till_wednesday",
+        "tuesday_tasks": "system_downtime_from_10_am_to_12_pm_slowed_workflow,hr_sent_updated_benefits_package_review_before_next_months_deadline,sent_follow_up_emails_to_vendors_waiting_on_response",
+        "wednesday_tasks": "presentation_to_leadership_went_well_but_need_to_tweak_a_few_slides_for_next_weeks_review,client_proposal_draft_ready_send_it_for_legal_approval,need_to_onboard_new_hire_schedule_one_on_one",
+        "thursday_tasks": "finance_wants_cost_cutting_recommendations_brainstorm_ideas,project_deadline_approaching_check_in_with_dev_team_caught_a_mistake_in_last_months_sales_data",
+        "friday_tasks": "wrapped_up_pending_reports_still_waiting_for_final_approval_followed_up_with_vendors_two_responded_one_still_pending_training_session_next_monday_prep_materials_this_sunday",
+        "urgent_tasks": "submit_tax_documents_before_friday,review_credit_card_statement_for_errors,call_auto_repair_shop_about_weird_noise_in_the_engine",
+        "work_tasks": "finalize_quarterly_budget,review_vendor_contract_before_signing,finish_security_compliance_training_module"
+    },
+    "archival_memory": {}
+}

@@ -1,0 +1,9 @@
+{
+  "slug": "qwen25_3b",
+  "family": "Qwen",
+  "repo": "Qwen/Qwen2.5-3B-Instruct",
+  "chat_ok": true,
+  "auto_tool_ok": true,
+  "forced_tool_ok": true,
+  "error": ""
+}

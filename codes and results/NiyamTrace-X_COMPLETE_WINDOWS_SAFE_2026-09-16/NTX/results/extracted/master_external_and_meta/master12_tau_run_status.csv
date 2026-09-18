@@ -1,0 +1,154 @@
+model,domain,status,returncode,seconds,save_to,output_dir,log,stderr_tail
+qwen3-coder-exacto,airline,ERROR,1,0.9403061866760254,ntx_qwen3-coder-exacto_airline_1789209401,/content/NTX_MASTER_WAVE3/work/tau2-bench/data/simulations/ntx_qwen3-coder-exacto_airline_1789209401,/content/NTX_MASTER_WAVE3/outputs/master12_tau_qwen3-coder-exacto_airline.log," main
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/__init__.py"", line 13, in <module>
+    import tau2.runner as runner
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/__init__.py"", line 16, in <module>
+    from tau2.runner.batch import run_domain, run_single_task, run_tasks
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/batch.py"", line 28, in <module>
+    from tau2.data_model.simulation import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/data_model/simulation.py"", line 62, in <module>
+    from tau2.voice.audio_native.openai.live_config import LiveConfig
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/__init__.py"", line 5, in <module>
+    from tau2.voice.audio_native.openai.discrete_time_adapter import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/discrete_time_adapter.py"", line 52, in <module>
+    from tau2.voice.audio_native.openai.provider import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/provider.py"", line 12, in <module>
+    import websockets
+ModuleNotFoundError: No module named 'websockets'
+"
+qwen3-coder-exacto,retail,ERROR,1,1.0281357765197754,ntx_qwen3-coder-exacto_retail_1789209402,/content/NTX_MASTER_WAVE3/work/tau2-bench/data/simulations/ntx_qwen3-coder-exacto_retail_1789209402,/content/NTX_MASTER_WAVE3/outputs/master12_tau_qwen3-coder-exacto_retail.log," main
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/__init__.py"", line 13, in <module>
+    import tau2.runner as runner
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/__init__.py"", line 16, in <module>
+    from tau2.runner.batch import run_domain, run_single_task, run_tasks
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/batch.py"", line 28, in <module>
+    from tau2.data_model.simulation import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/data_model/simulation.py"", line 62, in <module>
+    from tau2.voice.audio_native.openai.live_config import LiveConfig
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/__init__.py"", line 5, in <module>
+    from tau2.voice.audio_native.openai.discrete_time_adapter import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/discrete_time_adapter.py"", line 52, in <module>
+    from tau2.voice.audio_native.openai.provider import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/provider.py"", line 12, in <module>
+    import websockets
+ModuleNotFoundError: No module named 'websockets'
+"
+qwen3-coder-exacto,telecom,ERROR,1,0.9306178092956543,ntx_qwen3-coder-exacto_telecom_1789209403,/content/NTX_MASTER_WAVE3/work/tau2-bench/data/simulations/ntx_qwen3-coder-exacto_telecom_1789209403,/content/NTX_MASTER_WAVE3/outputs/master12_tau_qwen3-coder-exacto_telecom.log," main
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/__init__.py"", line 13, in <module>
+    import tau2.runner as runner
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/__init__.py"", line 16, in <module>
+    from tau2.runner.batch import run_domain, run_single_task, run_tasks
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/batch.py"", line 28, in <module>
+    from tau2.data_model.simulation import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/data_model/simulation.py"", line 62, in <module>
+    from tau2.voice.audio_native.openai.live_config import LiveConfig
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/__init__.py"", line 5, in <module>
+    from tau2.voice.audio_native.openai.discrete_time_adapter import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/discrete_time_adapter.py"", line 52, in <module>
+    from tau2.voice.audio_native.openai.provider import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/provider.py"", line 12, in <module>
+    import websockets
+ModuleNotFoundError: No module named 'websockets'
+"
+gpt-oss-120b-exacto,airline,ERROR,1,0.9462053775787354,ntx_gpt-oss-120b-exacto_airline_1789209404,/content/NTX_MASTER_WAVE3/work/tau2-bench/data/simulations/ntx_gpt-oss-120b-exacto_airline_1789209404,/content/NTX_MASTER_WAVE3/outputs/master12_tau_gpt-oss-120b-exacto_airline.log," main
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/__init__.py"", line 13, in <module>
+    import tau2.runner as runner
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/__init__.py"", line 16, in <module>
+    from tau2.runner.batch import run_domain, run_single_task, run_tasks
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/batch.py"", line 28, in <module>
+    from tau2.data_model.simulation import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/data_model/simulation.py"", line 62, in <module>
+    from tau2.voice.audio_native.openai.live_config import LiveConfig
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/__init__.py"", line 5, in <module>
+    from tau2.voice.audio_native.openai.discrete_time_adapter import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/discrete_time_adapter.py"", line 52, in <module>
+    from tau2.voice.audio_native.openai.provider import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/provider.py"", line 12, in <module>
+    import websockets
+ModuleNotFoundError: No module named 'websockets'
+"
+gpt-oss-120b-exacto,retail,ERROR,1,0.9303646087646484,ntx_gpt-oss-120b-exacto_retail_1789209405,/content/NTX_MASTER_WAVE3/work/tau2-bench/data/simulations/ntx_gpt-oss-120b-exacto_retail_1789209405,/content/NTX_MASTER_WAVE3/outputs/master12_tau_gpt-oss-120b-exacto_retail.log," main
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/__init__.py"", line 13, in <module>
+    import tau2.runner as runner
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/__init__.py"", line 16, in <module>
+    from tau2.runner.batch import run_domain, run_single_task, run_tasks
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/batch.py"", line 28, in <module>
+    from tau2.data_model.simulation import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/data_model/simulation.py"", line 62, in <module>
+    from tau2.voice.audio_native.openai.live_config import LiveConfig
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/__init__.py"", line 5, in <module>
+    from tau2.voice.audio_native.openai.discrete_time_adapter import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/discrete_time_adapter.py"", line 52, in <module>
+    from tau2.voice.audio_native.openai.provider import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/provider.py"", line 12, in <module>
+    import websockets
+ModuleNotFoundError: No module named 'websockets'
+"
+gpt-oss-120b-exacto,telecom,ERROR,1,0.9494109153747559,ntx_gpt-oss-120b-exacto_telecom_1789209406,/content/NTX_MASTER_WAVE3/work/tau2-bench/data/simulations/ntx_gpt-oss-120b-exacto_telecom_1789209406,/content/NTX_MASTER_WAVE3/outputs/master12_tau_gpt-oss-120b-exacto_telecom.log," main
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/__init__.py"", line 13, in <module>
+    import tau2.runner as runner
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/__init__.py"", line 16, in <module>
+    from tau2.runner.batch import run_domain, run_single_task, run_tasks
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/batch.py"", line 28, in <module>
+    from tau2.data_model.simulation import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/data_model/simulation.py"", line 62, in <module>
+    from tau2.voice.audio_native.openai.live_config import LiveConfig
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/__init__.py"", line 5, in <module>
+    from tau2.voice.audio_native.openai.discrete_time_adapter import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/discrete_time_adapter.py"", line 52, in <module>
+    from tau2.voice.audio_native.openai.provider import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/provider.py"", line 12, in <module>
+    import websockets
+ModuleNotFoundError: No module named 'websockets'
+"
+glm-4.6-exacto,airline,ERROR,1,1.2324333190917969,ntx_glm-4.6-exacto_airline_1789209407,/content/NTX_MASTER_WAVE3/work/tau2-bench/data/simulations/ntx_glm-4.6-exacto_airline_1789209407,/content/NTX_MASTER_WAVE3/outputs/master12_tau_glm-4.6-exacto_airline.log," main
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/__init__.py"", line 13, in <module>
+    import tau2.runner as runner
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/__init__.py"", line 16, in <module>
+    from tau2.runner.batch import run_domain, run_single_task, run_tasks
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/batch.py"", line 28, in <module>
+    from tau2.data_model.simulation import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/data_model/simulation.py"", line 62, in <module>
+    from tau2.voice.audio_native.openai.live_config import LiveConfig
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/__init__.py"", line 5, in <module>
+    from tau2.voice.audio_native.openai.discrete_time_adapter import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/discrete_time_adapter.py"", line 52, in <module>
+    from tau2.voice.audio_native.openai.provider import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/provider.py"", line 12, in <module>
+    import websockets
+ModuleNotFoundError: No module named 'websockets'
+"
+glm-4.6-exacto,retail,ERROR,1,1.343916416168213,ntx_glm-4.6-exacto_retail_1789209408,/content/NTX_MASTER_WAVE3/work/tau2-bench/data/simulations/ntx_glm-4.6-exacto_retail_1789209408,/content/NTX_MASTER_WAVE3/outputs/master12_tau_glm-4.6-exacto_retail.log," main
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/__init__.py"", line 13, in <module>
+    import tau2.runner as runner
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/__init__.py"", line 16, in <module>
+    from tau2.runner.batch import run_domain, run_single_task, run_tasks
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/batch.py"", line 28, in <module>
+    from tau2.data_model.simulation import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/data_model/simulation.py"", line 62, in <module>
+    from tau2.voice.audio_native.openai.live_config import LiveConfig
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/__init__.py"", line 5, in <module>
+    from tau2.voice.audio_native.openai.discrete_time_adapter import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/discrete_time_adapter.py"", line 52, in <module>
+    from tau2.voice.audio_native.openai.provider import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/provider.py"", line 12, in <module>
+    import websockets
+ModuleNotFoundError: No module named 'websockets'
+"
+glm-4.6-exacto,telecom,ERROR,1,1.213381290435791,ntx_glm-4.6-exacto_telecom_1789209410,/content/NTX_MASTER_WAVE3/work/tau2-bench/data/simulations/ntx_glm-4.6-exacto_telecom_1789209410,/content/NTX_MASTER_WAVE3/outputs/master12_tau_glm-4.6-exacto_telecom.log," main
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/__init__.py"", line 13, in <module>
+    import tau2.runner as runner
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/__init__.py"", line 16, in <module>
+    from tau2.runner.batch import run_domain, run_single_task, run_tasks
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/runner/batch.py"", line 28, in <module>
+    from tau2.data_model.simulation import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/data_model/simulation.py"", line 62, in <module>
+    from tau2.voice.audio_native.openai.live_config import LiveConfig
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/__init__.py"", line 5, in <module>
+    from tau2.voice.audio_native.openai.discrete_time_adapter import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/discrete_time_adapter.py"", line 52, in <module>
+    from tau2.voice.audio_native.openai.provider import (
+  File ""/content/NTX_MASTER_WAVE3/work/tau2-bench/src/tau2/voice/audio_native/openai/provider.py"", line 12, in <module>
+    import websockets
+ModuleNotFoundError: No module named 'websockets'
+"

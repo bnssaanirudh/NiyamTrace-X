@@ -1,0 +1,9 @@
+claim,status
+BFCL external function-calling evidence,MISSING
+AgentDojo prompt-injection evidence,MISSING
+AgentDyn dynamic prompt-injection evidence,MISSING
+tau3 stateful external evidence,MISSING
+MLCL external multilingual evidence,MISSING
+MCP-SafetyBench evidence,MISSING
+>=3 external benchmark families,MISSING
+>=3 external model families,MISSING

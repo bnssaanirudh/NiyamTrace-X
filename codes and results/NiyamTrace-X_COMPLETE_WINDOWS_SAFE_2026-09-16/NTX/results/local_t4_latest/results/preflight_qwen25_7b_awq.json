@@ -1,0 +1,9 @@
+{
+  "slug": "qwen25_7b_awq",
+  "family": "Qwen",
+  "repo": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+  "chat_ok": true,
+  "auto_tool_ok": true,
+  "forced_tool_ok": true,
+  "error": ""
+}

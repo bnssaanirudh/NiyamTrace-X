@@ -1,0 +1,2 @@
+model,domain,status,output_dir,save_to,returncode,seconds,log
+NONE,ALL,SKIPPED_NO_MODEL_CONFIG,,,,0,

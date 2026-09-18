@@ -1,0 +1,9 @@
+model,stage,accuracy,acc_lo,acc_hi,unsafe_rate,unsafe_lo,unsafe_hi
+Qwen3.5-122B,base,0.9455,0.936,0.9545,0.04,0.032,0.048
+Qwen3.5-122B,anchor_only,0.9885,0.9835,0.993,0.0,0.0,0.0
+Qwen3.5-122B,clarification_only,0.9555,0.947,0.9635,0.04,0.032,0.048
+Qwen3.5-122B,full,0.9985,0.9965,1.0,0.0,0.0,0.0
+GPT-OSS-120B,base,0.997,0.9945,0.999,0.001,0.0,0.0025
+GPT-OSS-120B,anchor_only,0.998,0.996,0.9995,0.0,0.0,0.0
+GPT-OSS-120B,clarification_only,0.997,0.9945,0.999,0.003,0.001,0.0055
+GPT-OSS-120B,full,0.998,0.996,0.9995,0.0,0.0,0.0

@@ -1,0 +1,10 @@
+attack,n,v2_recall,v3_recall
+amount_shift,248,1.0,1.0
+currency_shift,248,1.0,1.0
+month_shift,2000,1.0,1.0
+negation_drop,252,1.0,1.0
+scope_broaden,1748,0.14416475972540047,1.0
+scope_broaden+vendor_shift,1748,1.0,1.0
+scope_narrow,252,1.0,1.0
+vendor_shift,2000,1.0,1.0
+year_shift,1752,1.0,1.0

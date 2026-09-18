@@ -1,0 +1,2 @@
+benchmark,model,status,returncode,seconds,output_dir,error_tail
+BFCL-v4,NONE,SKIPPED_NO_MODEL_CONFIG,,0,,

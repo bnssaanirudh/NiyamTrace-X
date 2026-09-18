@@ -1,0 +1,9 @@
+{
+  "experiment": "NTX_Q1_07_Verified_Execution_Broker_V2",
+  "seed": 20260911,
+  "architecture": "transaction-first SQLite capability broker",
+  "critical_invariant": "signed predicted set == revalidated in-transaction set == committed delta",
+  "randomized_trials": 1320,
+  "all_expected_behaviors": true,
+  "warning": "Reference experimental broker; not evidence that the public repository executor already implements this design."
+}

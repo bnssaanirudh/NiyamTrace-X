@@ -1,0 +1,14 @@
+{
+  "file_count": 798,
+  "total_bytes": 209298945,
+  "notebook_count": 58,
+  "notebook_failures": 0,
+  "zip_count": 85,
+  "zip_failures": 0,
+  "duplicate_hash_groups": 142,
+  "final_file_count_including_manifest": 803,
+  "manifest_rows_excluding_manifest_itself": 802,
+  "final_notebook_count": 58,
+  "final_zip_count": 85,
+  "manifest_sha256": "ab2c453bb2c428917390f148787151841576ece1d2ae129131e3c39c60d71b50"
+}

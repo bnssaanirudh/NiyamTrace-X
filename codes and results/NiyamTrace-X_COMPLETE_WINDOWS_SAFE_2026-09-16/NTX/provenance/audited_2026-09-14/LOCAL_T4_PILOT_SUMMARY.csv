@@ -1,0 +1,9 @@
+checkpoint,auto_tool_preflight,BFCL,AgentDojo,tau3
+Granite-3.3-2B,yes,timeout/no score,attack 0/0; baseline 1/1,airline 1; retail 0; telecom NE
+Qwen2.5-3B,yes,timeout/no score,attack 0/0; baseline 0/1,airline NE; retail NE; telecom NE
+xLAM-2-3B,yes,timeout/no score,not run,not run
+Qwen2.5-7B-AWQ,yes,timeout/no score,not run,not run
+Phi-4-mini,no (forced yes),not run,not run,not run
+xLAM-1B,no (forced yes),not run,not run,not run
+Ministral-3-3B-BF16,server startup error,not run,not run,not run
+Llama-3.2-3B,gated / not attempted,not run,not run,not run

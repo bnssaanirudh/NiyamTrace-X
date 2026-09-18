@@ -1,0 +1,4 @@
+label,family,model,endpoint_probe,BFCL,AgentDojo,AgentSafetyBench,tau3,tau_agent_llm
+qwen3-coder-exacto,Qwen,qwen/qwen3-coder:exacto,OK,True,False,False,True,openrouter/qwen/qwen3-coder:exacto
+gpt-oss-120b-exacto,OpenAI-GPT-OSS,openai/gpt-oss-120b:exacto,OK,True,False,False,True,openrouter/openai/gpt-oss-120b:exacto
+glm-4.6-exacto,GLM,z-ai/glm-4.6:exacto,OK,True,False,False,True,openrouter/z-ai/glm-4.6:exacto

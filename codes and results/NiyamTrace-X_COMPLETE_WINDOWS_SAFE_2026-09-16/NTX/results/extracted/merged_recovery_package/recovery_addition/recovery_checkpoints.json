@@ -1,0 +1,32 @@
+{
+  "dojo_recovery::qwen::QUICK": {
+    "status": "INFRA_FAILURE",
+    "updated_at": "2026-09-14T07:47:52.887282+00:00",
+    "returncode": 1,
+    "n": 0,
+    "utility": NaN,
+    "security": NaN,
+    "errors": 0,
+    "resolved_model": "qwen/qwen3-30b-a3b-instruct-2507"
+  },
+  "dojo_recovery::gpt-oss::QUICK": {
+    "status": "INFRA_FAILURE",
+    "updated_at": "2026-09-14T07:47:58.322305+00:00",
+    "returncode": 1,
+    "n": 0,
+    "utility": NaN,
+    "security": NaN,
+    "errors": 0,
+    "resolved_model": "openai/gpt-oss-20b"
+  },
+  "dojo_recovery::glm::QUICK": {
+    "status": "INFRA_FAILURE",
+    "updated_at": "2026-09-14T07:48:03.749535+00:00",
+    "returncode": 1,
+    "n": 0,
+    "utility": NaN,
+    "security": NaN,
+    "errors": 0,
+    "resolved_model": "z-ai/glm-4.5-air"
+  }
+}

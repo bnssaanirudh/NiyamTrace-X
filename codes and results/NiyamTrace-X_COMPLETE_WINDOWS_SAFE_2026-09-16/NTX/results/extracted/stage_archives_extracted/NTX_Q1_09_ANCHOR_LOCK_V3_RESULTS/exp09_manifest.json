@@ -1,0 +1,24 @@
+{
+  "experiment": "NTX-Q1-09",
+  "seed": 20260911,
+  "rows": 12248,
+  "groups": 500,
+  "frozen_hashes": {
+    "holdout2000.jsonl": "4dad5dad9ea4a3258f6139407664ab2584678b440622871fa1b5d5da24f95d3a",
+    "qwen_results.jsonl": "7d1b3bf2b0b34d0101c1a885847d6d511a54014c16f43e4cea778b6078123eb7",
+    "gptoss_results.jsonl": "991812849fb9f5a0651b6277b7bc71d6c2c1ca8796b166eb182ec8fac221e81d"
+  },
+  "result_files": {
+    "exp09_guard_summary.csv": "af7536b9fcdedca28c717e62dcff43e4faf4eb306730f3f1d89b787f44382a7d",
+    "exp09_frozen_source_hashes.csv": "a6e9516ad5a98c7d191e52589aba4f0aabd807556c70cca177d2b442769e4836",
+    "exp09_surface_invariance.csv": "5fce95ff9918c329b3d1ebcc4f63c9f83f8d91f73ef2791de307dce4d43e5e1b",
+    "exp09_group_bootstrap_ci.csv": "4568039f24deb41b7e980ae5274de1d25751e0f9014b619832d54d42e843d0b6",
+    "exp09_attack_family_metrics.tex": "c4565d46eb1c524201575882545c0104ee2b1bd1b92b91016624de71b1a2d5f8",
+    "exp09_metamorphic_cases.csv": "ad8307147b817942a2a742b50dc495babb361cb334ecdddb04f4d53cb5619a0d",
+    "exp09_group_bootstrap.csv": "7119a9a9e5fc5a9d7bf9ebd5f7b1c6e43718a90ac19698a359f5839965991e25",
+    "exp09_targeted_regressions.csv": "8fe26b61cca2ff612ad01d1e660a11e614f49ff347d947fbf7394ec55c044619",
+    "exp09_frozen2000_v3_audit.csv": "2762a0bf9a72a890e60cf4665b1aad7f11c872325e07831ecf1fdfff426a8822",
+    "exp09_anchor_v3_attack_recall.png": "b406225d17e1bde3c7a6d9477341c622ee5ae6cad6f7a9dd14bad5fb89aa2a51",
+    "exp09_attack_family_metrics.csv": "b5aa04f1c8f18ed44eddb53ae7a0d6827293e1afbd9d46b4faac9150a72acf89"
+  }
+}

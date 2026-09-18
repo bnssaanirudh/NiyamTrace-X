@@ -1,0 +1,144 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{react2023}
+S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, Y.~Cao,
+  \href{https://arxiv.org/abs/2210.03629}{React: Synergizing reasoning and
+  acting in language models}, in: International Conference on Learning
+  Representations, 2023.
+\newline\urlprefix\url{https://arxiv.org/abs/2210.03629}
+
+\bibitem{taubench2024}
+S.~Yao, N.~Shinn, P.~Razavi, K.~Narasimhan,
+  \href{https://arxiv.org/abs/2406.12045}{$\tau$-bench: A benchmark for
+  tool-agent-user interaction in real-world domains} (2024).
+\newblock \href {http://arxiv.org/abs/2406.12045} {\path{arXiv:2406.12045}}.
+\newline\urlprefix\url{https://arxiv.org/abs/2406.12045}
+
+\bibitem{toolemu2024}
+Y.~Ruan, H.~Dong, A.~Wang, S.~Pitis, Y.~Zhou, J.~Ba, Y.~Dubois, C.~J. Maddison,
+  T.~Hashimoto, \href{https://arxiv.org/abs/2309.15817}{Identifying the risks
+  of lm agents with an lm-emulated sandbox}, in: International Conference on
+  Learning Representations, 2024.
+\newline\urlprefix\url{https://arxiv.org/abs/2309.15817}
+
+\bibitem{agentdojo2024}
+E.~Debenedetti, J.~Zhang, M.~Balunovi{\'c}, L.~Beurer-Kellner, M.~Fischer,
+  F.~Tram{\`e}r, \href{https://arxiv.org/abs/2406.13352}{Agentdojo: A dynamic
+  environment to evaluate prompt injection attacks and defenses for llm agents}
+  (2024).
+\newblock \href {http://arxiv.org/abs/2406.13352} {\path{arXiv:2406.13352}}.
+\newline\urlprefix\url{https://arxiv.org/abs/2406.13352}
+
+\bibitem{injecagent2024}
+Q.~Zhan, Z.~Liang, Z.~Ying, D.~Kang, Injecagent: Benchmarking indirect prompt
+  injections in tool-integrated large language model agents, in: Findings of
+  the Association for Computational Linguistics: ACL 2024, 2024, pp.
+  10471--10506.
+\newblock \href {https://doi.org/10.18653/v1/2024.findings-acl.624}
+  {\path{doi:10.18653/v1/2024.findings-acl.624}}.
+
+\bibitem{asb2025}
+H.~Zhang, J.~Huang, K.~Mei, Y.~Yao, Z.~Wang, C.~Zhan, H.~Wang, Y.~Zhang,
+  \href{https://arxiv.org/abs/2410.02644}{Agent security bench (asb):
+  Formalizing and benchmarking attacks and defenses in llm-based agents}, in:
+  International Conference on Learning Representations, 2025.
+\newline\urlprefix\url{https://arxiv.org/abs/2410.02644}
+
+\bibitem{agentsafetybench2024}
+Z.~Zhang, S.~Cui, Y.~Lu, J.~Zhou, J.~Yang, H.~Wang, M.~Huang,
+  \href{https://arxiv.org/abs/2412.14470}{Agent-safetybench: Evaluating the
+  safety of llm agents} (2024).
+\newblock \href {http://arxiv.org/abs/2412.14470} {\path{arXiv:2412.14470}}.
+\newline\urlprefix\url{https://arxiv.org/abs/2412.14470}
+
+\bibitem{lostexecution2026}
+Z.~Luo, T.~P. Kutralingam, O.~N. Okoani, W.~Xu, H.~Wei, X.~Hu, Lost in
+  execution: On the multilingual robustness of tool calling in large language
+  models, in: Proceedings of the 64th Annual Meeting of the Association for
+  Computational Linguistics (Volume 1: Long Papers), Association for
+  Computational Linguistics, 2026, pp. 44059--44077.
+\newblock \href {https://doi.org/10.18653/v1/2026.acl-long.2039}
+  {\path{doi:10.18653/v1/2026.acl-long.2039}}.
+
+\bibitem{qwen35}
+{Qwen Team}, \href{https://qwen.ai/blog?id=qwen3.5}{Qwen3.5: Towards native
+  multimodal agents}, model repository: Qwen/Qwen3.5-122B-A10B-FP8 (February
+  2026).
+\newline\urlprefix\url{https://qwen.ai/blog?id=qwen3.5}
+
+\bibitem{gptoss120b}
+{OpenAI}, \href{https://openai.com/index/gpt-oss-model-card/}{gpt-oss-120b and
+  gpt-oss-20b model card} (August 2025).
+\newline\urlprefix\url{https://openai.com/index/gpt-oss-model-card/}
+
+\bibitem{bfcl2025}
+S.~G. Patil, H.~Mao, F.~Yan, C.~C.-J. Ji, V.~Suresh, I.~Stoica, J.~E. Gonzalez,
+  \href{https://proceedings.mlr.press/v267/patil25a.html}{The berkeley function
+  calling leaderboard (bfcl): From tool use to agentic evaluation of large
+  language models}, in: Proceedings of the 42nd International Conference on
+  Machine Learning, Vol. 267, PMLR, 2025, pp. 48371--48392.
+\newline\urlprefix\url{https://proceedings.mlr.press/v267/patil25a.html}
+
+\bibitem{tau2bench2025}
+V.~Barres, H.~Dong, S.~Ray, X.~Si, K.~Narasimhan,
+  \href{https://arxiv.org/abs/2506.07982}{$\tau^2$-bench: Evaluating
+  conversational agents in a dual-control environment} (2025).
+\newblock \href {http://arxiv.org/abs/2506.07982} {\path{arXiv:2506.07982}}.
+\newline\urlprefix\url{https://arxiv.org/abs/2506.07982}
+
+\bibitem{aidguard2026}
+Y.~Tong, L.~Dai, S.~Guo, \href{https://arxiv.org/abs/2608.21159}{Aid-guard:
+  Stateful authorization for delegated agent effects} (2026).
+\newblock \href {http://arxiv.org/abs/2608.21159} {\path{arXiv:2608.21159}}.
+\newline\urlprefix\url{https://arxiv.org/abs/2608.21159}
+
+\bibitem{agentflow2026}
+B.~A. Shivakumar, S.~Priya, P.~Gao,
+  \href{https://arxiv.org/abs/2608.22868}{Agentflow: A flow-centric policy
+  language and framework for securing llm agent systems} (2026).
+\newblock \href {http://arxiv.org/abs/2608.22868} {\path{arXiv:2608.22868}}.
+\newline\urlprefix\url{https://arxiv.org/abs/2608.22868}
+
+\bibitem{authcontinuity2026}
+Z.~Zhang, X.~Zhang, \href{https://arxiv.org/abs/2607.23586}{Are you still the
+  agent i authorized? earned authority under a fixed ceiling for evolving
+  agents} (2026).
+\newblock \href {http://arxiv.org/abs/2607.23586} {\path{arXiv:2607.23586}}.
+\newline\urlprefix\url{https://arxiv.org/abs/2607.23586}
+
+\bibitem{attriguard2026}
+Y.~He, H.~Zhu, Y.~Li, S.~Shao, H.~Yao, Z.~Liu, Z.~Qin,
+  \href{https://www.usenix.org/conference/usenixsecurity26/presentation/he-yu}{Attriguard:
+  Defeating indirect prompt injection in llm agents via causal attribution of
+  tool invocations}, in: 35th USENIX Security Symposium (USENIX Security 26),
+  USENIX Association, 2026, pp. 1547--1566.
+\newline\urlprefix\url{https://www.usenix.org/conference/usenixsecurity26/presentation/he-yu}
+
+\bibitem{clawsentry2026}
+K.~Wang, Z.~Wei, B.~Zeng, C.~Jin, A.~Wang, X.~Luan, Z.~Lin, J.~Qu, X.~Hu,
+  X.~Xu, \href{https://arxiv.org/abs/2608.21101}{Clawsentry: A progressive
+  multi-tier security monitor for safeguarding autonomous llm agents} (2026).
+\newblock \href {http://arxiv.org/abs/2608.21101} {\path{arXiv:2608.21101}}.
+\newline\urlprefix\url{https://arxiv.org/abs/2608.21101}
+
+\bibitem{vera2026}
+Y.~Feng, R.~Lin, M.~Wen, Q.~He, Y.~Guo, Y.~Ding, Y.~Wu, J.~Chen, Y.~Chen,
+  X.~Du, J.~Ma, Z.~Chen, Z.~Xu, X.~Ma, X.~Deng,
+  \href{https://arxiv.org/abs/2607.01793}{Safety testing llm agents at scale:
+  From risk discovery to evidence-grounded verification} (2026).
+\newblock \href {http://arxiv.org/abs/2607.01793} {\path{arXiv:2607.01793}}.
+\newline\urlprefix\url{https://arxiv.org/abs/2607.01793}
+
+\bibitem{niyamtrace_repo}
+{NiyamTrace-X Authors},
+  \href{https://github.com/bnssaanirudh/NiyamTrace-X}{Niyamtrace-x source
+  repository}, GitHub repository, commit
+  c14661dbd11c42ebd1019b6a1a5c49b8643da137 (2026).
+\newline\urlprefix\url{https://github.com/bnssaanirudh/NiyamTrace-X}
+
+\end{thebibliography}

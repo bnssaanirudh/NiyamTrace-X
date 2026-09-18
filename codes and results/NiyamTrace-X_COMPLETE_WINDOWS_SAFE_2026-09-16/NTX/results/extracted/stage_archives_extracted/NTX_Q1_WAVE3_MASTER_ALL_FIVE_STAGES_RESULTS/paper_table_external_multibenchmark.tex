@@ -1,0 +1,14 @@
+\begin{table}
+\caption{Cross-benchmark, cross-model evidence. Models are ranked only within each benchmark.}
+\label{tab:external-multibench}
+\begin{tabular}{llrlrrlrr}
+\toprule
+benchmark & model & n & official_metric & score & unsafe_rate & evidence_type & paper_eligible & rank \\
+\midrule
+NiyamTrace-Bench3 & Qwen3.5-122B & 2000 & decision_accuracy & 0.9985 & 0.0000 & frozen_internal & True & 1.0000 \\
+NiyamTrace-Bench3 & GPT-OSS-120B & 2000 & decision_accuracy & 0.9980 & 0.0000 & frozen_internal & True & 2.0000 \\
+NiyamTrace-Metamorphic & v2 & 10248 & attack_recall & 0.8540 & 0.1460 & controlled_hardening & True & 2.0000 \\
+NiyamTrace-Metamorphic & v3 & 10248 & attack_recall & 1.0000 & 0.0000 & controlled_hardening & True & 1.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}

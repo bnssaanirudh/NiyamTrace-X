@@ -1,0 +1,11 @@
+model,from,to,wrong_to_correct,correct_to_wrong,net_gain,exact_p
+Qwen3.5-122B,base,anchor_only,86,0,86,2.5849394142282115e-26
+Qwen3.5-122B,base,clarification_only,20,0,20,1.9073486328125e-06
+Qwen3.5-122B,base,full,106,0,106,2.465190328815662e-32
+Qwen3.5-122B,anchor_only,full,20,0,20,1.9073486328125e-06
+Qwen3.5-122B,clarification_only,full,86,0,86,2.5849394142282115e-26
+GPT-OSS-120B,base,anchor_only,2,0,2,0.5
+GPT-OSS-120B,base,clarification_only,0,0,0,1.0
+GPT-OSS-120B,base,full,2,0,2,0.5
+GPT-OSS-120B,anchor_only,full,0,0,0,1.0
+GPT-OSS-120B,clarification_only,full,2,0,2,0.5

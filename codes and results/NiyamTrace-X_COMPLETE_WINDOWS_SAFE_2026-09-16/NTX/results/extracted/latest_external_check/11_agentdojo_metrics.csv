@@ -1,0 +1,4 @@
+benchmark,model,family,suite,utility,security,inj_passed,inj_total,status,returncode,commit
+AgentDojo,qwen,Qwen,banking,,,,,ERROR,1,089ed468cf3ed0322acc66b0211f26d9d90dbf60
+AgentDojo,gpt-oss,GPT-OSS,banking,,,,,ERROR,1,089ed468cf3ed0322acc66b0211f26d9d90dbf60
+AgentDojo,glm,GLM,banking,,,,,ERROR,1,089ed468cf3ed0322acc66b0211f26d9d90dbf60

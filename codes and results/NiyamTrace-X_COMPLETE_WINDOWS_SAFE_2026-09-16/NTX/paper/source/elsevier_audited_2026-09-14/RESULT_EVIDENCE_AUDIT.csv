@@ -1,0 +1,16 @@
+claim,status,evidence,audited_finding
+Frozen multilingual effectiveness,SUPPORTED,"exp05_stage_metrics.csv / frozen 2,000-case evidence","Qwen full 1997/2000 (99.85%), GPT-OSS 1996/2000 (99.80%); unsafe ALLOW 0 for both"
+Qwen ablation attribution,SUPPORTED,exp05_stage_metrics.csv; exp05_component_attribution.csv,Anchor removes all 80 unsafe ALLOWs; clarification recovers 20 unnecessary clarifications only after anchoring
+GPT-OSS ablation attribution,SUPPORTED,exp05_stage_metrics.csv; exp05_component_attribution.csv,Full 99.80%; base unsafe ALLOW 2; clarification-only unsafe ALLOW 6
+Clustered uncertainty,SUPPORTED,cluster_bootstrap_summary.csv,"50,000 semantic-group bootstrap: Qwen final [99.65,100.00]%; GPT-OSS [99.60,99.95]%"
+Anchor Lock V3 metamorphic hardening,SUPPORTED,exp09_guard_summary.csv; exp09_attack_family_metrics.csv,"10,248 attacks: V2 recall 85.402%, V3 100%; 1,496 V2 misses closed; clean FPR 0"
+Anchor V3 frozen-output compatibility,SUPPORTED,exp09_frozen2000_v3_audit.csv; exp09_surface_invariance.csv,"3,996 evaluable frozen outputs with no new V3 trigger; 3,200 benign transforms with no trigger"
+Verified Execution Broker V2,SUPPORTED AS REFERENCE PROTOTYPE,exp07_randomized_attack_summary.csv,"1,320 randomized scenarios; valid 120/120 commit; 1,200 invalid/crash trials fail closed/rollback"
+Risk-selective authorization,EXPLORATORY,exp08_test_policy_comparison.csv; exp08_repeated_group_split_stability.csv,One split: 26->0 unsafe raw ALLOW with 85.6% allow retention; 5/20 repeated splits still had >=1 unsafe ALLOW
+Hosted tau3 QUICK pilot,PARTIAL,tau3_recovered_quick_results.csv,"6 native trajectories; Qwen mean 0.33, GPT-OSS mean 0.67; 2 model families"
+Local T4 automatic tool preflight,PARTIAL/DIAGNOSTIC,latest T4 preflight JSON files,"Automatic tool call passes: Granite-3.3-2B, Qwen2.5-3B, xLAM-2-3B, Qwen2.5-7B-AWQ"
+Local T4 BFCL,MISSING,latest T4 BFCL logs/CSVs,All retained BFCL result CSVs empty; runners timed out without official metric
+Local T4 AgentDojo,PARTIAL,latest T4 dojo CSVs/status,"Banking only: Granite attacked 0/0, baseline 1/1; Qwen attacked 0/0, baseline 0/1; other suites exceed 3072-token context"
+Local T4 tau3,PARTIAL,latest T4 tau CSVs/status,"Granite airline=1, retail=0, telecom NE; Qwen all three NE from context limit"
+External validation across >=3 families,MISSING,updated claim checklist + latest T4 claim gate,Hosted tau3 has 2 completed families; local T4 does not complete BFCL/AgentDojo/tau3 for 3 families
+Production complete mediation,MISSING,repository/runtime audit,VEB V2 is a reference implementation; public executor remains bypassable/non-integrated

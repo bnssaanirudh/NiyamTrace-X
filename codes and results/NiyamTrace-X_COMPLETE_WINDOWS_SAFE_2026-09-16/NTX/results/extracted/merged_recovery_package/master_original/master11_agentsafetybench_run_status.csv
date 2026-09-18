@@ -1,0 +1,4 @@
+model,status,generation_file,score_status
+qwen3-coder-exacto,SKIPPED_NO_ASB_ADAPTER,,
+gpt-oss-120b-exacto,SKIPPED_NO_ASB_ADAPTER,,
+glm-4.6-exacto,SKIPPED_NO_ASB_ADAPTER,,

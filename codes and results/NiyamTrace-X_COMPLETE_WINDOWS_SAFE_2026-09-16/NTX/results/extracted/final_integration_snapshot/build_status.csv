@@ -1,0 +1,4 @@
+format,returncode,pdf_exists,size,bbl_present
+ieee,0,True,557839,True
+springer,0,True,608787,True
+elsevier,0,True,455787,True

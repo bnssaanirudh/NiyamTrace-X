@@ -1,0 +1,4 @@
+label,family,model,chat_ok,chat_error,tool_ok,tool_error,status
+qwen,Qwen,qwen/qwen3-30b-a3b-instruct-2507,False,<HTTPError 402: 'Payment Required'>,False,<HTTPError 402: 'Payment Required'>,FAILED
+gpt-oss,GPT-OSS,openai/gpt-oss-20b,False,<HTTPError 402: 'Payment Required'>,False,<HTTPError 402: 'Payment Required'>,FAILED
+glm,GLM,z-ai/glm-4.5-air,False,<HTTPError 402: 'Payment Required'>,False,<HTTPError 402: 'Payment Required'>,FAILED

@@ -1,0 +1,9 @@
+claim,status,source
+Frozen multilingual internal effectiveness,SUPPORTED,"Frozen 2,000-case evidence"
+Anchor Lock V3 closes the matching→all metamorphic gap,SUPPORTED,Stage 1
+External function-calling generalization on BFCL V4,MISSING,Stage 2 official BFCL
+Official MLCL multilingual transfer,MISSING,Stage 2 MLCL gate
+Prompt-injection security transfer on AgentDojo,MISSING,Stage 3 AgentDojo
+Agent-SafetyBench official scored transfer,MISSING,Stage 3 Agent-SafetyBench
+Stateful customer-service transfer on τ³,MISSING,Stage 4 τ³
+External validation across ≥3 model families,MISSING,Stage 5 coverage

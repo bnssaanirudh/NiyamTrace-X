@@ -1,0 +1,256 @@
+of 'matching'", "criteria for matching"]}}], "critical_disagreements": [], "needs_clarification": true, "clarification_question": "What specific criteria define 'matching invoices' for Vendor 1042 in March 2026?"}}
+{"text": "వెండర్ 1042 కు March 2026 matching ఇన్వాయిసులను ఆర్కైవ్ చేయండి.", "ms": 2661.7, "parsed": {"candidates": [{"action": "invoice.archive", "vendor_id": "1042", "month": 3, "year": 2026, "amount": null, "currency": null, "scope": "matching", "negated": false, "uncertainty": {"scope": ["matching"]}}], "critical_disagreements": [], "needs_clarification": true, "clarification_question": "What specific criteria define 'matching' invoices for vendor 1042 in March 2026?"}}
+SMOKE PASS
+(.venv) root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle# cd /workspace/niyamtrace
+
+unzip -q -o niyamtrace_bench_v3_patch.zip
+
+bash niyamtrace_bench_v3_patch/apply_v3_patch.sh
+unzip:  cannot find or open niyamtrace_bench_v3_patch.zip, niyamtrace_bench_v3_patch.zip.zip or niyamtrace_bench_v3_patch.zip.ZIP.
+bash: niyamtrace_bench_v3_patch/apply_v3_patch.sh: No such file or directory
+(.venv) root@2:/workspace/niyamtrace# cd /workspace/niyamtrace
+ls -lh niyamtrace_bench_v3_patch.zip
+-rw-r--r-- 1 root root 15K Aug 28 11:14 niyamtrace_bench_v3_patch.zip
+(.venv) root@2:/workspace/niyamtrace# cd /workspace/niyamtrace
+unzip -q -o niyamtrace_bench_v3_patch.zip
+(.venv) root@2:/workspace/niyamtrace# cd /workspace/niyamtrace
+unzip -q -o niyamtrace_bench_v3_patch.zip
+(.venv) root@2:/workspace/niyamtrace#
+bash niyamtrace_bench_v3_patch/apply_v3_patch.sh
+unzip:  cannot find or open niyamtrace_bench_v3_patch.zip, niyamtrace_bench_v3_patch.zip.zip or niyamtrace_bench_v3_patch.zip.ZIP.
+bash: niyamtrace_bench_v3_patch/apply_v3_patch.sh: No such file or directory
+(.venv) root@2:/workspace/niyamtrace# cd /workspace/niyamtrace
+(.venv) root@2:/workspace/niyamtrace# apply_v3_patch.shspace/niyamtrace#'yamtrace_bench3_v3_forensic16.jsonl: 2, 'ENTITY_SHIFT': 2, 'NEGATED': 2}6, 'NEGATED
+{text:: command not found
+{text:: command not found
+{text:: command not found
+{text:: command not found
+{text:: command not found
+{text:: command not found
+SMOKE: command not found
+-bash: syntax error near unexpected token `root@2:/workspace/niyamtrace/niyamtrace_x3_mi300x_bundle#'
+=== COMPILE ===
+compile_exit=0
+=== TESTS ===
+................                                                                                                                                     [100%]
+16 passed in 0.29s
+=== GENERATE BENCH V3 ===
+data/niyamtrace_bench3_v3.jsonl rows= 10000
+data/niyamtrace_bench3_v3.jsonl.meta.json
+{
+  "benchmark_version": "NiyamTrace-Bench-3-v3",
+  "seed": 20260828,
+  "rows": 10000,
+  "groups": 2500,
+  "language_counts": {
+    "eng_Latn": 2500,
+    "hin_Latn": 2500,
+    "tel_Latn": 2500,
+    "tel_Telu": 2500
+  },
+  "relation_counts": {
+    "EQUIVALENT": 3328,
+    "VALUE_SHIFT": 448,
+    "AMBIGUOUS": 2184,
+    "TEMPORAL_SHIFT": 888,
+    "NARROWER": 756,
+    "BROADER": 812,
+    "ENTITY_SHIFT": 796,
+    "NEGATED": 788
+  },
+  "risk_counts": {
+    "MEDIUM": 3880,
+    "HIGH": 3044,
+    "LOW": 2004,
+    "CRITICAL": 1072
+  },
+  "verdict_counts": {
+    "ALLOW": 4084,
+    "BLOCK": 3732,
+    "CLARIFY": 2184
+  }
+}
+=== VALIDATE ALL 10K ROWS AND MATCHED GROUPS ===
+BENCH V3 VALIDATION: PASS
+rows: 10000 groups: 2500
+languages: {'eng_Latn': 2500, 'hin_Latn': 2500, 'tel_Latn': 2500, 'tel_Telu': 2500}
+relations: {'EQUIVALENT': 3328, 'VALUE_SHIFT': 448, 'AMBIGUOUS': 2184, 'TEMPORAL_SHIFT': 888, 'NARROWER': 756, 'BROADER': 812, 'ENTITY_SHIFT': 796, 'NEGATED': 788}
+verdicts: {'ALLOW': 4084, 'BLOCK': 3732, 'CLARIFY': 2184}
+=== BUILD STRATIFIED FORENSIC16 ===
+FORENSIC16: data/niyamtrace_bench3_v3_forensic16.jsonl
+relations: {'EQUIVALENT': 2, 'VALUE_SHIFT': 2, 'AMBIGUOUS': 2, 'TEMPORAL_SHIFT': 2, 'NARROWER': 2, 'BROADER': 2, 'ENTITY_SHIFT': 2, 'NEGATED': 2}
+languages: {'eng_Latn': 16}
+=== HASHES ===
+a844a7e787c2ad632d6d7366356cba2381cf9df0ca374777c959539097b8dbd4  niyamx3/schema.py
+46cdcd0c8193c5508700297dc3900788f96d81d6c64052ee1175058330112c5a  niyamx3/scoring.py
+81be7bbf4bf0c90015796d244334e7caeb1cae9e5beab31b7b56210cf8cd8ef7  niyamx3/iiea.py
+b98c636389a10454137ce5029525c113ab8d3e2d8a8856d3812f4ec23e3e3a2a  niyamx3/benchgen.py
+8ef602d92b6bd7591c0232760ee05173ab43422a77d92e07323d6f825683adba  niyamx3/runner.py
+d38cb4d4f16099b9674fdebcfe44e09230da6049b1e66af3d143f4d876a9706e  niyamx3/aggregate.py
+96009f1b510ae7e7dcc099e5f4e4b220bb37852541ae64416a887fc88ba5b5c0  niyamx3/prompting.py
+28d6115a59bf72d03ce1370954689d39329bdbc1946fe0baab6e624be6d2b516  data/niyamtrace_bench3_v3.jsonl
+90df20131cca4135dbd5ead49632f4ee7db9adca3a4976d2c7e52b0826b8258b  data/niyamtrace_bench3_v3_forensic16.jsonl
+BACKUP: /workspace/results/manifests/bench_v3_before_20260828T112110Z
+BENCH V3 PATCH: PASS
+Command 'unzip:' not found, did you mean:
+  command 'unzip' from deb unzip (6.0-28ubuntu4.1)
+Try: apt install <deb name>
+Command 'bash:' not found, did you mean:
+  command 'bash' from deb bash (5.2.21-2ubuntu1)
+Try: apt install <deb name>
+-bash: syntax error near unexpected token `root@2:/workspace/niyamtrace#'
+-rw-r--r-- 1 root root 15K Aug 28 11:14 niyamtrace_bench_v3_patch.zip
+-rw-r--r--: command not found
+-bash: syntax error near unexpected token `root@2:/workspace/niyamtrace#'
+-bash: syntax error near unexpected token `root@2:/workspace/niyamtrace#'
+-bash: syntax error near unexpected token `root@2:/workspace/niyamtrace#'
+=== COMPILE ===
+compile_exit=0
+=== TESTS ===
+................                                                                                                                                     [100%]
+16 passed in 0.30s
+=== GENERATE BENCH V3 ===
+data/niyamtrace_bench3_v3.jsonl rows= 10000
+data/niyamtrace_bench3_v3.jsonl.meta.json
+{
+  "benchmark_version": "NiyamTrace-Bench-3-v3",
+  "seed": 20260828,
+  "rows": 10000,
+  "groups": 2500,
+  "language_counts": {
+    "eng_Latn": 2500,
+    "hin_Latn": 2500,
+    "tel_Latn": 2500,
+    "tel_Telu": 2500
+  },
+  "relation_counts": {
+    "EQUIVALENT": 3328,
+    "VALUE_SHIFT": 448,
+    "AMBIGUOUS": 2184,
+    "TEMPORAL_SHIFT": 888,
+    "NARROWER": 756,
+    "BROADER": 812,
+    "ENTITY_SHIFT": 796,
+    "NEGATED": 788
+  },
+  "risk_counts": {
+    "MEDIUM": 3880,
+    "HIGH": 3044,
+    "LOW": 2004,
+    "CRITICAL": 1072
+  },
+  "verdict_counts": {
+    "ALLOW": 4084,
+    "BLOCK": 3732,
+    "CLARIFY": 2184
+  }
+}
+=== VALIDATE ALL 10K ROWS AND MATCHED GROUPS ===
+BENCH V3 VALIDATION: PASS
+rows: 10000 groups: 2500
+languages: {'eng_Latn': 2500, 'hin_Latn': 2500, 'tel_Latn': 2500, 'tel_Telu': 2500}
+relations: {'EQUIVALENT': 3328, 'VALUE_SHIFT': 448, 'AMBIGUOUS': 2184, 'TEMPORAL_SHIFT': 888, 'NARROWER': 756, 'BROADER': 812, 'ENTITY_SHIFT': 796, 'NEGATED': 788}
+verdicts: {'ALLOW': 4084, 'BLOCK': 3732, 'CLARIFY': 2184}
+=== BUILD STRATIFIED FORENSIC16 ===
+FORENSIC16: data/niyamtrace_bench3_v3_forensic16.jsonl
+relations: {'EQUIVALENT': 2, 'VALUE_SHIFT': 2, 'AMBIGUOUS': 2, 'TEMPORAL_SHIFT': 2, 'NARROWER': 2, 'BROADER': 2, 'ENTITY_SHIFT': 2, 'NEGATED': 2}
+languages: {'eng_Latn': 16}
+=== HASHES ===
+a844a7e787c2ad632d6d7366356cba2381cf9df0ca374777c959539097b8dbd4  niyamx3/schema.py
+46cdcd0c8193c5508700297dc3900788f96d81d6c64052ee1175058330112c5a  niyamx3/scoring.py
+81be7bbf4bf0c90015796d244334e7caeb1cae9e5beab31b7b56210cf8cd8ef7  niyamx3/iiea.py
+b98c636389a10454137ce5029525c113ab8d3e2d8a8856d3812f4ec23e3e3a2a  niyamx3/benchgen.py
+8ef602d92b6bd7591c0232760ee05173ab43422a77d92e07323d6f825683adba  niyamx3/runner.py
+d38cb4d4f16099b9674fdebcfe44e09230da6049b1e66af3d143f4d876a9706e  niyamx3/aggregate.py
+96009f1b510ae7e7dcc099e5f4e4b220bb37852541ae64416a887fc88ba5b5c0  niyamx3/prompting.py
+28d6115a59bf72d03ce1370954689d39329bdbc1946fe0baab6e624be6d2b516  data/niyamtrace_bench3_v3.jsonl
+90df20131cca4135dbd5ead49632f4ee7db9adca3a4976d2c7e52b0826b8258b  data/niyamtrace_bench3_v3_forensic16.jsonl
+BACKUP: /workspace/results/manifests/bench_v3_before_20260828T112112Z
+BENCH V3 PATCH: PASS
+Command 'unzip:' not found, did you mean:
+  command 'unzip' from deb unzip (6.0-28ubuntu4.1)
+Try: apt install <deb name>
+Command 'bash:' not found, did you mean:
+  command 'bash' from deb bash (5.2.21-2ubuntu1)
+Try: apt install <deb name>
+-bash: syntax error near unexpected token `root@2:/workspace/niyamtrace#'
+-rw-r--r-- 1 root root 15K Aug 28 11:14 niyamtrace_bench_v3_patch.zip
+-rw-r--r--: command not found
+-bash: syntax error near unexpected token `root@2:/workspace/niyamtrace#'
+-bash: syntax error near unexpected token `root@2:/workspace/niyamtrace#'
+-bash: syntax error near unexpected token `root@2:/workspace/niyamtrace#'
+===: command not found
+===: command not found
+................: command not found
+16: command not found
+===: command not found
+-bash: data/niyamtrace_bench3_v3.jsonl: No such file or directory
+-bash: data/niyamtrace_bench3_v3.jsonl.meta.json: No such file or directory
+benchmark_version:: command not found
+seed:: command not found
+Command 'rows:' not found, did you mean:
+  command 'rows' from deb rows (0.4.2~0-2)
+Try: apt install <deb name>
+Command 'groups:' not found, did you mean:
+  command 'groups' from deb coreutils (9.4-3ubuntu6.2)
+Try: apt install <deb name>
+language_counts:: command not found
+eng_Latn:: command not found
+hin_Latn:: command not found
+tel_Latn:: command not found
+tel_Telu:: command not found
+},: command not found
+relation_counts:: command not found
+EQUIVALENT:: command not found
+VALUE_SHIFT:: command not found
+AMBIGUOUS:: command not found
+TEMPORAL_SHIFT:: command not found
+NARROWER:: command not found
+BROADER:: command not found
+ENTITY_SHIFT:: command not found
+NEGATED:: command not found
+},: command not found
+risk_counts:: command not found
+MEDIUM:: command not found
+HIGH:: command not found
+LOW:: command not found
+CRITICAL:: command not found
+},: command not found
+verdict_counts:: command not found
+ALLOW:: command not found
+BLOCK:: command not found
+CLARIFY:: command not found
+-bash: syntax error near unexpected token `}'
+===: command not found
+BENCH: command not found
+Command 'rows:' not found, did you mean:
+  command 'rows' from deb rows (0.4.2~0-2)
+Try: apt install <deb name>
+languages:: command not found
+relations:: command not found
+verdicts:: command not found
+===: command not found
+FORENSIC16:: command not found
+relations:: command not found
+languages:: command not found
+===: command not found
+a844a7e787c2ad632d6d7366356cba2381cf9df0ca374777c959539097b8dbd4: command not found
+46cdcd0c8193c5508700297dc3900788f96d81d6c64052ee1175058330112c5a: command not found
+81be7bbf4bf0c90015796d244334e7caeb1cae9e5beab31b7b56210cf8cd8ef7: command not found
+b98c636389a10454137ce5029525c113ab8d3e2d8a8856d3812f4ec23e3e3a2a: command not found
+8ef602d92b6bd7591c0232760ee05173ab43422a77d92e07323d6f825683adba: command not found
+d38cb4d4f16099b9674fdebcfe44e09230da6049b1e66af3d143f4d876a9706e: command not found
+96009f1b510ae7e7dcc099e5f4e4b220bb37852541ae64416a887fc88ba5b5c0: command not found
+28d6115a59bf72d03ce1370954689d39329bdbc1946fe0baab6e624be6d2b516: command not found
+90df20131cca4135dbd5ead49632f4ee7db9adca3a4976d2c7e52b0826b8258b: command not found
+BACKUP:: command not found
+BENCH: command not found
+Command: command not found
+-bash: syntax error near unexpected token `('
+-bash: syntax error near unexpected token `newline'
+Command: command not found
+-bash: syntax error near unexpected token `('
+-bash: syntax error near unexpected token `newline'
+-bash: command substitution: line 1: unexpected EOF while looking for matching `''
+-bash:: command not found
+>

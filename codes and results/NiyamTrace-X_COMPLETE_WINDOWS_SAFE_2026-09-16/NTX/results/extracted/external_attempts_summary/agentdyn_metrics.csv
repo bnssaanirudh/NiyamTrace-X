@@ -1,0 +1,4 @@
+benchmark,model,family,suite,utility,security,injection_task_passed,injection_task_total,status,returncode,commit
+AgentDyn,qwen3-235b,Qwen,shopping,,,,,ERROR,1.0,5353cf7615b135cace8d07c8f12dac53a16b6db3
+AgentDyn,llama-3.3-70b,Llama,shopping,,,,,ERROR,1.0,5353cf7615b135cace8d07c8f12dac53a16b6db3
+AgentDyn,gpt-oss-120b,GPT-OSS,,,,,,UNSUPPORTED_ENUM,,

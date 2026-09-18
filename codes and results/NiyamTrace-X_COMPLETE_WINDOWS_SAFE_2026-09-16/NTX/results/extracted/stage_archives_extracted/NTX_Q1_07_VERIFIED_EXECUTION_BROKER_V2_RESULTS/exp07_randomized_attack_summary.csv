@@ -1,0 +1,12 @@
+attack,n,pass_rate,commit_rate,unique_states,unique_args
+args_tamper,120,1.0,0.0,120,120
+crash_before_commit,120,1.0,0.0,120,120
+expired,120,1.0,0.0,120,120
+forged_signature,120,1.0,0.0,120,120
+policy_change,120,1.0,0.0,120,120
+predicted_ids_tamper,120,1.0,0.0,120,120
+replay,120,1.0,0.0,120,120
+stale_snapshot,120,1.0,0.0,120,120
+valid,120,1.0,1.0,120,120
+wrong_actor,120,1.0,0.0,120,120
+wrong_tool,120,1.0,0.0,120,120

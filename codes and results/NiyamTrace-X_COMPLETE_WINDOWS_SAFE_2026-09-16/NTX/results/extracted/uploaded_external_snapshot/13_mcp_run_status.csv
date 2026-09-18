@@ -1,0 +1,4 @@
+domain,model,status,commit
+financial_analysis,qwen3-coder-exacto,READY_NEEDS_PROVIDER_ENV_TEMPLATE,7872437b6369aac1150e3a19e350a981dc554f81
+financial_analysis,gpt-oss-120b-exacto,READY_NEEDS_PROVIDER_ENV_TEMPLATE,7872437b6369aac1150e3a19e350a981dc554f81
+financial_analysis,glm-4.6-exacto,READY_NEEDS_PROVIDER_ENV_TEMPLATE,7872437b6369aac1150e3a19e350a981dc554f81
