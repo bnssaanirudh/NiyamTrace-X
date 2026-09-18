@@ -192,6 +192,12 @@ def check_attribute_containment(
     # We should get tool_name. If intent is invoice.archive, tool is archive_invoices.
     if contract.intent == "invoice.archive":
         tool_name = "archive_invoices"
+    elif contract.intent == "limit.update":
+        tool_name = "update_credit_limit"
+    elif contract.intent == "vendor.suspend":
+        tool_name = "suspend_vendor"
+    elif contract.intent == "access.block":
+        tool_name = "block_user_access"
     else:
         # Fallback for others
         tool_name = contract.intent.replace(".", "_")
@@ -221,7 +227,16 @@ def check_cardinality_and_approval(
     """
     Check 4 — Cardinality + approval threshold.
     """
-    tool_name = "archive_invoices" if contract.intent == "invoice.archive" else contract.intent.replace(".", "_")
+    if contract.intent == "invoice.archive":
+        tool_name = "archive_invoices"
+    elif contract.intent == "limit.update":
+        tool_name = "update_credit_limit"
+    elif contract.intent == "vendor.suspend":
+        tool_name = "suspend_vendor"
+    elif contract.intent == "access.block":
+        tool_name = "block_user_access"
+    else:
+        tool_name = contract.intent.replace(".", "_")
     count = predicted_delta.estimated_row_count
     
     # Contract cardinality bound not explicitly defined in ActionContract right now.

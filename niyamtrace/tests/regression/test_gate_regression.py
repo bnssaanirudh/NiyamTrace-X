@@ -30,7 +30,7 @@ from packages.contracts.schema import (
     ToolCall,
 )
 from packages.gate.gate import NiyamGate
-from packages.gate.policy import DEFAULT_POLICY, PolicyBundle
+from packages.gate.policy import DEFAULT_POLICY
 from packages.gate.tool_schemas import validate_tool_call, ToolSchemaValidationError
 
 
@@ -291,7 +291,7 @@ def test_r7_valid_update_credit_limit_allow() -> None:
     """R7: finance_admin updating vendor 4421 credit limit → ALLOW."""
     contract = _contract(
         actor_role="finance_admin",
-        intent="vendor.credit_limit.update",
+        intent="limit.update",
         slots={"VENDOR_ID": "4421", "NEW_LIMIT_INR": "600000"},
         raw_text="Update credit limit for vendor 4421 to 600000",
         normalized_text="update_credit_limit vendor_id=4421 new_limit_inr=600000",

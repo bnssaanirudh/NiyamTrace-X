@@ -11,3 +11,33 @@ rules:
     evidence_required: true
     approval:
       required_above_rows: 10
+  update_credit_limit:
+    allowed_roles:
+      - "finance_admin"
+      - "credit_officer"
+    allowed_attributes:
+      - "credit_limit_inr"
+    max_rows_without_approval: 100
+    evidence_required: true
+    approval:
+      required_above_rows: 100
+  suspend_vendor:
+    allowed_roles:
+      - "admin"
+      - "security_officer"
+    allowed_attributes:
+      - "status"
+    max_rows_without_approval: 1
+    evidence_required: true
+    approval:
+      required_above_rows: 1
+  block_user_access:
+    allowed_roles:
+      - "it_admin"
+      - "security_officer"
+    allowed_attributes:
+      - "status"
+    max_rows_without_approval: 1
+    evidence_required: true
+    approval:
+      required_above_rows: 1

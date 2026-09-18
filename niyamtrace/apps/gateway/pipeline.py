@@ -159,7 +159,7 @@ class NiyamPipeline:
                 "trace_id": trace_id,
                 "task_id": req.task_id,
                 "parser_version": "0.3.0-intake+0.1.0-hardcoded-extractor",
-                "policy_bundle_hash": DEFAULT_POLICY.bundle_hash(),
+                "policy_bundle_hash": DEFAULT_POLICY.policy_hash,
                 "data_snapshot_id": SEED_SNAPSHOT_ID,
                 "language_profile": intake_result.language_profile,  # REAL (Week 3)
                 "model_version": "none",
@@ -303,8 +303,8 @@ class NiyamPipeline:
             t0 = time.perf_counter()
             tool_calls = _build_tool_calls(contract)
             
-            # Use the first tool's schema hash for the envelope, or a combined one if we want
-            envelope["tool_schema_hash"] = ",".join(schema_hash(tc.tool_name) for tc in tool_calls)
+            # Schema hash is now a registry-wide hash
+            envelope["tool_schema_hash"] = schema_hash()
 
             schema_valid = True
             schema_error = None
@@ -501,28 +501,28 @@ def _build_tool_calls(contract: ActionContract) -> list[ToolCall]:
                 tool_name="archive_invoices",
                 arguments=args,
                 schema_version="1.0",
-                tool_schema_hash=schema_hash("archive_invoices"),
+                tool_schema_hash=schema_hash(),
             ))
         elif intent == "access.block":
             tool_calls.append(ToolCall(
                 tool_name="block_user_access",
                 arguments=args,
                 schema_version="1.0",
-                tool_schema_hash=schema_hash("block_user_access"),
+                tool_schema_hash=schema_hash(),
             ))
         elif intent == "limit.update":
             tool_calls.append(ToolCall(
                 tool_name="update_credit_limit",
                 arguments=args,
                 schema_version="1.0",
-                tool_schema_hash=schema_hash("update_credit_limit"),
+                tool_schema_hash=schema_hash(),
             ))
         elif intent == "vendor.suspend":
             tool_calls.append(ToolCall(
                 tool_name="suspend_vendor",
                 arguments=args,
                 schema_version="1.0",
-                tool_schema_hash=schema_hash("suspend_vendor"),
+                tool_schema_hash=schema_hash(),
             ))
         else:
             # Placeholder for unknown tool logic

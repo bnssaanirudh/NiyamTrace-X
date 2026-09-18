@@ -122,8 +122,17 @@ class NLIEngine:
                 "No policy documents retrieved with sufficient similarity to evaluate the action.",
             )
 
-        # Combine top-chunk content for analysis
-        top_content = " ".join(c.content for c in relevant[:3])
+        # Combine top-chunk content for analysis.
+        # Phase 8: Segregate untrusted user content to prevent prompt injection 
+        # from coercing support/contradict signals.
+        trusted_chunks = [c for c in relevant[:3] if not getattr(c, "is_untrusted_user_content", False)]
+        top_content = " ".join(c.content for c in trusted_chunks)
+        
+        if not trusted_chunks:
+            return (
+                "INSUFFICIENT",
+                "No trusted policy documents retrieved to evaluate the action. Untrusted content is ignored.",
+            )
 
         # ---------------------------------------------------------------
         # Step 1: Contradiction check (checked first — fail-loud)
@@ -131,7 +140,7 @@ class NLIEngine:
         # the top chunk's allowed_roles. If the role is explicitly permitted,
         # the 'prohibited' keyword refers to OTHER actors, not this one.
         # ---------------------------------------------------------------
-        top_allowed_roles = [r.lower() for r in (relevant[0].allowed_roles if relevant else [])]
+        top_allowed_roles = [r.lower() for r in (trusted_chunks[0].allowed_roles if trusted_chunks else [])]
         actor_is_permitted_by_top = actor_role.lower() in top_allowed_roles or not top_allowed_roles
 
         for keywords, affected_intents in _CONTRADICT_SIGNALS:
@@ -145,7 +154,7 @@ class NLIEngine:
                 return (
                     "CONTRADICT",
                     f"Policy evidence explicitly prohibits or restricts this action: "
-                    f"matched signal '{keywords[0]}' in chunk '{relevant[0].doc_id}'.",
+                    f"matched signal '{keywords[0]}' in chunk '{trusted_chunks[0].doc_id}'.",
                 )
 
         # ---------------------------------------------------------------
@@ -160,7 +169,7 @@ class NLIEngine:
                 return (
                     "SUPPORT",
                     f"Policy evidence supports '{intent}' for role '{actor_role}': "
-                    f"matched signal '{keywords[0]}' in chunk '{relevant[0].doc_id}'.",
+                    f"matched signal '{keywords[0]}' in chunk '{trusted_chunks[0].doc_id}'.",
                 )
 
         # ---------------------------------------------------------------

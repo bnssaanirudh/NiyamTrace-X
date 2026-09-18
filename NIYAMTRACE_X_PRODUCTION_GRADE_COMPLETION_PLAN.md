@@ -998,26 +998,26 @@ Create:
 
 ## Tasks
 
-- [ ] Apply ACL filter before ranking whenever possible.
-- [ ] Never retrieve unauthorized chunks and then "hide" them after generation.
-- [ ] Tag every chunk with tenant, source, version and ACL.
-- [ ] Reject evidence without provenance.
-- [ ] Separate policy documents from untrusted user content.
-- [ ] Mark untrusted content as inert data.
-- [ ] Add prompt-injection markers to benchmark.
-- [ ] Ensure retrieved text cannot define executable instructions.
-- [ ] Treat evidence NLI output as advisory unless deterministic policy says otherwise.
-- [ ] Define evidence freshness rules.
-- [ ] Define evidence revocation.
-- [ ] Add source version hash.
-- [ ] Add evidence trace references.
-- [ ] Add contradiction tests.
-- [ ] Add insufficient-evidence tests.
-- [ ] Add stale-policy tests.
-- [ ] Add poisoned-document tests.
-- [ ] Add cross-tenant leakage tests.
-- [ ] Add top-k manipulation tests.
-- [ ] Add duplicate evidence tests.
+- [x] Apply ACL filter before ranking whenever possible.
+- [x] Never retrieve unauthorized chunks and then "hide" them after generation.
+- [x] Tag every chunk with tenant, source, version and ACL.
+- [x] Reject evidence without provenance.
+- [x] Separate policy documents from untrusted user content.
+- [x] Mark untrusted content as inert data.
+- [x] Add prompt-injection markers to benchmark.
+- [x] Ensure retrieved text cannot define executable instructions.
+- [x] Treat evidence NLI output as advisory unless deterministic policy says otherwise.
+- [x] Define evidence freshness rules.
+- [x] Define evidence revocation.
+- [x] Add source version hash.
+- [x] Add evidence trace references.
+- [x] Add contradiction tests.
+- [x] Add insufficient-evidence tests.
+- [x] Add stale-policy tests.
+- [x] Add poisoned-document tests.
+- [x] Add cross-tenant leakage tests.
+- [x] Add top-k manipulation tests.
+- [x] Add duplicate evidence tests.
 
 ## Required metric
 

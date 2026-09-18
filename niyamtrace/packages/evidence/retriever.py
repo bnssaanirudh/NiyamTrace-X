@@ -42,6 +42,13 @@ class RetrievedChunk:
     allowed_roles: list[str]
     score: float  # similarity score [0, 1]
     tags: list[str] = field(default_factory=list)
+    
+    # Phase 8: Provenance and Segregation
+    tenant: str = ""
+    source: str = ""
+    version_hash: str = ""
+    timestamp_indexed: str = ""
+    is_untrusted_user_content: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -52,6 +59,11 @@ class RetrievedChunk:
             "allowed_roles": self.allowed_roles,
             "score": round(self.score, 4),
             "tags": self.tags,
+            "tenant": self.tenant,
+            "source": self.source,
+            "version_hash": self.version_hash,
+            "timestamp_indexed": self.timestamp_indexed,
+            "is_untrusted_user_content": self.is_untrusted_user_content,
         }
 
 
@@ -106,16 +118,37 @@ class EvidenceRetriever:
         query: str,
         actor_role: str,
         top_k: int = 3,
+        tenant: str = "acme",
     ) -> list[RetrievedChunk]:
         """
         Return top-K document chunks relevant to query, filtered by actor_role.
-
-        Steps:
-          1. ACL filter — remove docs forbidden for actor_role.
-          2. Compute similarity score for each allowed doc.
-          3. Sort descending by score, return top_k.
         """
-        allowed_docs = self._acl.filter(actor_role, self._documents)
+
+        # 1. Filter out documents missing provenance
+        valid_docs = []
+        import datetime
+        now = datetime.datetime.now(datetime.timezone.utc)
+        
+        for doc in self._documents:
+            # Must have provenance
+            if not doc.get("tenant") or not doc.get("source") or not doc.get("version_hash") or not doc.get("timestamp_indexed"):
+                continue
+                
+            # Freshness check: reject if > 30 days old or explicitly revoked
+            try:
+                indexed_dt = datetime.datetime.fromisoformat(doc["timestamp_indexed"].replace("Z", "+00:00"))
+                if (now - indexed_dt).days > 30:
+                    continue
+            except Exception:
+                continue
+                
+            if doc.get("revoked", False):
+                continue
+                
+            valid_docs.append(doc)
+
+        # 2. ACL filter — remove docs forbidden for actor_role.
+        allowed_docs = self._acl.filter(actor_role, valid_docs, tenant=tenant)
 
         # Score each document
         scored: list[tuple[float, dict[str, Any]]] = []
@@ -139,6 +172,11 @@ class EvidenceRetriever:
                     allowed_roles=doc.get("allowed_roles", []),
                     score=score,
                     tags=doc.get("tags", []),
+                    tenant=doc.get("tenant", ""),
+                    source=doc.get("source", ""),
+                    version_hash=doc.get("version_hash", ""),
+                    timestamp_indexed=doc.get("timestamp_indexed", ""),
+                    is_untrusted_user_content=doc.get("is_untrusted_user_content", False),
                 )
             )
         return chunks

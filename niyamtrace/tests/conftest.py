@@ -8,9 +8,10 @@ os.environ["LLM_BACKEND"] = "groq"
 @pytest.fixture(autouse=True)
 def mock_llm_provider(monkeypatch):
     def mock_generate(self, prompt: Dict[str, Any], schema_class: Any) -> Any:
-        # Mock logic based on input text
-        text = str(prompt).lower()
-        if "block" in text or "access.block" in text:
+        user_prompt = prompt.get("user", "")
+        text_line = next((line for line in user_prompt.split("\n") if "Text:" in line), "")
+        text = text_line.lower()
+        if "block" in text:
             data = {"intent": "access.block", "slots": {"TARGET_ID": "INV-204", "DURATION": "7 days"}, "confidence": 0.99}
         elif "suspend" in text:
             data = {"intent": "vendor.suspend", "slots": {"VENDOR_NAME": "Apex"}, "confidence": 0.99}
@@ -42,7 +43,7 @@ def mock_llm_provider(monkeypatch):
             data = {"intent": "unknown", "slots": {}, "confidence": 0.1}
         elif "negation" in text or "చేయొద్దు" in text:
             data = {"intent": "unknown", "slots": {}, "confidence": 0.2}
-        elif "block" in text or "access.block" in text or "ब्लॉक" in text or "బ్లాక్" in text:
+        elif "block" in text or "ब्लॉक" in text or "బ్లాక్" in text:
             data = {"intent": "access.block", "slots": {"TARGET_ID": "INV-204", "DURATION": "7 days"}, "confidence": 0.99}
         elif "suspend" in text:
             data = {"intent": "vendor.suspend", "slots": {"VENDOR_NAME": "Apex"}, "confidence": 0.99}

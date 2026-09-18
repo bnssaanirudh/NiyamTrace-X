@@ -60,13 +60,13 @@ class ACLFilter:
         self,
         actor_role: str,
         documents: list[dict[str, Any]],
+        tenant: str = "acme",
     ) -> list[dict[str, Any]]:
         """
-        Filter documents to those accessible by actor_role.
-
         Args:
             actor_role: The role string from ActionContract (e.g. "procurement_manager").
             documents:  List of document dicts, each with 'sensitivity' and 'allowed_roles'.
+            tenant:     The tenant context of the actor (default 'acme').
 
         Returns:
             Filtered list of documents the actor may access.
@@ -75,6 +75,11 @@ class ACLFilter:
         actor_role_lower = actor_role.lower()
 
         for doc in documents:
+            # Tenant isolation check
+            doc_tenant = doc.get("tenant", "")
+            if doc_tenant and doc_tenant != tenant:
+                continue
+
             sensitivity = doc.get("sensitivity", "confidential").lower()
             allowed_roles: list[str] = [r.lower() for r in doc.get("allowed_roles", [])]
 
@@ -101,6 +106,6 @@ class ACLFilter:
 
         return allowed
 
-    def can_access(self, actor_role: str, document: dict[str, Any]) -> bool:
-        """Convenience single-document check."""
-        return bool(self.filter(actor_role, [document]))
+    def can_access(self, actor_role: str, document: dict[str, Any], tenant: str = "acme") -> bool:
+        # Convenience single-document check.
+        return bool(self.filter(actor_role, [document], tenant=tenant))
