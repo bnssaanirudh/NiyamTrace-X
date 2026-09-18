@@ -29,13 +29,13 @@ from packages.contracts.schema import (
 from packages.gate.policy import (
     DEFAULT_POLICY,
     EvidenceVerdict,
-    PolicyBundle,
     check_attribute_containment,
     check_cardinality_and_approval,
     check_evidence_sufficiency,
     check_target_identity_containment,
     check_temporal_containment,
 )
+from packages.policy.compiler import PolicyCompiler
 
 
 class NiyamGate:
@@ -44,7 +44,7 @@ class NiyamGate:
     escalated based on the intent contract, predicted state delta, and policy.
     """
 
-    def __init__(self, policy: PolicyBundle = DEFAULT_POLICY) -> None:
+    def __init__(self, policy: PolicyCompiler = DEFAULT_POLICY) -> None:
         self._policy = policy
 
     def evaluate(
@@ -113,7 +113,8 @@ class NiyamGate:
                 detail=f"All {len(results)} gate checks passed.",
                 check_results=results,
                 latency_ms=latency_ms,
-                effect_certificate=cert
+                effect_certificate=cert,
+                policy_hash=self._policy.policy_hash
             )
 
         # Distinguish ESCALATE (approval needed) from BLOCK (hard failure)
@@ -130,6 +131,7 @@ class NiyamGate:
                     "approver_role": "finance_director",
                     "predicted_record_count": predicted_delta.estimated_row_count,
                 },
+                policy_hash=self._policy.policy_hash
             )
 
         # BLOCK — return first hard failure reason code plus full diagnostics
@@ -141,6 +143,7 @@ class NiyamGate:
             check_results=results,
             latency_ms=latency_ms,
             correction=_build_correction(first_failure),
+            policy_hash=self._policy.policy_hash
         )
 
 

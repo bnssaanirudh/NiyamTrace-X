@@ -16,7 +16,6 @@ from packages.contracts.schema import (
 from packages.gate.gate import NiyamGate
 from packages.gate.policy import (
     DEFAULT_POLICY,
-    PolicyBundle,
     check_attribute_containment,
     check_cardinality_and_approval,
     check_evidence_sufficiency,

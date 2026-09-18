@@ -42,83 +42,13 @@ from packages.contracts.schema import (
 # ---------------------------------------------------------------------------
 
 
-@dataclass
-class PolicyBundle:
-    """
-    Policy configuration for NiyamGate.
+from packages.policy.loader import PolicyLoader
+from packages.policy.compiler import PolicyCompiler
+import os
 
-    Version 0.3.0 — extended with 3 new tool allowlists (Week 9).
-    Replaced by a YAML-driven policy compiler (Phase 2.1).
-    """
-
-    # Maximum records allowed without GRANTED approval (applies to archive + suspend)
-    cardinality_threshold: int = 10
-
-    # ---- archive_invoices ----
-    allowed_roles_for_archive: list[str] = field(
-        default_factory=lambda: ["procurement_manager", "finance_admin", "system"]
-    )
-
-    # ---- block_user_access ----
-    allowed_roles_for_block_user: list[str] = field(
-        default_factory=lambda: ["it_admin", "security_officer"]
-    )
-    max_block_duration_days: int = 365
-
-    # ---- update_credit_limit ----
-    allowed_roles_for_credit_limit: list[str] = field(
-        default_factory=lambda: ["finance_admin", "credit_officer"]
-    )
-    # Increases above this threshold require co-approval
-    credit_limit_escalation_threshold_inr: float = 50_000.0
-
-    # ---- suspend_vendor ----
-    allowed_roles_for_suspend_vendor: list[str] = field(
-        default_factory=lambda: ["procurement_manager", "compliance_officer"]
-    )
-
-    # ---- attribute allowlists per tool ----
-    # Maps tool_name → set of fields the tool is allowed to mutate
-    allowed_attributes: dict[str, set[str]] = field(
-        default_factory=lambda: {
-            "archive_invoices": {"status"},
-            "block_user_access": {"status", "blocked_until"},
-            "update_credit_limit": {"credit_limit_inr"},
-            "suspend_vendor": {"status"},
-        }
-    )
-
-    # Hash for trace envelope (deterministic from contents)
-    bundle_version: str = "0.3.0-hardcoded"
-
-    def bundle_hash(self) -> str:
-        import hashlib, json
-        return hashlib.sha256(
-            json.dumps(
-                {
-                    "cardinality_threshold": self.cardinality_threshold,
-                    "allowed_roles_archive": sorted(self.allowed_roles_for_archive),
-                    "allowed_roles_block_user": sorted(self.allowed_roles_for_block_user),
-                    "allowed_roles_credit_limit": sorted(self.allowed_roles_for_credit_limit),
-                    "allowed_roles_suspend_vendor": sorted(self.allowed_roles_for_suspend_vendor),
-                    "bundle_version": self.bundle_version,
-                },
-                sort_keys=True,
-            ).encode()
-        ).hexdigest()[:16]
-
-    def allowed_roles_for(self, tool_name: str) -> list[str]:
-        """Return the list of roles allowed to invoke the given tool."""
-        _map = {
-            "archive_invoices": self.allowed_roles_for_archive,
-            "block_user_access": self.allowed_roles_for_block_user,
-            "update_credit_limit": self.allowed_roles_for_credit_limit,
-            "suspend_vendor": self.allowed_roles_for_suspend_vendor,
-        }
-        return _map.get(tool_name, [])
-
-
-DEFAULT_POLICY = PolicyBundle()
+_POLICY_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "policies", "reference.yaml")
+_LOADER = PolicyLoader(_POLICY_PATH)
+DEFAULT_POLICY = PolicyCompiler(_LOADER)
 
 # ---------------------------------------------------------------------------
 # Literal evidence verdict type (NLI result from Week 5)
@@ -253,54 +183,59 @@ def check_temporal_containment(
 def check_attribute_containment(
     contract: ActionContract,
     predicted_delta: StateDelta,
+    policy: PolicyCompiler = DEFAULT_POLICY,
 ) -> GateCheckResult:
     """
     Check 3 — Attribute containment.
     """
-    allowed = set()
+    tool_name = contract.intent.replace(".", "_") # e.g. invoice.archive -> archive_invoices? Wait, no. The tool is archive_invoices.
+    # We should get tool_name. If intent is invoice.archive, tool is archive_invoices.
     if contract.intent == "invoice.archive":
-        allowed = {"status"}
-    elif contract.intent == "vendor.credit_limit.update" or contract.intent == "limit.update":
-        allowed = {"credit_limit_inr", "limit_amount"}
-    
+        tool_name = "archive_invoices"
+    else:
+        # Fallback for others
+        tool_name = contract.intent.replace(".", "_")
+
     for row_delta in predicted_delta.record_deltas:
-        if row_delta.field not in allowed:
+        if not policy.is_attribute_allowed(tool_name, row_delta.field):
             return GateCheckResult(
                 check_name="attribute_containment",
                 passed=False,
                 reason_code="UNAUTHORIZED_ATTRIBUTE_MUTATION",
-                detail=f"Field '{row_delta.field}' not in allowed set {allowed} for intent {contract.intent}"
+                detail=f"Field '{row_delta.field}' not in allowed set for intent {contract.intent}"
             )
 
     return GateCheckResult(
         check_name="attribute_containment",
         passed=True,
         reason_code="OK",
-        detail="Attribute containment explicit via intent mapping.",
+        detail="Attribute containment explicit via policy.",
     )
 
 
 def check_cardinality_and_approval(
     contract: ActionContract,
     predicted_delta: StateDelta,
-    policy: PolicyBundle = DEFAULT_POLICY,
+    policy: PolicyCompiler = DEFAULT_POLICY,
 ) -> GateCheckResult:
     """
     Check 4 — Cardinality + approval threshold.
     """
+    tool_name = "archive_invoices" if contract.intent == "invoice.archive" else contract.intent.replace(".", "_")
     count = predicted_delta.estimated_row_count
     
     # Contract cardinality bound not explicitly defined in ActionContract right now.
     
     # Policy threshold check
-    if count > policy.cardinality_threshold:
+    threshold = policy.get_max_rows_without_approval(tool_name)
+    if count > threshold:
         return GateCheckResult(
             check_name="cardinality_and_approval",
             passed=False,
             reason_code="APPROVAL_REQUIRED",
             detail=(
                 f"Predicted {count} records exceeds policy threshold "
-                f"({policy.cardinality_threshold}). Escalate for approval."
+                f"({threshold}). Escalate for approval."
             ),
         )
 

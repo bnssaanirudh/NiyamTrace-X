@@ -250,6 +250,7 @@ class GateDecision(BaseModel):
     correction: dict[str, Any] | None = None
     clarification_prompt: str | None = None
     effect_certificate: Any | None = None
+    policy_hash: str = ""
 
 
 # ---------------------------------------------------------------------------

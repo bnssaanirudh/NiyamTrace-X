@@ -957,22 +957,22 @@ Refactor:
 
 ## Tasks
 
-- [ ] Move policy data out of Python constants.
-- [ ] Validate YAML/JSON against typed schema.
-- [ ] Compute full SHA-256 bundle hash.
-- [ ] Record bundle version and hash in every decision.
-- [ ] Reject invalid bundle at startup.
-- [ ] Reject unsigned/unapproved bundle in production if signing is enabled.
-- [ ] Support tenant-specific bundle.
-- [ ] Support staged rollout.
-- [ ] Support rollback.
-- [ ] Make policy change auditable.
-- [ ] Prevent hot reload from partially applying invalid policy.
-- [ ] Add policy-diff command.
-- [ ] Add policy regression suite.
-- [ ] Add policy conflict detection.
-- [ ] Define deny-overrides semantics.
-- [ ] Explicitly define default-deny behavior.
+- [x] Move policy data out of Python constants.
+- [x] Validate YAML/JSON against typed schema.
+- [x] Compute full SHA-256 bundle hash.
+- [x] Record bundle version and hash in every decision.
+- [x] Reject invalid bundle at startup.
+- [x] Reject unsigned/unapproved bundle in production if signing is enabled.
+- [x] Support tenant-specific bundle.
+- [x] Support staged rollout.
+- [x] Support rollback.
+- [x] Make policy change auditable.
+- [x] Prevent hot reload from partially applying invalid policy.
+- [x] Add policy-diff command.
+- [x] Add policy regression suite.
+- [x] Add policy conflict detection.
+- [x] Define deny-overrides semantics.
+- [x] Explicitly define default-deny behavior.
 
 ---
 

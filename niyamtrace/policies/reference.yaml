@@ -1,0 +1,13 @@
+version: "1.0.0"
+tenant: "acme"
+rules:
+  archive_invoices:
+    allowed_roles:
+      - "procurement_manager"
+      - "finance_admin"
+    allowed_attributes:
+      - "status"
+    max_rows_without_approval: 10
+    evidence_required: true
+    approval:
+      required_above_rows: 10
