@@ -1,0 +1,7 @@
+{
+  "scenario_id": "2_bounded_write_1_hi_rom",
+  "group_id": "d943ec1e-cfd0-4c55-88a8-89600f44c7db",
+  "category": "2_bounded_write",
+  "language": "hi_rom",
+  "text": "Badlo limit to 501 for user 1"
+}

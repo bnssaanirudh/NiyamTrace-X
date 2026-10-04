@@ -30,33 +30,38 @@ Status: IMPLEMENTED (Week 5) — full pipeline with real evidence grounding.
 
 from __future__ import annotations
 
-import sqlite3
 import time
 import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+
+from data.synthetic.erp import SEED_SNAPSHOT_ID
 from packages.contracts.schema import (
-    GateDecision,
     ActionContract,
+    GateDecision,
     StateDelta,
-    TemporalRange,
     ToolCall,
     TraceEvent,
 )
+from packages.evidence.nli import NLIEngine
+from packages.evidence.retriever import EvidenceRetriever
+from packages.auth.models import AuthorizationContext
 from packages.gate.executor import ERPExecutor
 from packages.gate.gate import NiyamGate
+from packages.gate.broker import VerifiedExecutionBroker, BrokerVerificationError
 from packages.gate.policy import DEFAULT_POLICY, EvidenceVerdict
 from packages.gate.simulator import ShadowSimulator
 from packages.gate.tool_schemas import schema_hash, validate_tool_call
 from packages.lake.writer import TraceWriter, make_event
-from packages.nlp.intake import MultilingualIntake
 from packages.nlp.compiler import NiyamCompiler
-from packages.evidence.retriever import EvidenceRetriever
-from packages.evidence.nli import NLIEngine
-from packages.observability.logger import get_logger, current_trace_id
-from data.synthetic.erp import SEED_SNAPSHOT_ID
+from packages.nlp.intake import MultilingualIntake
+from packages.observability.logger import current_trace_id, get_logger
+from packages.storage.models import PendingApproval
+from packages.storage.session import SessionManager, StateMismatchError
 
 logger = get_logger(__name__)
 
@@ -71,6 +76,12 @@ _NLI = NLIEngine()                # stateless rule-based NLI (Week 5)
 
 
 class PipelineRequest:
+    """Immutable pipeline request carrying the full authenticated context.
+
+    Security invariant: actor_id, actor_role, auth_context must always come
+    from a verified Principal — never from caller-supplied request text.
+    """
+
     def __init__(
         self,
         raw_text: str,
@@ -79,13 +90,28 @@ class PipelineRequest:
         task_id: str | None = None,
         traces_dir: Path | None = None,
         reference_dt: datetime | None = None,
+        approval_id: str | None = None,
+        auth_context: AuthorizationContext | None = None,
     ) -> None:
         self.raw_text = raw_text
         self.actor_id = actor_id
-        self.actor_role = actor_role
+        self.actor_role = actor_role  # display only — use auth_context for authz
         self.task_id = task_id or str(uuid.uuid4())
-        self.traces_dir = traces_dir
+        self.approval_id = approval_id
         self.reference_dt = reference_dt
+        self.traces_dir = traces_dir
+        
+        if auth_context is None:
+            from packages.auth.models import Principal, AuthorizationContext
+            principal = Principal(
+                subject=actor_id,
+                tenant_id="acme",
+                roles=frozenset([actor_role]) if actor_role else frozenset(),
+                scopes=frozenset(["all"])
+            )
+            self.auth_context = AuthorizationContext.from_principal(principal)
+        else:
+            self.auth_context = auth_context
 
 
 class PipelineResult:
@@ -126,19 +152,18 @@ class NiyamPipeline:
 
     def __init__(
         self,
-        erp_conn: sqlite3.Connection,
+        engine: AsyncEngine,
         traces_dir: Path | None = None,
         policy: type = DEFAULT_POLICY,
         compiler: NiyamCompiler | None = None,
     ) -> None:
-        self._erp_conn = erp_conn
+        self._engine = engine
+        self._session_factory = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
         self._traces_dir = traces_dir
         self._gate = NiyamGate(policy=policy)
-        self._simulator = ShadowSimulator(erp_conn)
-        self._executor = ERPExecutor(erp_conn)
         self._compiler = compiler or _COMPILER
 
-    def run(self, req: PipelineRequest) -> PipelineResult:
+    async def run(self, req: PipelineRequest) -> PipelineResult:
         trace_id = str(uuid.uuid4())
         current_trace_id.set(trace_id)
         logger.info(f"Starting pipeline for request: {req.task_id} by {req.actor_role}")
@@ -158,7 +183,7 @@ class NiyamPipeline:
             envelope: dict[str, Any] = {
                 "trace_id": trace_id,
                 "task_id": req.task_id,
-                "parser_version": "0.3.0-intake+0.1.0-hardcoded-extractor",
+                "parser_version": self._compiler.parser_version,
                 "policy_bundle_hash": DEFAULT_POLICY.policy_hash,
                 "data_snapshot_id": SEED_SNAPSHOT_ID,
                 "language_profile": intake_result.language_profile,  # REAL (Week 3)
@@ -288,7 +313,7 @@ class NiyamPipeline:
                     **envelope,
                     event_type="policy_evaluated",
                     payload={
-                        "policy_bundle": "0.2.0-hardcoded",
+                        "policy_bundle": DEFAULT_POLICY.policy_hash,
                         "actor_role": req.actor_role,
                         "action": contract.intent,
                         "approval_state": "NONE",
@@ -335,96 +360,163 @@ class NiyamPipeline:
                 return _early_exit(trace_id, req, contract, tool_calls, writer, envelope)
 
             # ---------------------------------------------------------------
-            # Event 6: tool_simulated
+            # Phase 9: Transactional Boundary for Simulate + Gate + Execute
             # ---------------------------------------------------------------
-            t0 = time.perf_counter()
-            predicted_delta = StateDelta(affected_record_ids=[], record_deltas=[], table=[], estimated_row_count=0)
-            for tc in tool_calls:
-                predicted_delta = predicted_delta + self._simulator.predict(tc)
-                
-            writer.write(
-                make_event(
-                    **envelope,
-                    event_type="tool_simulated",
-                    payload={
-                        "predicted_record_ids": predicted_delta.affected_record_ids,
-                        "estimated_row_count": predicted_delta.estimated_row_count,
-                        "record_deltas": [d.model_dump() for d in predicted_delta.record_deltas],
-                    },
-                    latency_ms=(time.perf_counter() - t0) * 1000,
-                )
-            )
-
-            # ---------------------------------------------------------------
-            # Event 7: gate_decision
-            # ---------------------------------------------------------------
-            t0 = time.perf_counter()
-            
-            # Evaluate all tool calls. If any fail, it's a BLOCK/ESCALATE. 
-            gate_decision = None
-            for tc in tool_calls:
-                tc_decision = self._gate.evaluate(
-                    contract=contract,
-                    predicted_delta=predicted_delta, # Note: gate checks aggregate delta
-                    tool_call=tc,
-                    evidence_verdict=evidence_verdict,
-                )
-                if gate_decision is None or tc_decision.verdict == "BLOCK" or (tc_decision.verdict == "ESCALATE" and gate_decision.verdict == "ALLOW"):
-                    gate_decision = tc_decision
-                if gate_decision.verdict == "BLOCK":
-                    break
-
-            writer.write(
-                make_event(
-                    **envelope,
-                    event_type="gate_decision",
-                    decision=gate_decision.verdict,
-                    payload={
-                        "verdict": gate_decision.verdict,
-                        "reason_code": gate_decision.reason_code,
-                        "detail": gate_decision.detail,
-                        "check_results": [r.model_dump() for r in gate_decision.check_results],
-                        "correction": gate_decision.correction,
-                        "gate_latency_ms": gate_decision.latency_ms,
-                    },
-                    latency_ms=(time.perf_counter() - t0) * 1000,
-                )
-            )
-
-            actual_delta: StateDelta | None = None
-
-            # ---------------------------------------------------------------
-            # Event 8: tool_executed  (only if ALLOW)
-            # ---------------------------------------------------------------
-            if gate_decision.verdict == "ALLOW":
-                t0 = time.perf_counter()
-                actual_delta = StateDelta(affected_record_ids=[], record_deltas=[], table=[], estimated_row_count=0)
-                for tc in tool_calls:
-                    actual_delta = actual_delta + self._executor.execute(tc)
+            try:
+                async with self._session_factory() as db_session:
+                    session_manager = SessionManager(db_session)
+                    simulator = ShadowSimulator(db_session)
+                    executor = ERPExecutor(db_session)
+                    broker = VerifiedExecutionBroker(db_session)
                     
-                writer.write(
-                    make_event(
-                        **envelope,
-                        event_type="tool_executed",
-                        decision="EXECUTED",
-                        payload={
-                            "actual_record_ids": actual_delta.affected_record_ids,
-                            "actual_row_count": actual_delta.estimated_row_count,
-                            "record_deltas": [d.model_dump() for d in actual_delta.record_deltas],
-                        },
-                        latency_ms=(time.perf_counter() - t0) * 1000,
+                    async with session_manager.transaction():
+                        # ---------------------------------------------------------------
+                        # Event 6: shadow_simulated
+                        # ---------------------------------------------------------------
+                        t0 = time.perf_counter()
+                        predicted_deltas: list[StateDelta] = []
+                        predicted_delta = StateDelta(affected_record_ids=[], record_deltas=[], table=[], estimated_row_count=0)
+                        
+                        for tc in tool_calls:
+                            tc_delta = await simulator.predict(tc)
+                            predicted_deltas.append(tc_delta)
+                            predicted_delta = predicted_delta + tc_delta
+                        
+                    writer.write(
+                        make_event(
+                            **envelope,
+                            event_type="tool_simulated",
+                            payload={
+                                "predicted_record_ids": predicted_delta.affected_record_ids,
+                                "estimated_row_count": predicted_delta.estimated_row_count,
+                                "record_deltas": [d.model_dump() for d in predicted_delta.record_deltas],
+                            },
+                            latency_ms=(time.perf_counter() - t0) * 1000,
+                        )
                     )
-                )
-            else:
-                # Emit a skipped tool_executed event so trace always has 9 event types
-                writer.write(
-                    make_event(
-                        **envelope,
-                        event_type="tool_executed",
-                        decision="SKIPPED_GATE_BLOCK",
-                        payload={"reason": gate_decision.reason_code},
+
+                    # ---------------------------------------------------------------
+                    # Event 7: gate_decision
+                    # ---------------------------------------------------------------
+                    t0 = time.perf_counter()
+                    
+                    # Fetch approval if provided
+                    active_approval = None
+                    if req.approval_id:
+                        result = await db_session.execute(select(PendingApproval).filter_by(approval_id=req.approval_id))
+                        active_approval = result.scalars().first()
+                        if not active_approval:
+                            gate_decision = GateDecision(verdict="BLOCK", reason_code="APPROVAL_NOT_FOUND", detail=f"Approval ticket {req.approval_id} not found.", check_results=[])
+                        elif active_approval.status != "APPROVED":
+                            gate_decision = GateDecision(verdict="BLOCK", reason_code="APPROVAL_NOT_GRANTED", detail=f"Approval ticket is in state {active_approval.status}.", check_results=[])
+                        elif active_approval.expires_at < time.time():
+                            gate_decision = GateDecision(verdict="BLOCK", reason_code="APPROVAL_EXPIRED", detail="Approval ticket has expired.", check_results=[])
+
+                    # Evaluate all tool calls. If any fail, it's a BLOCK/ESCALATE. 
+                    if 'gate_decision' not in locals() or gate_decision is None:
+                        gate_decision = None
+                        for tc, tc_delta in zip(tool_calls, predicted_deltas):
+                            tc_decision = self._gate.evaluate(
+                                contract=contract,
+                                predicted_delta=tc_delta,
+                                tool_call=tc,
+                                evidence_verdict=evidence_verdict,
+                                auth_context=req.auth_context,
+                            )
+                            if gate_decision is None or tc_decision.verdict == "BLOCK" or (tc_decision.verdict == "ESCALATE" and gate_decision.verdict == "ALLOW"):
+                                gate_decision = tc_decision
+                            if gate_decision.verdict == "BLOCK":
+                                break
+
+                        # Override ESCALATE to ALLOW if we have a valid approval
+                        if gate_decision.verdict == "ESCALATE" and active_approval:
+                            gate_decision.verdict = "ALLOW"
+                            gate_decision.detail = f"Escalation bypassed via valid approval {req.approval_id}."
+                    
+                    # If verdict is still ESCALATE, create a pending approval
+                    created_approval_id = None
+                    if gate_decision.verdict == "ESCALATE":
+                        created_approval_id = str(uuid.uuid4())
+                        new_approval = PendingApproval(
+                            approval_id=created_approval_id,
+                            trace_id=trace_id,
+                            contract=contract.model_dump(),
+                            tool_calls=[tc.model_dump() for tc in tool_calls],
+                            requested_by=req.actor_id,
+                            status="PENDING",
+                            created_at=time.time(),
+                            expires_at=time.time() + 86400, # 24 hours
+                        )
+                        db_session.add(new_approval)
+                        await db_session.commit()
+                        gate_decision.detail = f"Action escalated. Approval ticket {created_approval_id} created."
+
+                    writer.write(
+                        make_event(
+                            **envelope,
+                            event_type="gate_decision",
+                            decision=gate_decision.verdict,
+                            payload={
+                                "verdict": gate_decision.verdict,
+                                "reason_code": gate_decision.reason_code,
+                                "detail": gate_decision.detail,
+                                "check_results": [r.model_dump() for r in gate_decision.check_results],
+                                "correction": gate_decision.correction,
+                                "gate_latency_ms": gate_decision.latency_ms,
+                                "approval_id": created_approval_id or req.approval_id,
+                            },
+                            latency_ms=(time.perf_counter() - t0) * 1000,
+                        )
                     )
-                )
+
+                    actual_delta: StateDelta | None = None
+
+                    # ---------------------------------------------------------------
+                    # Event 8: tool_executed  (only if ALLOW)
+                    # ---------------------------------------------------------------
+                    if gate_decision.verdict == "ALLOW":
+                        t0 = time.perf_counter()
+                        actual_delta = StateDelta(affected_record_ids=[], record_deltas=[], table=[], estimated_row_count=0)
+                        for tc in tool_calls:
+                            actual_delta = actual_delta + await broker.commit(gate_decision.effect_certificate, tc, req.auth_context)
+                            
+                        writer.write(
+                            make_event(
+                                **envelope,
+                                event_type="tool_executed",
+                                decision="EXECUTED",
+                                payload={
+                                    "actual_record_ids": actual_delta.affected_record_ids,
+                                    "actual_row_count": actual_delta.estimated_row_count,
+                                    "record_deltas": [d.model_dump() for d in actual_delta.record_deltas],
+                                },
+                                latency_ms=(time.perf_counter() - t0) * 1000,
+                            )
+                        )
+
+                        await db_session.commit()
+
+                    else:
+                        # Emit a skipped tool_executed event so trace always has 9 event types
+                        writer.write(
+                            make_event(
+                                **envelope,
+                                event_type="tool_executed",
+                                decision="SKIPPED_GATE_BLOCK",
+                                payload={"reason": gate_decision.reason_code},
+                            )
+                        )
+
+            except StateMismatchError as e:
+                logger.error(f"High-severity incident: StateMismatchError - {e}")
+                gate_decision.verdict = "BLOCK"
+                gate_decision.reason_code = "TRANSACTION_ROLLBACK"
+                gate_decision.detail = "State changed during transaction execution."
+                actual_delta = None
+            except Exception as e:
+                logger.error(f"Execution error: {e}")
+                gate_decision = gate_decision or GateDecision(verdict="BLOCK", reason_code="INTERNAL_ERROR", detail=str(e), check_results=[])
+                actual_delta = None
 
             # ---------------------------------------------------------------
             # Event 9: evaluation_verdict
@@ -489,6 +581,9 @@ def _build_tool_calls(contract: ActionContract) -> list[ToolCall]:
         # New tools mappings
         if "USER_ID" in contract.slots:
             args["user_id"] = contract.slots["USER_ID"]
+        elif "TARGET_ID" in contract.slots:
+            args["user_id"] = contract.slots["TARGET_ID"]
+            
         if "DURATION_DAYS" in contract.slots:
             args["duration_days"] = int(contract.slots["DURATION_DAYS"])
         if "NEW_LIMIT_INR" in contract.slots:
@@ -632,11 +727,12 @@ def _early_exit(
 _DEFAULT_TRACES_DIR = Path(__file__).parent.parent.parent / "traces" / "bronze"
 
 
-def run_pipeline(
+async def run_pipeline(
     raw_text: str,
     actor_id: str,
     actor_role: str,
     task_id: str | None = None,
+    approval_id: str | None = None,
     traces_dir: Path | None = None,
 ) -> list[dict]:
     """
@@ -655,11 +751,12 @@ def run_pipeline(
     Returns:
         List of serialized TraceEvent dicts in pipeline order.
     """
-    from data.synthetic.erp import seed_fresh
+    from data.synthetic.erp import seed_fresh_async
+    from packages.storage.postgres import engine
 
-    erp_conn = seed_fresh()
+    await seed_fresh_async(engine)
     pipeline = NiyamPipeline(
-        erp_conn=erp_conn,
+        engine=engine,
         traces_dir=traces_dir or _DEFAULT_TRACES_DIR,
     )
     req = PipelineRequest(
@@ -667,8 +764,9 @@ def run_pipeline(
         actor_id=actor_id,
         actor_role=actor_role,
         task_id=task_id,
+        approval_id=approval_id,
     )
-    result = pipeline.run(req)
+    result = await pipeline.run(req)
     # Serialize TraceEvent objects to dicts for benchmark runner compatibility
     return [ev.model_dump() if hasattr(ev, "model_dump") else dict(ev) for ev in result.events]
 

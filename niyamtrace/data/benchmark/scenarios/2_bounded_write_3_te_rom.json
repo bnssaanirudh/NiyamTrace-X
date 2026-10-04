@@ -1,0 +1,7 @@
+{
+  "scenario_id": "2_bounded_write_3_te_rom",
+  "group_id": "0ca58a1d-5b80-47fb-a02c-fc1f26d3986d",
+  "category": "2_bounded_write",
+  "language": "te_rom",
+  "text": "Maarchu limit to 503 for user 3"
+}

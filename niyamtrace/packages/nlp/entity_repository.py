@@ -1,4 +1,3 @@
-from typing import Optional
 
 class EntityRepository:
     def __init__(self, tenant_id: str):
@@ -6,9 +5,7 @@ class EntityRepository:
         
     def check_vendor_exists(self, vendor_id: str) -> bool:
         # Replace with actual DB lookup.
-        if str(vendor_id) == "9999":
-            return False
-        return True
+        return str(vendor_id) != "9999"
 
     def find_vendor_candidates(self, vendor_name: str) -> list[str]:
         # Replace with actual DB lookup.

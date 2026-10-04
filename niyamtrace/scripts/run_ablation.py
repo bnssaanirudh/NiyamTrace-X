@@ -34,8 +34,8 @@ def run_scenario_ablated(scenario: dict, mode: str) -> tuple[str, float]:
     mode: 'only_llm' | 'llm_typechecker' | 'llm_entitylinker' | 'full'
     Returns (verdict, latency_ms).
     """
+    from packages.nlp.compiler import NiyamCompiler
     from packages.nlp.intake import MultilingualIntake
-    from packages.nlp.compiler import NiyamCompiler, CandidateIntent
 
     intake = MultilingualIntake()
     intake_result = intake.process(scenario["raw_text"])
@@ -45,7 +45,7 @@ def run_scenario_ablated(scenario: dict, mode: str) -> tuple[str, float]:
 
     try:
         candidate = compiler._extract_candidate(intake_result.normalized_text)
-    except Exception as e:
+    except Exception:
         return "BLOCK", (time.perf_counter() - t0) * 1000
 
     if mode == "only_llm":

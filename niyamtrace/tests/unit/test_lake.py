@@ -10,15 +10,12 @@ Covers:
 from __future__ import annotations
 
 import json
-import sqlite3
-import tempfile
 from pathlib import Path
 
 import pytest
 
 from packages.lake.transform import SilverTransform, _flatten_event
 from packages.lake.writer import TraceWriter, make_event
-
 
 # ---------------------------------------------------------------------------
 # Fixtures / helpers

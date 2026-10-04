@@ -36,8 +36,8 @@ def load_scenarios(limit: int) -> list[dict]:
 
 def run_single(scenario: dict) -> str:
     """Run one scenario through the pipeline. Returns the gate verdict."""
-    from packages.nlp.intake import MultilingualIntake
     from packages.nlp.compiler import NiyamCompiler
+    from packages.nlp.intake import MultilingualIntake
 
     intake = MultilingualIntake()
     compiler = NiyamCompiler()

@@ -20,6 +20,6 @@ This document maps out the current readiness of each module in the NiyamTrace-X 
 | **NiyamFuzz (Equivalence, Transforms)** | `packages/fuzz/` | ✅ IMPLEMENTED |
 | **Dashboard (FastAPI + HTML)** | `apps/dashboard/` | ✅ IMPLEMENTED |
 | **NiyamTrace-Bench** | `data/benchmark/` | ✅ IMPLEMENTED |
-| **CI Regression Gate** | `infra/.github/` | ⚠️ PARTIALLY IMPLEMENTED |
+| **CI Regression Gate** | `infra/.github/` | ✅ IMPLEMENTED |
 
 *For detailed architectural flow, refer to [`architecture.md`](architecture.md).*

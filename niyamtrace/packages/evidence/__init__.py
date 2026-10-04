@@ -10,13 +10,13 @@ Modules:
 """
 
 from packages.evidence.acl import ACLFilter
+from packages.evidence.nli import EvidenceVerdict, NLIEngine
 from packages.evidence.retriever import EvidenceRetriever, RetrievedChunk
-from packages.evidence.nli import NLIEngine, EvidenceVerdict
 
 __all__ = [
     "ACLFilter",
     "EvidenceRetriever",
-    "RetrievedChunk",
-    "NLIEngine",
     "EvidenceVerdict",
+    "NLIEngine",
+    "RetrievedChunk",
 ]

@@ -1,5 +1,7 @@
 import pytest
+
 from packages.nlp.normalizer import TextNormalizer
+
 
 @pytest.fixture
 def normalizer():

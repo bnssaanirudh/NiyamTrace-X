@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NiyamTrace-Bench Report · cf7835c0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design system: Hilden & Kaira ─────────────────────────── */
+    :root {
+      --bg:        #F2EFE8;
+      --surface:   #FAFAF7;
+      --ink:       #111111;
+      --muted:     #5A5A5A;
+      --border:    #D8D4CC;
+      --lime:      #C8E64A;
+      --lime-dark: #9CB230;
+      --allow-bg:  #D6EDDF; --allow-ink: #1A4731;
+      --block-bg:  #F5DADA; --block-ink: #7A1A1A;
+      --esc-bg:    #F5EDD6; --esc-ink:   #5C3D00;
+      --error-bg:  #EBEBEB; --error-ink: #444444;
+      --radius:    3px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    .page-header {
+      background: var(--ink);
+      color: var(--lime);
+      padding: 48px 64px 40px;
+    }
+    .page-header h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .page-header .meta {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: rgba(200,230,74,0.55);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .content { max-width: 1280px; margin: 0 auto; padding: 56px 64px 120px; }
+
+    /* ── Hero stat row ──────────────────────────────────────────── */
+    .hero-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 64px;
+    }
+    .stat-tile {
+      background: var(--surface);
+      padding: 32px 28px;
+    }
+    .stat-tile:first-child { background: var(--lime); }
+    .stat-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .stat-tile:first-child .stat-label { color: rgba(0,0,0,0.5); }
+    .stat-value {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .stat-denom { font-size: 0.4em; font-weight: 400; color: var(--muted); }
+    .stat-sublabel { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+    .metric-pass { color: #1A4731; }
+    .metric-fail { color: #7A1A1A; }
+
+    /* ── Section ────────────────────────────────────────────────── */
+    section { margin-bottom: 64px; }
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+
+    /* ── Verdict breakdown tiles ─────────────────────────────────── */
+    .verdict-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .verdict-grid .stat-tile:nth-child(1) { background: var(--allow-bg); }
+    .verdict-grid .stat-tile:nth-child(1) .stat-label { color: var(--allow-ink); }
+    .verdict-grid .stat-tile:nth-child(1) .stat-value { color: var(--allow-ink); }
+    .verdict-grid .stat-tile:nth-child(2) { background: var(--block-bg); }
+    .verdict-grid .stat-tile:nth-child(2) .stat-label { color: var(--block-ink); }
+    .verdict-grid .stat-tile:nth-child(2) .stat-value { color: var(--block-ink); }
+    .verdict-grid .stat-tile:nth-child(3) { background: var(--esc-bg); }
+    .verdict-grid .stat-tile:nth-child(3) .stat-label { color: var(--esc-ink); }
+    .verdict-grid .stat-tile:nth-child(3) .stat-value { color: var(--esc-ink); }
+
+    /* ── Language bars ─────────────────────────────────────────── */
+    .lang-table { width: 100%; border-collapse: collapse; }
+    .lang-table td { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+    .lang-table td:first-child { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--muted); width: 140px; }
+    .lang-table td:nth-child(2) { width: 60px; font-weight: 600; }
+    .bar-cell { padding-right: 0 !important; }
+    .bar {
+      height: 8px;
+      background: var(--lime);
+      border-radius: 2px;
+      min-width: 2px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── Tag pills ──────────────────────────────────────────────── */
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--ink);
+      color: var(--lime);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: var(--radius);
+    }
+    .tag-table { width: 100%; border-collapse: collapse; }
+    .tag-table td { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+    .tag-table td:last-child { width: 80px; font-weight: 600; text-align: right; }
+
+    /* ── Scenario table ─────────────────────────────────────────── */
+    .scenario-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .scenario-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: var(--ink);
+      color: var(--lime);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .scenario-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .scenario-table tr:hover td { background: rgba(200,230,74,0.08); }
+    .scenario-table .id { font-family: monospace; color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
+    .scenario-table .desc { max-width: 340px; line-height: 1.4; color: var(--ink); }
+    .scenario-table .lang { font-family: monospace; font-size: 0.7rem; color: var(--muted); }
+    .row-pass td { background: rgba(214,237,223,0.25); }
+    .row-fail td { background: rgba(245,218,218,0.25); }
+    .row-error td { background: rgba(245,237,214,0.25); }
+
+    /* ── Verdict badges ─────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: var(--radius);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .badge-ALLOW    { background: var(--allow-bg); color: var(--allow-ink); }
+    .badge-BLOCK    { background: var(--block-bg); color: var(--block-ink); }
+    .badge-ESCALATE { background: var(--esc-bg);   color: var(--esc-ink);   }
+    .badge-ERROR    { background: var(--error-bg); color: var(--error-ink); }
+    .badge-UNKNOWN  { background: var(--error-bg); color: var(--error-ink); }
+
+    /* ── Pass/fail icon ─────────────────────────────────────────── */
+    .icon-pass { color: #1A4731; font-weight: 700; }
+    .icon-fail { color: #7A1A1A; font-weight: 700; }
+    .icon-error { color: #5C3D00; font-weight: 700; }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    footer {
+      background: var(--ink);
+      color: rgba(255,255,255,0.3);
+      padding: 24px 64px;
+      font-size: 0.75rem;
+    }
+    footer strong { color: var(--lime); }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>NiyamTrace-Bench</h1>
+  <div class="meta">Run · cf7835c0 &nbsp;·&nbsp; 2026-10-04 16:13:16 UTC</div>
+</header>
+
+<main class="content">
+
+  <!-- Hero stats -->
+  <div class="hero-stats">
+    <div class="stat-tile">
+      <div class="stat-label">Overall Accuracy</div>
+      <div class="stat-value metric-fail">0.0<span class="stat-denom">%</span></div>
+      <div class="stat-sublabel">0 / 200 scenarios correct</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">Passed</div>
+      <div class="stat-value">0</div>
+      <div class="stat-sublabel">of 200 scenarios</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">Failed</div>
+      <div class="stat-value">0</div>
+      <div class="stat-sublabel">wrong verdict</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">Avg Latency</div>
+      <div class="stat-value">0.0<span class="stat-denom">ms</span></div>
+      <div class="stat-sublabel">per scenario</div>
+    </div>
+  </div>
+
+  <!-- Verdict breakdown -->
+  <section>
+    <div class="section-label">Verdict Breakdown</div>
+    <div class="verdict-grid">
+      
+            <div class="stat-tile">
+              <div class="stat-label">ALLOW</div>
+              <div class="stat-value">0<span class="stat-denom">/110</span></div>
+              <div class="stat-sublabel">0.0% correct</div>
+            </div>
+            <div class="stat-tile">
+              <div class="stat-label">BLOCK</div>
+              <div class="stat-value">0<span class="stat-denom">/90</span></div>
+              <div class="stat-sublabel">0.0% correct</div>
+            </div>
+            <div class="stat-tile">
+              <div class="stat-label">ESCALATE</div>
+              <div class="stat-value">0<span class="stat-denom">/0</span></div>
+              <div class="stat-sublabel">0.0% correct</div>
+            </div>
+            <div class="stat-tile">
+              <div class="stat-label">CLARIFY</div>
+              <div class="stat-value">0<span class="stat-denom">/0</span></div>
+              <div class="stat-sublabel">0.0% correct</div>
+            </div>
+    </div>
+  </section>
+
+  <!-- Language accuracy -->
+  <section>
+    <div class="section-label">Accuracy by Language</div>
+    <table class="lang-table">
+      <tbody><tr>
+              <td>eng_Latn</td>
+              <td>0.0%</td>
+              <td class="bar-cell"><div class="bar" style="width:0.0%"></div></td>
+            </tr><tr>
+              <td>hin_Latn</td>
+              <td>0.0%</td>
+              <td class="bar-cell"><div class="bar" style="width:0.0%"></div></td>
+            </tr><tr>
+              <td>tel_Latn</td>
+              <td>0.0%</td>
+              <td class="bar-cell"><div class="bar" style="width:0.0%"></div></td>
+            </tr><tr>
+              <td>tel_Telu</td>
+              <td>0.0%</td>
+              <td class="bar-cell"><div class="bar" style="width:0.0%"></div></td>
+            </tr></tbody>
+    </table>
+  </section>
+
+  <!-- Tag accuracy -->
+  <section>
+    <div class="section-label">Accuracy by Tag</div>
+    <table class="tag-table">
+      <tbody><tr>
+              <td><span class="tag">generated</span></td>
+              <td>0.0%</td>
+            </tr></tbody>
+    </table>
+  </section>
+
+  <!-- Scenario table -->
+  <section>
+    <div class="section-label">All Scenarios</div>
+    <table class="scenario-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Description</th>
+          <th>Lang</th>
+          <th>Expected</th>
+          <th>Actual</th>
+          <th>Result</th>
+          <th>ms</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-error">
+          <td class="id">AGSAFE-00001</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00002</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00003</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00004</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00005</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00006</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00007</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00008</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00009</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00010</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00011</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00012</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00013</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00014</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00015</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00016</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00017</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00018</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00019</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00020</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00021</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00022</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00023</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00024</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00025</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00026</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00027</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00028</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00029</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00030</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00031</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00032</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00033</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00034</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00035</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00036</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00037</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00038</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00039</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00040</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00041</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00042</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00043</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00044</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00045</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00046</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00047</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00048</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00049</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00050</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00051</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00052</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00053</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00054</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00055</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00056</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00057</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00058</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00059</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00060</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00061</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00062</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00063</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00064</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00065</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00066</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00067</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00068</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00069</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00070</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00071</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00072</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00073</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00074</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00075</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00076</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00077</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00078</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00079</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00080</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00081</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00082</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00083</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00084</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00085</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00086</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00087</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00088</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00089</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00090</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00091</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00092</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00093</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00094</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00095</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00096</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00097</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00098</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00099</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00100</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00101</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00102</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00103</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00104</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00105</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00106</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00107</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00108</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00109</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00110</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00111</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00112</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00113</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00114</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00115</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00116</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00117</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00118</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00119</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00120</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00121</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00122</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00123</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00124</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00125</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00126</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00127</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00128</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00129</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00130</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00131</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00132</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00133</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00134</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00135</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00136</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00137</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.1</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00138</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00139</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00140</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.2</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00141</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00142</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00143</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00144</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00145</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.1</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00146</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00147</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00148</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00149</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00150</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00151</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00152</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00153</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00154</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00155</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00156</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00157</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00158</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00159</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00160</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00161</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00162</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00163</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00164</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00165</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00166</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00167</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00168</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00169</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00170</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00171</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00172</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00173</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00174</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00175</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00176</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">3.8</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00177</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00178</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00179</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00180</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00181</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00182</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00183</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00184</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00185</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00186</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00187</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00188</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Telu</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00189</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.1</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00190</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00191</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00192</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.2</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00193</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00194</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00195</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">hin_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00196</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00197</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00198</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-BLOCK">BLOCK</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00199</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">tel_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.0</td>
+        </tr><tr class="row-error">
+          <td class="id">AGSAFE-00200</td>
+          <td class="desc">Generated code-mixed query</td>
+          <td class="lang">eng_Latn</td>
+          <td><span class="badge badge-ALLOW">ALLOW</span></td>
+          <td><span class="badge badge-ERROR">ERROR</span></td>
+          <td style="text-align:center"><span class="icon-error">!</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">0.8</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  <strong>NiyamTrace-Bench</strong> · Deterministic · Offline · No LLMs ·
+  Threshold: 80% accuracy · Run ID: cf7835c0
+</footer>
+
+</body>
+</html>

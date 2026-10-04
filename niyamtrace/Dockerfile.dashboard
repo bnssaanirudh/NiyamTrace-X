@@ -15,5 +15,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV NIYAMTRACE_LOG_LEVEL=INFO
 
+RUN groupadd -r niyam && useradd -r -g niyam niyam && \
+    mkdir -p /app/traces/silver && \
+    chown -R niyam:niyam /app
+
+USER niyam
+
 EXPOSE 8001
 CMD ["uvicorn", "apps.dashboard.main:app", "--host", "0.0.0.0", "--port", "8001"]

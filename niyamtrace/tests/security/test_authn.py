@@ -1,7 +1,9 @@
-import pytest
+from datetime import UTC, datetime, timedelta
+
 import jwt
-from datetime import datetime, timedelta, timezone
+import pytest
 from fastapi import HTTPException
+
 from packages.auth.jwt import verify_token
 from packages.config import get_settings
 
@@ -19,7 +21,7 @@ def create_token(payload: dict, secret: str = SECRET, alg: str = "HS256") -> str
     default_payload = {
         "sub": "test_user",
         "iss": "test_issuer",
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=15)
+        "exp": datetime.now(UTC) + timedelta(minutes=15)
     }
     default_payload.update(payload)
     return jwt.encode(default_payload, secret, algorithm=alg)
@@ -31,7 +33,7 @@ def test_valid_token():
     assert "admin" in principal.roles
 
 def test_expired_token():
-    token = create_token({"exp": datetime.now(timezone.utc) - timedelta(minutes=1)})
+    token = create_token({"exp": datetime.now(UTC) - timedelta(minutes=1)})
     with pytest.raises(HTTPException) as exc:
         verify_token(token)
     assert exc.value.status_code == 401

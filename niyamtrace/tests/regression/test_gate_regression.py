@@ -19,20 +19,19 @@ Scenarios:
 from __future__ import annotations
 
 import sqlite3
+
 import pytest
 
 from data.synthetic.erp import init_schema, reset_to_seed
 from packages.contracts.schema import (
     ActionContract,
-    GateCheckResult,
     RecordDelta,
     StateDelta,
     ToolCall,
 )
 from packages.gate.gate import NiyamGate
 from packages.gate.policy import DEFAULT_POLICY
-from packages.gate.tool_schemas import validate_tool_call, ToolSchemaValidationError
-
+from packages.gate.tool_schemas import ToolSchemaValidationError, validate_tool_call
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -50,15 +49,15 @@ def erp_conn() -> sqlite3.Connection:
 
 
 def _contract(**overrides) -> ActionContract:
-    defaults = dict(
-        actor_id="U-REG-001",
-        actor_role="procurement_manager",
-        intent="invoice.archive",
-        intent_confidence=0.95,
-        slots={"VENDOR_ID": "4421", "MONTH": 3, "YEAR": 2025},
-        raw_text="Archive March invoices for vendor 4421",
-        normalized_text="archive vendor_invoice vendor_id=4421 month=3 year=2025",
-    )
+    defaults = {
+        "actor_id": "U-REG-001",
+        "actor_role": "procurement_manager",
+        "intent": "invoice.archive",
+        "intent_confidence": 0.95,
+        "slots": {"VENDOR_ID": "4421", "MONTH": 3, "YEAR": 2025},
+        "raw_text": "Archive March invoices for vendor 4421",
+        "normalized_text": "archive vendor_invoice vendor_id=4421 month=3 year=2025",
+    }
     defaults.update(overrides)
     return ActionContract(**defaults)
 

@@ -10,19 +10,19 @@ Modules:
   discover.py     — minimal-failing-variant discovery via incremental substitution search
 """
 
-from packages.fuzz.transforms import VariantTransformer, VariantRequest
-from packages.fuzz.equivalence import SemanticPreservationChecker, EquivalenceResult
-from packages.fuzz.comparator import TraceComparator, DivergenceReport
-from packages.fuzz.discover import MinimalVariantDiscoverer, MinimalFailingVariant
+from packages.fuzz.comparator import DivergenceReport, TraceComparator
+from packages.fuzz.discover import MinimalFailingVariant, MinimalVariantDiscoverer
+from packages.fuzz.equivalence import EquivalenceResult, SemanticPreservationChecker
+from packages.fuzz.transforms import VariantRequest, VariantTransformer
 
 __all__ = [
-    "VariantTransformer",
-    "VariantRequest",
-    "SemanticPreservationChecker",
-    "EquivalenceResult",
-    "TraceComparator",
     "DivergenceReport",
-    "MinimalVariantDiscoverer",
+    "EquivalenceResult",
     "MinimalFailingVariant",
+    "MinimalVariantDiscoverer",
+    "SemanticPreservationChecker",
+    "TraceComparator",
+    "VariantRequest",
+    "VariantTransformer",
 ]
 

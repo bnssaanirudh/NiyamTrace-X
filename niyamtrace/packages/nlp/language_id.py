@@ -59,6 +59,7 @@ class IndicLIDWrapper:
         if resolved_dir:
             try:
                 from ai4bharat.transliteration import XlitEngine  # noqa: F401 — import check
+
                 # IndicLID uses a separate inference class from the same org
                 from IndicBert import IndicLID as _IndicLID  # type: ignore[import]
                 self._lid_model = _IndicLID(model_path=resolved_dir)

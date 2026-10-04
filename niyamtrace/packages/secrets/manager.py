@@ -21,7 +21,6 @@ from __future__ import annotations
 import logging
 import os
 from functools import lru_cache
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -141,8 +140,9 @@ class SecretsManager:
         OR a plain string for single-value secrets.
         """
         try:
-            import boto3  # type: ignore[import]
             import json as _json
+
+            import boto3  # type: ignore[import]
 
             secret_name = os.environ.get("AWS_SECRET_NAME", "niyamtrace/secrets")
             client = boto3.client("secretsmanager", region_name=self._region)

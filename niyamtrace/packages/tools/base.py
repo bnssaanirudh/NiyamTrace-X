@@ -7,10 +7,12 @@ interface that all executable capabilities must fulfill.
 
 from abc import ABC, abstractmethod
 from typing import Any, Literal
-import sqlite3
-from pydantic import BaseModel
 
-from packages.contracts.schema import StateDelta, ToolCall
+from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from packages.contracts.schema import StateDelta
+
 
 class ToolCapability(BaseModel):
     name: str
@@ -31,33 +33,28 @@ class ToolImplementation(ABC):
     @abstractmethod
     def capability(self) -> ToolCapability:
         """Return the metadata and capabilities of this tool."""
-        pass
 
     @property
     @abstractmethod
     def schema(self) -> dict[str, Any]:
         """Return the JSON schema defining the arguments for this tool."""
-        pass
 
     @abstractmethod
-    def simulate(self, conn: sqlite3.Connection, arguments: dict[str, Any]) -> StateDelta:
+    async def simulate(self, session: AsyncSession, arguments: dict[str, Any]) -> StateDelta:
         """
         Predict the changes this tool would make to the ERP state WITHOUT actually
         mutating anything (read-only SELECTs).
         """
-        pass
 
     @abstractmethod
-    def execute(self, conn: sqlite3.Connection, arguments: dict[str, Any]) -> StateDelta:
+    async def execute(self, session: AsyncSession, arguments: dict[str, Any]) -> StateDelta:
         """
         Execute the tool's mutation on the ERP state and return the actual StateDelta.
         This is only called by the ERPExecutor if the gate returned ALLOW.
         """
-        pass
 
     def validate_arguments(self, arguments: dict[str, Any]) -> None:
         """
         Validate tool-specific argument logic. 
         Should raise packages.tools.registry.ToolSchemaValidationError on failure.
         """
-        pass

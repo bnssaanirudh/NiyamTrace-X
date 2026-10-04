@@ -9,7 +9,7 @@ Forwards execution to the registered tool implementations (Phase 6).
 
 from __future__ import annotations
 
-import sqlite3
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from packages.contracts.schema import StateDelta, ToolCall
 from packages.tools.registry import get_tool_implementation
@@ -24,10 +24,10 @@ class ERPExecutor:
     This class does NOT check the gate verdict itself — the pipeline does.
     """
 
-    def __init__(self, conn: sqlite3.Connection) -> None:
-        self._conn = conn
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
 
-    def execute(self, tool_call: ToolCall) -> StateDelta:
+    async def execute(self, tool_call: ToolCall) -> StateDelta:
         """
         Execute the tool call and return the actual delta via the registry.
         Raises ValueError for unknown tools.
@@ -37,4 +37,4 @@ class ERPExecutor:
             raise ValueError(
                 f"ERPExecutor: no execution handler for tool '{tool_call.tool_name}'"
             )
-        return impl.execute(self._conn, tool_call.arguments)
+        return await impl.execute(self._session, tool_call.arguments)

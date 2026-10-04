@@ -5,23 +5,22 @@ Verifies that the slot parser is correctly integrated into the pipeline:
   - Different language inputs produce identical ActionContracts (semantic equivalence)
 """
 
-import json
-import sqlite3
 import pytest
+import pytest_asyncio
 
 from apps.gateway.pipeline import NiyamPipeline, PipelineRequest
-from data.synthetic.erp import init_schema, reset_to_seed
 from packages.nlp.compiler import NiyamCompiler
 
 
-@pytest.fixture
-def fresh_erp():
-    conn = sqlite3.connect(":memory:")
-    conn.row_factory = sqlite3.Row
-    init_schema(conn)
-    reset_to_seed(conn)
-    yield conn
-    conn.close()
+@pytest_asyncio.fixture
+async def fresh_engine():
+    from sqlalchemy.ext.asyncio import create_async_engine
+
+    from data.synthetic.erp import seed_fresh_async
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+    await seed_fresh_async(engine)
+    yield engine
+    await engine.dispose()
 
 
 @pytest.fixture
@@ -30,18 +29,19 @@ def mock_compiler():
 
 
 @pytest.fixture
-def pipeline(fresh_erp, tmp_path, mock_compiler):
+def pipeline(fresh_engine, tmp_path, mock_compiler):
     traces_dir = tmp_path / "traces"
-    return NiyamPipeline(erp_conn=fresh_erp, traces_dir=traces_dir, compiler=mock_compiler)
+    return NiyamPipeline(engine=fresh_engine, traces_dir=traces_dir, compiler=mock_compiler)
 
 
-def test_slot_parser_integrated_in_trace(pipeline, tmp_path):
+@pytest.mark.asyncio
+async def test_slot_parser_integrated_in_trace(pipeline, tmp_path):
     req = PipelineRequest(
         raw_text="Archive March invoices for vendor 4421",
         actor_id="user-1",
         actor_role="manager"
     )
-    result = pipeline.run(req)
+    result = await pipeline.run(req)
     
     # Contract is parsed correctly
     assert result.contract.intent == "invoice.archive"
@@ -56,7 +56,8 @@ def test_slot_parser_integrated_in_trace(pipeline, tmp_path):
     assert extracted_event.parser_version == result.contract.parser_version
 
 
-def test_semantic_equivalence_multilingual(pipeline):
+@pytest.mark.asyncio
+async def test_semantic_equivalence_multilingual(pipeline):
     """
     All language variants of the same intent should resolve to exactly the
     same functional fields in the ActionContract because they hit the same
@@ -71,7 +72,7 @@ def test_semantic_equivalence_multilingual(pipeline):
     contracts = []
     for var in variants:
         req = PipelineRequest(raw_text=var, actor_id="a", actor_role="r")
-        contracts.append(pipeline.run(req).contract)
+        contracts.append((await pipeline.run(req)).contract)
         
     # The 3 contracts should be functionally identical despite different raw texts
     first = contracts[0]

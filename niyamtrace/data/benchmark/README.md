@@ -1,8 +1,8 @@
 # NiyamTrace-Bench — Annotated Scenario Dataset
 
-**Status: STUB — Week 8**
+**Status: ✅ IMPLEMENTED (Week 8)**
 
-This directory will contain:
+This directory contains:
 
 - `scenarios/` — 80 canonical scenarios × 4 language forms = 320 paired runs
 - `guidelines/` — Annotation guidelines for human-reviewed gold contracts
@@ -10,7 +10,7 @@ This directory will contain:
 - `policies/` — Policy bundles used per scenario
 - `workspace_states/` — ERP snapshots for each scenario
 
-## Scenario Categories (to be built in Week 8)
+## Scenario Categories
 
 1. Read authorization
 2. Bounded write

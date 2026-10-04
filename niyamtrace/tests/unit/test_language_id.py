@@ -1,5 +1,7 @@
 import pytest
+
 from packages.nlp.language_id import LanguageIdentifier
+
 
 @pytest.fixture
 def identifier():

@@ -1,6 +1,8 @@
 import pytest
-from packages.nlp.entity_linker import EntityLinker
+
 from packages.contracts.schema import ActionContract
+from packages.nlp.entity_linker import EntityLinker
+
 
 @pytest.fixture
 def linker():

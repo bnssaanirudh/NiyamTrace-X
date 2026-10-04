@@ -1,8 +1,8 @@
-import pytest
-from packages.evidence.retriever import EvidenceRetriever
-import json
 import datetime
-from pathlib import Path
+import json
+
+from packages.evidence.retriever import EvidenceRetriever
+
 
 def test_missing_provenance_rejected(tmp_path):
     docs = [
@@ -12,7 +12,7 @@ def test_missing_provenance_rejected(tmp_path):
             "tenant": "acme", 
             "source": "hr_policy", 
             "version_hash": "abc", 
-            "timestamp_indexed": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "timestamp_indexed": datetime.datetime.now(datetime.UTC).isoformat(),
             "title": "Doc 1",
             "content": "Valid"
         },
@@ -21,7 +21,7 @@ def test_missing_provenance_rejected(tmp_path):
             "doc_id": "2", 
             "source": "hr_policy", 
             "version_hash": "abc", 
-            "timestamp_indexed": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "timestamp_indexed": datetime.datetime.now(datetime.UTC).isoformat(),
             "title": "Doc 2",
             "content": "Missing tenant"
         }
@@ -36,7 +36,7 @@ def test_missing_provenance_rejected(tmp_path):
     assert chunks[0].doc_id == "1"
 
 def test_stale_documents_rejected(tmp_path):
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.UTC)
     stale_date = now - datetime.timedelta(days=35)
     docs = [
         {
@@ -58,7 +58,7 @@ def test_stale_documents_rejected(tmp_path):
     assert len(chunks) == 0
 
 def test_revoked_documents_rejected(tmp_path):
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.UTC)
     docs = [
         {
             "doc_id": "1", 

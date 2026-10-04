@@ -1,9 +1,10 @@
 import hashlib
-from typing import Dict, Any
+from typing import Any
+
 
 class PromptRegistry:
     @staticmethod
-    def get_extraction_prompt(normalized_text: str, current_year: int, repair_hint: str = None) -> Dict[str, Any]:
+    def get_extraction_prompt(normalized_text: str, current_year: int, repair_hint: str | None = None) -> dict[str, Any]:
         repair_instruction = f"""
         IMPORTANT CORRECTION: A previous extraction attempt failed with this error: "{repair_hint}".
         Please re-read the text carefully and fix this specific issue.

@@ -21,8 +21,8 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass, field
+from datetime import UTC
 from pathlib import Path
-from typing import Optional
 
 # ---------------------------------------------------------------------------
 # Data structures
@@ -39,11 +39,11 @@ class ScenarioResult:
     tags: list[str]
     expected_verdict: str
     actual_verdict: str
-    expected_reason_code: Optional[str]
-    actual_reason_code: Optional[str]
+    expected_reason_code: str | None
+    actual_reason_code: str | None
     passed: bool
     latency_ms: float
-    error: Optional[str] = None
+    error: str | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -164,14 +164,14 @@ class BenchmarkRunner:
     def run(self, limit: int | None = None) -> BenchmarkResult:
         """Execute all scenarios and return a BenchmarkResult."""
         import uuid
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         scenarios = self._load_scenarios()
         if limit is not None:
             scenarios = scenarios[:limit]
             
         run_id = str(uuid.uuid4())[:8]
-        timestamp = datetime.now(tz=timezone.utc).isoformat()
+        timestamp = datetime.now(tz=UTC).isoformat()
 
         results: list[ScenarioResult] = []
         for scenario in scenarios:
@@ -213,16 +213,17 @@ class BenchmarkRunner:
         expected_reason_code = scenario.get("expected_reason_code")
 
         t0 = time.perf_counter()
-        error: Optional[str] = None
+        error: str | None = None
         actual_verdict = "ERROR"
-        actual_reason_code: Optional[str] = None
+        actual_reason_code: str | None = None
 
         try:
-            trace = run_pipeline(
+            import asyncio
+            trace = asyncio.run(run_pipeline(
                 raw_text=scenario["raw_text"],
                 actor_id=scenario["actor_id"],
                 actor_role=scenario["actor_role"],
-            )
+            ))
             # Extract gate decision from the trace events
             gate_event = self._find_event(trace, "gate_decision")
             if gate_event:

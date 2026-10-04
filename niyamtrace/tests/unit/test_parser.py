@@ -1,6 +1,8 @@
 import pytest
+
 from packages.nlp.intake import IntakeResult
 from packages.nlp.parser import SlotParser
+
 
 @pytest.fixture
 def parser():

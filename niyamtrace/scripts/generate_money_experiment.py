@@ -3,9 +3,10 @@ scripts/generate_money_experiment.py -- Suggestion #7: Money Experiment
 Cross-lingual scenario groups where semantically equivalent input produces divergent effects.
 """
 from __future__ import annotations
+
 import json
+from datetime import UTC, datetime
 from pathlib import Path
-from datetime import datetime, timezone
 
 MONEY_SCENARIOS = [
     {
@@ -51,7 +52,7 @@ MONEY_SCENARIOS = [
 def main() -> None:
     output = {
         "version": "1.0.0",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "description": "NiyamTrace-X Money Experiment. Language variation alone flips the gate verdict.",
         "total_groups": len(MONEY_SCENARIOS),
         "total_variants": sum(len(s["variants"]) for s in MONEY_SCENARIOS),

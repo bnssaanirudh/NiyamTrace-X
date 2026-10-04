@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     auth_secret_key: str | None = Field(
         default=None, description="Secret key for JWT verification (required in prod)."
     )
+    auth_issuer: str | None = Field(
+        default=None, description="Expected issuer for JWT token validation."
+    )
+    auth_audience: str | None = Field(
+        default=None, description="Expected audience for JWT token validation."
+    )
 
     # LLM Settings
     llm_backend: Literal["openai", "groq", "google", "gemini", "local"] = Field(
@@ -49,7 +55,11 @@ class Settings(BaseSettings):
     )
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=".env", 
+        env_file_encoding="utf-8", 
+        extra="ignore",
+        # Phase G: Support Docker Swarm / K8s / AWS secrets mounted as tmpfs
+        secrets_dir="/run/secrets" 
     )
 
     @field_validator("debug_mode", mode="before")
@@ -77,13 +87,12 @@ class Settings(BaseSettings):
 
     @field_validator("cors_allowed_origins", mode="before")
     def restrict_wildcard_cors_in_prod(cls, v, info):
-        if info.data.get("environment") == "production":
-            if "*" in v or ["*"] == v:
-                raise ValueError("Wildcard CORS (*) is not permitted in production.")
+        if info.data.get("environment") == "production" and ("*" in v or ["*"] == v):
+            raise ValueError("Wildcard CORS (*) is not permitted in production.")
         return v
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Return cached settings instance."""
     return Settings()

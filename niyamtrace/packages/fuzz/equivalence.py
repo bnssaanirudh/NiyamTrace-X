@@ -18,7 +18,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-
 # Protected span pattern (same as in transforms.py)
 # Matches structured IDs (INV-001, USR-X, etc.) but NOT plain words
 # that happen to start with those 3-letter prefixes.
@@ -46,7 +45,7 @@ class EquivalenceResult:
 
 def _extract_protected_spans(text: str) -> set[str]:
     """Extract all protected spans from text."""
-    return set(m.group().strip() for m in _PROTECTED_PATTERN.finditer(text))
+    return {m.group().strip() for m in _PROTECTED_PATTERN.finditer(text)}
 
 
 def _ascii_tokens(text: str) -> set[str]:

@@ -1,6 +1,6 @@
-import pytest
 from packages.evidence.nli import NLIEngine
 from packages.evidence.retriever import RetrievedChunk
+
 
 def test_untrusted_content_ignored():
     nli = NLIEngine()
@@ -46,5 +46,5 @@ def test_trusted_content_works():
         )
     ]
     
-    verdict, reason = nli.classify("invoice.archive", "procurement_manager", chunks)
+    verdict, _reason = nli.classify("invoice.archive", "procurement_manager", chunks)
     assert verdict == "SUPPORT"

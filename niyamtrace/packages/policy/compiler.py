@@ -1,6 +1,7 @@
 from packages.policy.loader import PolicyLoader
 from packages.policy.models import ToolRule
 
+
 class PolicyCompiler:
     def __init__(self, loader: PolicyLoader):
         self.loader = loader

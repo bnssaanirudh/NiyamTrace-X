@@ -1,5 +1,5 @@
 class NLPExtractionError(Exception):
-    def __init__(self, message: str, stage: str, detail: str = None):
+    def __init__(self, message: str, stage: str, detail: str | None = None):
         self.message = message
         self.stage = stage
         self.detail = detail

@@ -7,13 +7,10 @@ Uses Google GenAI for intent classification and slot extraction.
 from __future__ import annotations
 
 import os
-from typing import Any
 
-from pydantic import BaseModel, Field
 from dotenv import load_dotenv
-from google import genai
-from google.genai import types
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from pydantic import BaseModel
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from packages.contracts.schema import ActionContract, SourceSpan
 from packages.nlp.intake import IntakeResult
@@ -43,6 +40,7 @@ class SlotParser:
         
         if self.backend == "gemini":
             from google import genai
+
             from packages.secrets.manager import get_secrets_manager
             api_key = get_secrets_manager().get_optional("GEMINI_API_KEY")
             if not api_key:
@@ -51,6 +49,7 @@ class SlotParser:
             self.client_gemini = genai.Client(api_key=api_key)
         elif self.backend == "groq":
             from groq import Groq
+
             from packages.config import get_settings
             self.client_openai = Groq(api_key=get_settings().groq_api_key)
             self.model_name = "groq/compound-mini"

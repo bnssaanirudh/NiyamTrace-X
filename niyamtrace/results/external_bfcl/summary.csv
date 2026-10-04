@@ -1,0 +1,3 @@
+model_family,status,score,infrastructure_errors
+gpt-4o,INFRA_FAILURE,0,1
+claude-3.5-sonnet,INFRA_FAILURE,0,1

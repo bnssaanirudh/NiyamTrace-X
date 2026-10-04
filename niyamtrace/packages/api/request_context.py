@@ -1,8 +1,9 @@
 import uuid
-from typing import Callable, Awaitable
+from collections.abc import Awaitable, Callable
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
-from packages.api.errors import NiyamAPIError
+
 
 class RequestContextMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
@@ -18,8 +19,8 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
 
         try:
             response = await call_next(request)
-        except Exception as exc:
-            raise exc
+        except Exception:
+            raise
 
         response.headers["X-Request-ID"] = request_id
         

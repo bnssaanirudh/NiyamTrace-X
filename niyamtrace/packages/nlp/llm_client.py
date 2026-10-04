@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import json
 import logging
-import urllib.request
 import urllib.error
+import urllib.request
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -23,7 +23,6 @@ class LLMClient(ABC):
     @abstractmethod
     def generate_json(self, prompt: str) -> dict[str, Any]:
         """Generate a JSON response from the LLM based on the prompt."""
-        pass
 
 
 class OllamaClient(LLMClient):

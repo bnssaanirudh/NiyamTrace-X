@@ -1,0 +1,9 @@
+{
+  "models_attempted": [
+    "gpt-4o",
+    "claude-3.5-sonnet"
+  ],
+  "integration_type": "tool-call compatibility",
+  "status": "infrastructure_failure",
+  "reason": "BFCL module not found in environment."
+}

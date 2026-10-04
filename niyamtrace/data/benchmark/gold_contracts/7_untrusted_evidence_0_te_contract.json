@@ -1,0 +1,7 @@
+{
+  "intent": "mock.intent",
+  "slots": {
+    "target_id": 0
+  },
+  "confidence": 0.95
+}

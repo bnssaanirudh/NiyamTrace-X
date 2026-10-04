@@ -1,13 +1,13 @@
 import os
+from typing import Any
+
 import pytest
-from typing import Any, Dict
-from pydantic import BaseModel
 
 os.environ["LLM_BACKEND"] = "groq"
 
 @pytest.fixture(autouse=True)
 def mock_llm_provider(monkeypatch):
-    def mock_generate(self, prompt: Dict[str, Any], schema_class: Any) -> Any:
+    def mock_generate(self, prompt: dict[str, Any], schema_class: Any) -> Any:
         user_prompt = prompt.get("user", "")
         text_line = next((line for line in user_prompt.split("\n") if "Text:" in line), "")
         text = text_line.lower()
@@ -37,7 +37,7 @@ def mock_llm_provider(monkeypatch):
     monkeypatch.setattr("packages.nlp.provider.LLMProvider.generate", mock_generate)
     
     def mock_slot_parser_parse(self, actor_id, actor_role, raw_text, intake_result):
-        from packages.contracts.schema import ActionContract, SourceSpan
+        from packages.contracts.schema import ActionContract
         text = intake_result.normalized_text.lower()
         if "poem" in text or "ignore all policies" in text or "ignore" in text:
             data = {"intent": "unknown", "slots": {}, "confidence": 0.1}

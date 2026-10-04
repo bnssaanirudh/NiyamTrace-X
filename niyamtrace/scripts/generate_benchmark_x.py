@@ -15,8 +15,8 @@ Each scenario carries a translate_baseline_text field (#15): semantic
 content translated to English for the translate-then-execute comparison baseline.
 """
 
-import json
 import itertools
+import json
 from pathlib import Path
 
 INTENT_TYPES = ["invoice.archive", "access.grant", "access.block", "limit.update", "vendor.suspend"]

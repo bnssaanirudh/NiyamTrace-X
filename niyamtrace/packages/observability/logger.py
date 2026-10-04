@@ -14,7 +14,7 @@ import logging
 import os
 import sys
 from contextvars import ContextVar
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 # Context variable to hold the current trace_id across async tasks/threads
 current_trace_id: ContextVar[str] = ContextVar("current_trace_id", default="")
@@ -27,7 +27,7 @@ class StructuredFormatter(logging.Formatter):
         trace_id = current_trace_id.get()
         
         log_obj = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),

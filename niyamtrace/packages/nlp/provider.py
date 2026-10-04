@@ -1,8 +1,10 @@
-from typing import Any, Dict
+import json
+from typing import Any
+
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+
 from packages.config import get_settings
-import json
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-import json
+
 
 class LLMProvider:
     def __init__(self, backend: str):
@@ -34,7 +36,7 @@ class LLMProvider:
         retry=retry_if_exception_type(Exception),
         reraise=True
     )
-    def generate(self, prompt: Dict[str, Any], schema_class: Any) -> Any:
+    def generate(self, prompt: dict[str, Any], schema_class: Any) -> Any:
         if self.backend == "gemini":
             from google.genai import types
             response = self.client.models.generate_content(

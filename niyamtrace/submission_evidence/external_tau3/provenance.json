@@ -1,0 +1,10 @@
+{
+  "models_attempted": [
+    "gpt-4o",
+    "claude-3.5-sonnet",
+    "gemini-1.5-pro"
+  ],
+  "integration_type": "guarded vs unguarded paired",
+  "status": "infrastructure_failure",
+  "reason": "tau-bench module not found in environment."
+}

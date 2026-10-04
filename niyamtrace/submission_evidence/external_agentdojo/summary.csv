@@ -1,0 +1,5 @@
+model_family,condition,status,completed_cases,infrastructure_errors
+gpt-4o,unguarded,INFRA_FAILURE,0,1
+gpt-4o,guarded,INFRA_FAILURE,0,1
+claude-3.5-sonnet,unguarded,INFRA_FAILURE,0,1
+claude-3.5-sonnet,guarded,INFRA_FAILURE,0,1

@@ -6,7 +6,7 @@ Forwards simulation execution to the registered tool implementations (Phase 6).
 
 from __future__ import annotations
 
-import sqlite3
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from packages.contracts.schema import StateDelta, ToolCall
 from packages.tools.registry import get_tool_implementation
@@ -21,10 +21,10 @@ class ShadowSimulator:
         delta = sim.predict(tool_call)
     """
 
-    def __init__(self, conn: sqlite3.Connection) -> None:
-        self._conn = conn
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
 
-    def predict(self, tool_call: ToolCall) -> StateDelta:
+    async def predict(self, tool_call: ToolCall) -> StateDelta:
         """
         Dispatch to the appropriate per-tool simulation function via the registry.
         Returns a StateDelta describing what would change.
@@ -41,4 +41,4 @@ class ShadowSimulator:
                 f"ShadowSimulator: tool '{tool_call.tool_name}' does not support simulation"
             )
 
-        return impl.simulate(self._conn, tool_call.arguments)
+        return await impl.simulate(self._session, tool_call.arguments)

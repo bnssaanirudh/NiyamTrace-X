@@ -1,9 +1,12 @@
-import yaml
-import json
 import hashlib
+import json
 from pathlib import Path
+
+import yaml
+
 from packages.policy.models import PolicyBundle
 from packages.policy.signature import verify_signature
+
 
 class PolicyLoadError(Exception):
     pass
@@ -35,7 +38,7 @@ class PolicyLoader:
             
             return self._bundle
         except Exception as e:
-            raise PolicyLoadError(f"Failed to load policy: {str(e)}")
+            raise PolicyLoadError(f"Failed to load policy: {e!s}")
 
     @property
     def bundle(self) -> PolicyBundle:

@@ -2,20 +2,14 @@
 
 from __future__ import annotations
 
-import pytest
-from datetime import datetime
-
 from packages.contracts.schema import (
-    GateCheckResult,
     ActionContract,
     RecordDelta,
     StateDelta,
-    TemporalRange,
     ToolCall,
 )
 from packages.gate.gate import NiyamGate
 from packages.gate.policy import (
-    DEFAULT_POLICY,
     check_attribute_containment,
     check_cardinality_and_approval,
     check_evidence_sufficiency,
@@ -23,22 +17,21 @@ from packages.gate.policy import (
     check_temporal_containment,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
 
 def _contract(**overrides) -> ActionContract:
-    defaults = dict(
-        actor_id="user-001",
-        actor_role="procurement_manager",
-        intent="invoice.archive",
-        intent_confidence=0.97,
-        slots={"VENDOR_ID": "4421", "MONTH": 3, "YEAR": 2025},
-        raw_text="Archive March invoices for vendor 4421",
-        normalized_text="archive vendor_invoice vendor_id=4421 month=3 year=2025",
-    )
+    defaults = {
+        "actor_id": "user-001",
+        "actor_role": "procurement_manager",
+        "intent": "invoice.archive",
+        "intent_confidence": 0.97,
+        "slots": {"VENDOR_ID": "4421", "MONTH": 3, "YEAR": 2025},
+        "raw_text": "Archive March invoices for vendor 4421",
+        "normalized_text": "archive vendor_invoice vendor_id=4421 month=3 year=2025",
+    }
     defaults.update(overrides)
     return ActionContract(**defaults)
 
@@ -176,10 +169,10 @@ class TestCardinalityAndApproval:
 
 
 class TestEvidenceSufficiency:
-    def test_stub_always_passes(self):
+    def test_stub_fails_closed(self):
         result = check_evidence_sufficiency(_contract(), "STUB")
-        assert result.passed
-        assert result.reason_code == "STUB_ALWAYS_SUPPORT"
+        assert not result.passed
+        assert result.reason_code == "EVIDENCE_STUB_IN_PRODUCTION"
 
     def test_support_passes(self):
         result = check_evidence_sufficiency(_contract(), "SUPPORT")
@@ -210,18 +203,18 @@ class TestNiyamGate:
             contract=_contract(),
             predicted_delta=_delta(),
             tool_call=_tool_call(),
-            evidence_verdict="STUB",
+            evidence_verdict="SUPPORT",
         )
         assert decision.verdict == "ALLOW"
         assert decision.reason_code == "ALL_CHECKS_PASSED"
-        assert len(decision.check_results) == 5
+        assert len(decision.check_results) == 8
 
     def test_wrong_vendor_returns_block(self):
         decision = self.gate.evaluate(
             contract=_contract(),
             predicted_delta=_delta(),
             tool_call=_tool_call(vendor_id=9999),
-            evidence_verdict="STUB",
+            evidence_verdict="SUPPORT",
         )
         assert decision.verdict == "BLOCK"
         assert decision.reason_code == "VENDOR_ID_MISMATCH"
@@ -235,7 +228,7 @@ class TestNiyamGate:
             contract=_contract(),
             predicted_delta=_delta(),
             tool_call=tc,
-            evidence_verdict="STUB",
+            evidence_verdict="SUPPORT",
         )
         assert decision.verdict == "BLOCK"
         assert "TEMPORAL" in decision.reason_code or "MISSING" in decision.reason_code
@@ -246,7 +239,7 @@ class TestNiyamGate:
             contract=_contract(),
             predicted_delta=_delta(record_ids=ids),
             tool_call=_tool_call(),
-            evidence_verdict="STUB",
+            evidence_verdict="SUPPORT",
         )
         assert decision.verdict == "ESCALATE"
         assert decision.correction is not None

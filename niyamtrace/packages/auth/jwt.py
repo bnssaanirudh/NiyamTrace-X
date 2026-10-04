@@ -1,5 +1,6 @@
 import jwt
 from fastapi import HTTPException
+
 from packages.auth.models import Principal
 from packages.config import get_settings
 
@@ -23,11 +24,19 @@ def verify_token(token: str) -> Principal:
         raise HTTPException(status_code=500, detail="Server misconfigured: missing auth_secret_key")
 
     try:
+        decode_options = {"require": ["exp", "sub"]}
+        if settings.auth_issuer:
+            decode_options["require"].append("iss")
+        if settings.auth_audience:
+            decode_options["require"].append("aud")
+            
         payload = jwt.decode(
             token,
             settings.auth_secret_key,
             algorithms=["HS256", "RS256"],
-            options={"require": ["exp", "iss", "sub"]}
+            options=decode_options,
+            issuer=settings.auth_issuer,
+            audience=settings.auth_audience
         )
         
         # In a real OIDC setup, we might extract tenant and roles from custom claims.
@@ -44,5 +53,5 @@ def verify_token(token: str) -> Principal:
         raise HTTPException(status_code=401, detail="Invalid audience")
     except jwt.InvalidIssuerError:
         raise HTTPException(status_code=401, detail="Invalid issuer")
-    except jwt.PyJWTError as e:
+    except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")

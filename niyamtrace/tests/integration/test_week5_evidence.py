@@ -16,29 +16,27 @@ Exit criteria (Week 5):
 from __future__ import annotations
 
 import sqlite3
-import tempfile
 from pathlib import Path
 
 import pytest
+import pytest_asyncio
 
 from apps.gateway.pipeline import NiyamPipeline, PipelineRequest
-from data.synthetic.erp import init_schema, reset_to_seed
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture
-def fresh_erp():
-    """In-memory SQLite ERP seeded to standard state."""
-    conn = sqlite3.connect(":memory:")
-    conn.row_factory = sqlite3.Row
-    init_schema(conn)
-    reset_to_seed(conn)
-    yield conn
-    conn.close()
+@pytest_asyncio.fixture
+async def fresh_engine():
+    from sqlalchemy.ext.asyncio import create_async_engine
+
+    from data.synthetic.erp import seed_fresh_async
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+    await seed_fresh_async(engine)
+    yield engine
+    await engine.dispose()
 
 
 @pytest.fixture
@@ -46,21 +44,20 @@ def tmp_traces(tmp_path):
     return tmp_path / "traces"
 
 
-def _run_pipeline(
+async def _run_pipeline(
     erp_conn: sqlite3.Connection,
     traces_dir: Path,
     raw_text: str,
     actor_id: str = "USR-PM-01",
     actor_role: str = "procurement_manager",
-) -> "PipelineResult":  # type: ignore[name-defined]
-    from apps.gateway.pipeline import PipelineResult
-    pipeline = NiyamPipeline(erp_conn=erp_conn, traces_dir=traces_dir)
+) -> PipelineResult:  # type: ignore[name-defined]
+    pipeline = NiyamPipeline(engine=erp_conn, traces_dir=traces_dir)
     req = PipelineRequest(
         raw_text=raw_text,
         actor_id=actor_id,
         actor_role=actor_role,
     )
-    return pipeline.run(req)
+    return await pipeline.run(req)
 
 
 # ---------------------------------------------------------------------------
@@ -68,10 +65,11 @@ def _run_pipeline(
 # ---------------------------------------------------------------------------
 
 
-def test_retrieval_completed_is_not_stub(fresh_erp, tmp_traces):
+@pytest.mark.asyncio
+async def test_retrieval_completed_is_not_stub(fresh_engine, tmp_traces):
     """retrieval_completed must contain real chunks and a non-STUB verdict."""
-    result = _run_pipeline(
-        fresh_erp,
+    result = await _run_pipeline(
+        fresh_engine,
         tmp_traces,
         raw_text="Archive March 2025 invoices for vendor 4421",
         actor_role="procurement_manager",
@@ -98,10 +96,11 @@ def test_retrieval_completed_is_not_stub(fresh_erp, tmp_traces):
 # ---------------------------------------------------------------------------
 
 
-def test_support_verdict_for_procurement_manager(fresh_erp, tmp_traces):
+@pytest.mark.asyncio
+async def test_support_verdict_for_procurement_manager(fresh_engine, tmp_traces):
     """procurement_manager archiving invoices should get SUPPORT from NLI."""
-    result = _run_pipeline(
-        fresh_erp,
+    result = await _run_pipeline(
+        fresh_engine,
         tmp_traces,
         raw_text="Archive March 2025 invoices for vendor 4421",
         actor_role="procurement_manager",
@@ -122,10 +121,11 @@ def test_support_verdict_for_procurement_manager(fresh_erp, tmp_traces):
 # ---------------------------------------------------------------------------
 
 
-def test_gate_check5_passes_on_support(fresh_erp, tmp_traces):
+@pytest.mark.asyncio
+async def test_gate_check5_passes_on_support(fresh_engine, tmp_traces):
     """Gate check 5 (evidence_sufficiency) should pass when NLI returns SUPPORT."""
-    result = _run_pipeline(
-        fresh_erp,
+    result = await _run_pipeline(
+        fresh_engine,
         tmp_traces,
         raw_text="Archive March 2025 invoices for vendor 4421",
         actor_role="procurement_manager",
@@ -153,10 +153,11 @@ def test_gate_check5_passes_on_support(fresh_erp, tmp_traces):
 # ---------------------------------------------------------------------------
 
 
-def test_top_chunk_is_archive_policy(fresh_erp, tmp_traces):
+@pytest.mark.asyncio
+async def test_top_chunk_is_archive_policy(fresh_engine, tmp_traces):
     """The highest-scored retrieved chunk for archive intent should be POL-001."""
-    result = _run_pipeline(
-        fresh_erp,
+    result = await _run_pipeline(
+        fresh_engine,
         tmp_traces,
         raw_text="Archive March 2025 invoices for vendor 4421",
         actor_role="procurement_manager",
@@ -178,10 +179,11 @@ def test_top_chunk_is_archive_policy(fresh_erp, tmp_traces):
 # ---------------------------------------------------------------------------
 
 
-def test_retrieval_completed_has_evidence_reason(fresh_erp, tmp_traces):
+@pytest.mark.asyncio
+async def test_retrieval_completed_has_evidence_reason(fresh_engine, tmp_traces):
     """retrieval_completed payload must include evidence_reason string."""
-    result = _run_pipeline(
-        fresh_erp,
+    result = await _run_pipeline(
+        fresh_engine,
         tmp_traces,
         raw_text="Archive March 2025 invoices for vendor 4421",
         actor_role="procurement_manager",

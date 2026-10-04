@@ -1,6 +1,8 @@
 from typing import Any
-from packages.tools.base import ToolCapability, ToolImplementation
+
 from packages.contracts.schema import StateDelta
+from packages.tools.base import ToolCapability, ToolImplementation
+
 
 class SuspendVendorTool(ToolImplementation):
     @property
@@ -37,10 +39,10 @@ class SuspendVendorTool(ToolImplementation):
         if "justification" in args and len(args["justification"]) < 10:
             raise ToolSchemaValidationError("justification length < 10")
             
-    def simulate(self, args: dict[str, Any], erp_conn: Any) -> StateDelta:
+    async def simulate(self, session: Any, args: dict[str, Any]) -> StateDelta:
         return StateDelta(affected_record_ids=[], record_deltas=[], table="vendors", estimated_row_count=0)
-    def execute(self, args: dict[str, Any], erp_conn: Any) -> StateDelta:
-        return self.simulate(args, erp_conn)
+    async def execute(self, session: Any, args: dict[str, Any]) -> StateDelta:
+        return await self.simulate(session, args)
 
 class UpdateCreditLimitTool(ToolImplementation):
     @property
@@ -72,10 +74,10 @@ class UpdateCreditLimitTool(ToolImplementation):
                 }
             }
         }
-    def simulate(self, args: dict[str, Any], erp_conn: Any) -> StateDelta:
+    async def simulate(self, session: Any, args: dict[str, Any]) -> StateDelta:
         return StateDelta(affected_record_ids=[], record_deltas=[], table="vendor_credit_limits", estimated_row_count=0)
-    def execute(self, args: dict[str, Any], erp_conn: Any) -> StateDelta:
-        return self.simulate(args, erp_conn)
+    async def execute(self, session: Any, args: dict[str, Any]) -> StateDelta:
+        return await self.simulate(session, args)
 
 class BlockUserAccessTool(ToolImplementation):
     @property
@@ -107,7 +109,7 @@ class BlockUserAccessTool(ToolImplementation):
                 }
             }
         }
-    def simulate(self, args: dict[str, Any], erp_conn: Any) -> StateDelta:
+    async def simulate(self, session: Any, args: dict[str, Any]) -> StateDelta:
         return StateDelta(affected_record_ids=[], record_deltas=[], table="users", estimated_row_count=0)
-    def execute(self, args: dict[str, Any], erp_conn: Any) -> StateDelta:
-        return self.simulate(args, erp_conn)
+    async def execute(self, session: Any, args: dict[str, Any]) -> StateDelta:
+        return await self.simulate(session, args)

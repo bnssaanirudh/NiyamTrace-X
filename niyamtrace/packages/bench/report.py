@@ -29,7 +29,7 @@ class BenchmarkReport:
         output_dir: Directory to write reports into.
     """
 
-    def __init__(self, result: "BenchmarkResult", output_dir: Path | str | None = None) -> None:
+    def __init__(self, result: BenchmarkResult, output_dir: Path | str | None = None) -> None:
         self.result = result
         self.output_dir = Path(output_dir or _DEFAULT_OUTPUT_DIR)
         self.output_dir.mkdir(parents=True, exist_ok=True)

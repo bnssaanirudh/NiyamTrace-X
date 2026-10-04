@@ -1,5 +1,7 @@
 import pytest
+
 from packages.policy.loader import PolicyLoader, PolicyLoadError
+
 
 def test_tampered_policy_signature(tmp_path, monkeypatch):
     # Mock signature verification to fail

@@ -6,8 +6,8 @@ Handles entity resolution using RapidFuzz, exact lookups, and aliases.
 
 from __future__ import annotations
 
-from typing import Any
-from rapidfuzz import process, fuzz
+from rapidfuzz import fuzz
+
 from packages.contracts.schema import ActionContract
 
 
@@ -86,9 +86,8 @@ class EntityLinker:
                         new_slots["candidate_vendors"] = candidates
                         
         # 3. Scopes and Roles
-        if "ROLE" in slots:
-            if slots["ROLE"].lower() not in self.db.SCOPES:
-                contract.requires_review = True
+        if "ROLE" in slots and slots["ROLE"].lower() not in self.db.SCOPES:
+            contract.requires_review = True
                 
         contract.slots = new_slots
         return contract

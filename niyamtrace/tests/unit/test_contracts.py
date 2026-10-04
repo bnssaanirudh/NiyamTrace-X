@@ -2,20 +2,18 @@
 
 from __future__ import annotations
 
-import pytest
 from datetime import datetime
+
+import pytest
 from pydantic import ValidationError
 
 from packages.contracts.schema import (
-    GateDecision,
     ActionContract,
-    RecordDelta,
+    GateDecision,
     StateDelta,
     TemporalRange,
-    ToolCall,
     TraceEvent,
 )
-
 
 # ---------------------------------------------------------------------------
 # TemporalRange
@@ -47,16 +45,16 @@ class TestTemporalRange:
 
 
 def _valid_contract(**overrides) -> ActionContract:
-    defaults = dict(
-        actor_id="user-001",
-        actor_role="procurement_manager",
-        intent="invoice.archive",
-        intent_confidence=0.97,
-        slots={"VENDOR_ID": "4421", "MONTH": 3, "YEAR": 2025},
-        requires_review=False,
-        raw_text="Archive March invoices for vendor 4421",
-        normalized_text="archive vendor_invoice vendor_id=4421 month=3 year=2025",
-    )
+    defaults = {
+        "actor_id": "user-001",
+        "actor_role": "procurement_manager",
+        "intent": "invoice.archive",
+        "intent_confidence": 0.97,
+        "slots": {"VENDOR_ID": "4421", "MONTH": 3, "YEAR": 2025},
+        "requires_review": False,
+        "raw_text": "Archive March invoices for vendor 4421",
+        "normalized_text": "archive vendor_invoice vendor_id=4421 month=3 year=2025",
+    }
     defaults.update(overrides)
     return ActionContract(**defaults)
 

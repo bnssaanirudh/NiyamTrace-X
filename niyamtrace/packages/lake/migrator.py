@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from packages.contracts.schema import TraceEvent
-from packages.lake.writer import CURRENT_SCHEMA_VERSION, _DEFAULT_TRACES_DIR
+from packages.lake.writer import _DEFAULT_TRACES_DIR, CURRENT_SCHEMA_VERSION
 
 logger = logging.getLogger(__name__)
 

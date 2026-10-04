@@ -1,5 +1,6 @@
 from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from packages.auth.jwt import verify_token
 from packages.auth.models import Principal
 from packages.config import get_settings

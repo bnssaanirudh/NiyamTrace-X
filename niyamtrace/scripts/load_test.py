@@ -7,6 +7,7 @@ with concurrent requests to verify throughput and Uvicorn worker stability.
 """
 
 import asyncio
+import sys
 import time
 from typing import Any
 
@@ -14,7 +15,7 @@ try:
     import httpx
 except ImportError:
     print("Please install httpx: pip install httpx")
-    exit(1)
+    sys.exit(1)
 
 API_URL = "http://localhost:8000/api/v1/trace"
 CONCURRENCY = 50

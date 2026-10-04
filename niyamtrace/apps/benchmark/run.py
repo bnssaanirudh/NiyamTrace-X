@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 # Force UTF-8 stdout to handle Telugu/Hindi characters on Windows cmd
 sys.stdout.reconfigure(encoding='utf-8')
@@ -62,8 +61,8 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        from packages.bench.runner import BenchmarkRunner
         from packages.bench.report import BenchmarkReport
+        from packages.bench.runner import BenchmarkRunner
 
         print("\n========================================")
         print("       NiyamTrace-Bench (Week 8)      ")

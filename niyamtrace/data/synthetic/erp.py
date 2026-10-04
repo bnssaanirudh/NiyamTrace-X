@@ -170,6 +170,36 @@ def seed_fresh(db_path: Path = DEFAULT_DB_PATH) -> sqlite3.Connection:
     return conn
 
 
+async def seed_fresh_async(engine: Any) -> None:
+    """
+    Async version of seed_fresh using SQLAlchemy ORM models.
+    """
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    from packages.storage.models import Base, UserAccess, VendorCreditLimit, VendorInvoice
+    
+    # We assume alembic handles schema, but for tests using sqlite :memory:, 
+    # we can create tables if they don't exist.
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+        
+    async with AsyncSession(engine) as session:
+        # Wipe
+        for model in (VendorInvoice, UserAccess, VendorCreditLimit):
+            from sqlalchemy import delete
+            await session.execute(delete(model))
+            
+        # Seed
+        for row in _SEED_ROWS:
+            session.add(VendorInvoice(**row))
+        for row in _SEED_USER_ACCESS:
+            session.add(UserAccess(**row))
+        for row in _SEED_CREDIT_LIMITS:
+            session.add(VendorCreditLimit(**row))
+            
+        await session.commit()
+
+
 # ---------------------------------------------------------------------------
 # Read helpers — used by simulator and tests
 # ---------------------------------------------------------------------------

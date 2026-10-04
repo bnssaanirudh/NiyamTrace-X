@@ -12,30 +12,32 @@ Upgrades (#22, #23):
 
 from __future__ import annotations
 
-import os
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel
-from datetime import datetime, timezone
 
-from packages.contracts.schema import ActionContract, SourceSpan
-from packages.nlp.intake import IntakeResult
-from packages.nlp.provider import LLMProvider
-from packages.nlp.prompts import PromptRegistry
-from packages.nlp.entity_repository import EntityRepository
-from packages.nlp.confidence import ConfidenceCalibrator
 from packages.config import get_settings
+from packages.contracts.schema import ActionContract
+from packages.nlp.confidence import ConfidenceCalibrator
+from packages.nlp.entity_repository import EntityRepository
+from packages.nlp.intake import IntakeResult
+from packages.nlp.prompts import PromptRegistry
+from packages.nlp.provider import LLMProvider
+
 
 class CandidateSlots(BaseModel):
     VENDOR_ID: Any = None
     MONTH: Any = None
     YEAR: Any = None
     AMOUNT: Any = None
-    DURATION: Any = None
+    DURATION_DAYS: Any = None
     ROLE: Any = None
     TARGET_ID: Any = None
     VENDOR_NAME: Any = None
     USER_ID: Any = None
+    NEW_LIMIT_INR: Any = None
+    JUSTIFICATION: Any = None
 
 class CandidateIntent(BaseModel):
     intent: str
@@ -106,6 +108,20 @@ class NiyamCompiler:
             except (ValueError, TypeError):
                 return False, "TypeChecker", f"AMOUNT must be a float, got '{slots.AMOUNT}'"
                 
+        # Check DURATION_DAYS
+        if slots.DURATION_DAYS is not None:
+            try:
+                slots.DURATION_DAYS = int(slots.DURATION_DAYS)
+            except (ValueError, TypeError):
+                return False, "TypeChecker", f"DURATION_DAYS must be an integer, got '{slots.DURATION_DAYS}'"
+                
+        # Check NEW_LIMIT_INR
+        if slots.NEW_LIMIT_INR is not None:
+            try:
+                slots.NEW_LIMIT_INR = float(slots.NEW_LIMIT_INR)
+            except (ValueError, TypeError):
+                return False, "TypeChecker", f"NEW_LIMIT_INR must be a float, got '{slots.NEW_LIMIT_INR}'"
+                
         return True, None, None
 
     def _entity_link(self, candidate: CandidateIntent) -> tuple[bool, str | None, str | None, str | None]:
@@ -113,8 +129,16 @@ class NiyamCompiler:
         slots = candidate.slots
         
         if candidate.intent == "invoice.archive":
+            # Attempt to resolve VENDOR_ID from VENDOR_NAME if missing
+            if not slots.VENDOR_ID and slots.VENDOR_NAME:
+                candidates = self.entity_repo.find_vendor_candidates(slots.VENDOR_NAME)
+                if len(candidates) == 1:
+                    slots.VENDOR_ID = candidates[0]
+                elif len(candidates) > 1:
+                    return False, "EntityLinker", f"Multiple vendors found for name '{slots.VENDOR_NAME}'", "I found multiple vendors with that name. Please provide the specific Vendor ID."
+            
             if not slots.VENDOR_ID:
-                return False, "EntityLinker", "Missing VENDOR_ID for archive action", "Which vendor's invoices should I archive? I need a specific VENDOR_ID."
+                return False, "EntityLinker", "Missing VENDOR_ID for archive action", "Which vendor's invoices should I archive? I need a specific VENDOR_ID or Vendor Name."
             if not slots.MONTH or not slots.YEAR:
                 return False, "EntityLinker", "Missing temporal scope for archive action", "For which month and year should I archive these invoices?"
                 
@@ -122,17 +146,36 @@ class NiyamCompiler:
                 return False, "EntityLinker", f"Vendor {slots.VENDOR_ID} does not exist in the system.", None
                 
         elif candidate.intent == "access.grant":
-            if not slots.TARGET_ID:
-                return False, "EntityLinker", "Missing TARGET_ID for grant action", "Who should I grant access to?"
+            if not slots.TARGET_ID and not slots.USER_ID:
+                return False, "EntityLinker", "Missing TARGET_ID or USER_ID for grant action", "Who should I grant access to?"
             if not slots.ROLE:
                 return False, "EntityLinker", "Missing ROLE for grant action", "What role should I assign?"
+                
+        elif candidate.intent == "access.block":
+            user = slots.USER_ID or slots.TARGET_ID
+            if not user:
+                return False, "EntityLinker", "Missing USER_ID for block action", "Which user's access should I block?"
+            if not self.entity_repo.check_user_exists(user):
+                return False, "EntityLinker", f"User {user} does not exist.", None
+                
+        elif candidate.intent == "limit.update":
+            if not slots.VENDOR_ID:
+                return False, "EntityLinker", "Missing VENDOR_ID for limit update", "Which vendor's credit limit should I update?"
+            if slots.NEW_LIMIT_INR is None:
+                return False, "EntityLinker", "Missing NEW_LIMIT_INR for limit update", "What should the new limit be?"
+                
+        elif candidate.intent == "vendor.suspend":
+            if not slots.VENDOR_ID:
+                return False, "EntityLinker", "Missing VENDOR_ID for suspension", "Which vendor should I suspend?"
+            if slots.DURATION_DAYS is None:
+                return False, "EntityLinker", "Missing DURATION_DAYS for suspension", "For how many days should the vendor be suspended?"
                 
         return True, None, None, None
 
     def compile(self, actor_id: str, actor_role: str, raw_text: str, intake_result: IntakeResult, reference_dt: datetime | None = None) -> CompilerResult:
         repair_attempted = False
         if reference_dt is None:
-            reference_dt = datetime.now(timezone.utc)
+            reference_dt = datetime.now(UTC)
         
         try:
             # Stage 1: LLM Extractor

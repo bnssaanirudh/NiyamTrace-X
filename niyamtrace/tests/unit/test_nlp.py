@@ -12,16 +12,13 @@ Tests:
 
 from __future__ import annotations
 
-import pytest
-
+from packages.nlp.intake import MultilingualIntake
 from packages.nlp.language_id import (
     LanguageIdentifier,
 )
 from packages.nlp.normalizer import (
     TextNormalizer,
 )
-from packages.nlp.intake import MultilingualIntake
-
 
 # ---------------------------------------------------------------------------
 # Canonical test utterances — one per language form

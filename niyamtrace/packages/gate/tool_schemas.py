@@ -6,9 +6,11 @@ Forwards tool schema validation and hashing to the new central tool capability r
 """
 
 from packages.tools.registry import (
-    validate_tool_call,
     ToolSchemaValidationError,
+    validate_tool_call,
+)
+from packages.tools.registry import (
     get_registry_hash as schema_hash,
 )
 
-__all__ = ["validate_tool_call", "ToolSchemaValidationError", "schema_hash"]
+__all__ = ["ToolSchemaValidationError", "schema_hash", "validate_tool_call"]

@@ -8,9 +8,10 @@ Preserves protected spans natively without altering them.
 from __future__ import annotations
 
 import re
-import ftfy
 import unicodedata
 from typing import Any
+
+import ftfy
 
 from packages.nlp.language_id import LanguageIdentifier
 

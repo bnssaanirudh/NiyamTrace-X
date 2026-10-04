@@ -1,6 +1,6 @@
-import pytest
 from packages.auth.models import Principal
-from packages.auth.rbac import has_permission, can_access_tenant
+from packages.auth.rbac import can_access_tenant, has_permission
+
 
 def test_has_permission():
     p = Principal(subject="1", tenant_id="t1", roles=frozenset(["admin", "user"]), scopes=frozenset())

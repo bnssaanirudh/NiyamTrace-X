@@ -18,9 +18,9 @@ Status: IMPLEMENTED (Week 6)
 from __future__ import annotations
 
 import re
-import sqlite3
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from packages.fuzz.comparator import DivergenceReport, TraceComparator
 

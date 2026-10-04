@@ -27,8 +27,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
-from typing import Optional
+from datetime import UTC, date, datetime
 
 
 @dataclass
@@ -50,40 +49,40 @@ class TemporalResolution:
 _PATTERNS: list[tuple[re.Pattern, str, str]] = [
 
     # ---- English ----
-    (re.compile(r"\bthis\s+month\b", re.I), "eng_Latn", "this_month"),
-    (re.compile(r"\blast\s+month\b", re.I), "eng_Latn", "last_month"),
-    (re.compile(r"\bnext\s+month\b", re.I), "eng_Latn", "next_month"),
-    (re.compile(r"\byesterday\b", re.I), "eng_Latn", "yesterday"),
-    (re.compile(r"\btoday\b", re.I), "eng_Latn", "this_month"),
-    (re.compile(r"\bthis\s+quarter\b", re.I), "eng_Latn", "this_quarter"),
-    (re.compile(r"\blast\s+quarter\b", re.I), "eng_Latn", "last_quarter"),
-    (re.compile(r"\bnext\s+quarter\b", re.I), "eng_Latn", "next_quarter"),
-    (re.compile(r"\bthis\s+week\b", re.I), "eng_Latn", "this_month"),  # maps to current month
-    (re.compile(r"\blast\s+week\b", re.I), "eng_Latn", "last_month"),  # conservative: last month
-    (re.compile(r"\bcurrent\s+month\b", re.I), "eng_Latn", "this_month"),
-    (re.compile(r"\bcurrent\s+quarter\b", re.I), "eng_Latn", "this_quarter"),
+    (re.compile(r"\bthis\s+month\b", re.IGNORECASE), "eng_Latn", "this_month"),
+    (re.compile(r"\blast\s+month\b", re.IGNORECASE), "eng_Latn", "last_month"),
+    (re.compile(r"\bnext\s+month\b", re.IGNORECASE), "eng_Latn", "next_month"),
+    (re.compile(r"\byesterday\b", re.IGNORECASE), "eng_Latn", "yesterday"),
+    (re.compile(r"\btoday\b", re.IGNORECASE), "eng_Latn", "this_month"),
+    (re.compile(r"\bthis\s+quarter\b", re.IGNORECASE), "eng_Latn", "this_quarter"),
+    (re.compile(r"\blast\s+quarter\b", re.IGNORECASE), "eng_Latn", "last_quarter"),
+    (re.compile(r"\bnext\s+quarter\b", re.IGNORECASE), "eng_Latn", "next_quarter"),
+    (re.compile(r"\bthis\s+week\b", re.IGNORECASE), "eng_Latn", "this_month"),  # maps to current month
+    (re.compile(r"\blast\s+week\b", re.IGNORECASE), "eng_Latn", "last_month"),  # conservative: last month
+    (re.compile(r"\bcurrent\s+month\b", re.IGNORECASE), "eng_Latn", "this_month"),
+    (re.compile(r"\bcurrent\s+quarter\b", re.IGNORECASE), "eng_Latn", "this_quarter"),
     # "in March", "in march 2025"
     (re.compile(
         r"\bin\s+(?P<month_name>january|february|march|april|may|june|july|august|september|october|november|december)"
-        r"(?:\s+(?P<year>\d{4}))?\b", re.I
+        r"(?:\s+(?P<year>\d{4}))?\b", re.IGNORECASE
     ), "eng_Latn", "named_month"),
 
     # ---- Hinglish (Hindi in Latin script) ----
-    (re.compile(r"\bis\s+mahine\b", re.I), "hin_Latn", "this_month"),
-    (re.compile(r"\bpichle?\s+mahine?\b", re.I), "hin_Latn", "last_month"),
-    (re.compile(r"\bagle\s+mahine?\b", re.I), "hin_Latn", "next_month"),
-    (re.compile(r"\bpichle?\s+hafte?\b", re.I), "hin_Latn", "last_month"),
-    (re.compile(r"\bis\s+hafte?\b", re.I), "hin_Latn", "this_month"),
-    (re.compile(r"\bpichle?\s+timaahi\b", re.I), "hin_Latn", "last_quarter"),
-    (re.compile(r"\bis\s+timaahi\b", re.I), "hin_Latn", "this_quarter"),
+    (re.compile(r"\bis\s+mahine\b", re.IGNORECASE), "hin_Latn", "this_month"),
+    (re.compile(r"\bpichle?\s+mahine?\b", re.IGNORECASE), "hin_Latn", "last_month"),
+    (re.compile(r"\bagle\s+mahine?\b", re.IGNORECASE), "hin_Latn", "next_month"),
+    (re.compile(r"\bpichle?\s+hafte?\b", re.IGNORECASE), "hin_Latn", "last_month"),
+    (re.compile(r"\bis\s+hafte?\b", re.IGNORECASE), "hin_Latn", "this_month"),
+    (re.compile(r"\bpichle?\s+timaahi\b", re.IGNORECASE), "hin_Latn", "last_quarter"),
+    (re.compile(r"\bis\s+timaahi\b", re.IGNORECASE), "hin_Latn", "this_quarter"),
 
     # ---- Romanized Telugu ----
-    (re.compile(r"\bee\s+nela\b", re.I), "tel_Latn", "this_month"),
-    (re.compile(r"\bpindi\s+nela\b", re.I), "tel_Latn", "last_month"),
-    (re.compile(r"\btarvata\s+nela\b", re.I), "tel_Latn", "next_month"),
-    (re.compile(r"\bmodutu\s+nela\b", re.I), "tel_Latn", "last_month"),
-    (re.compile(r"\bee\s+quarter\b", re.I), "tel_Latn", "this_quarter"),
-    (re.compile(r"\bpindi\s+quarter\b", re.I), "tel_Latn", "last_quarter"),
+    (re.compile(r"\bee\s+nela\b", re.IGNORECASE), "tel_Latn", "this_month"),
+    (re.compile(r"\bpindi\s+nela\b", re.IGNORECASE), "tel_Latn", "last_month"),
+    (re.compile(r"\btarvata\s+nela\b", re.IGNORECASE), "tel_Latn", "next_month"),
+    (re.compile(r"\bmodutu\s+nela\b", re.IGNORECASE), "tel_Latn", "last_month"),
+    (re.compile(r"\bee\s+quarter\b", re.IGNORECASE), "tel_Latn", "this_quarter"),
+    (re.compile(r"\bpindi\s+quarter\b", re.IGNORECASE), "tel_Latn", "last_quarter"),
 
     # ---- Telugu script ----
     (re.compile(r"ఈ\s*నెల", re.UNICODE), "tel_Telu", "this_month"),
@@ -165,9 +164,9 @@ class TemporalDeicticsResolver:
     def _ref_date(self) -> date:
         if self._reference_dt is not None:
             return self._reference_dt.date() if isinstance(self._reference_dt, datetime) else self._reference_dt
-        return datetime.now(tz=timezone.utc).date()
+        return datetime.now(tz=UTC).date()
 
-    def resolve(self, text: str) -> Optional[TemporalResolution]:
+    def resolve(self, text: str) -> TemporalResolution | None:
         """
         Scan text for the first temporal deixis expression and resolve it.
         Returns None if no recognisable expression is found.

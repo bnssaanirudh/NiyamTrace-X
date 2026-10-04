@@ -13,12 +13,9 @@ from __future__ import annotations
 import uuid
 from unittest.mock import MagicMock
 
-import pytest
-
-from packages.fuzz.transforms import VariantTransformer, VariantRequest
+from packages.fuzz.comparator import TraceComparator
 from packages.fuzz.equivalence import SemanticPreservationChecker
-from packages.fuzz.comparator import TraceComparator, DivergenceReport
-
+from packages.fuzz.transforms import VariantTransformer
 
 # ---------------------------------------------------------------------------
 # VariantTransformer tests

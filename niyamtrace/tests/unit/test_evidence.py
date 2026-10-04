@@ -9,11 +9,9 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
 from packages.evidence.acl import ACLFilter
-from packages.evidence.retriever import EvidenceRetriever, RetrievedChunk
 from packages.evidence.nli import NLIEngine
-
+from packages.evidence.retriever import EvidenceRetriever, RetrievedChunk
 
 # ---------------------------------------------------------------------------
 # ACLFilter tests
@@ -164,7 +162,7 @@ class TestNLIEngine:
         assert verdict == "SUPPORT", f"Expected SUPPORT, got {verdict}: {reason}"
 
     def test_insufficient_for_no_chunks(self):
-        verdict, reason = self.nli.classify("invoice.archive", "procurement_manager", [])
+        verdict, _reason = self.nli.classify("invoice.archive", "procurement_manager", [])
         assert verdict == "INSUFFICIENT"
 
     def test_contradict_for_prohibited_operation(self):
@@ -178,13 +176,13 @@ class TestNLIEngine:
             allowed_roles=[],
             score=0.8,
         )
-        verdict, reason = self.nli.classify("invoice.delete", "procurement_manager", [prohibited_chunk])
+        verdict, _reason = self.nli.classify("invoice.delete", "procurement_manager", [prohibited_chunk])
         # "prohibited" pattern fires → CONTRADICT (delete is in content)
         # OR if that intent isn't mapped, INSUFFICIENT — both are valid blocking verdicts
         assert verdict in ("CONTRADICT", "INSUFFICIENT")
 
     def test_unknown_intent_gives_insufficient(self):
         chunks = self._get_chunks("unknown operation xyz", "procurement_manager")
-        verdict, reason = self.nli.classify("unknown", "procurement_manager", chunks)
+        verdict, _reason = self.nli.classify("unknown", "procurement_manager", chunks)
         # No support rules match "unknown" intent
         assert verdict in ("INSUFFICIENT", "CONTRADICT")

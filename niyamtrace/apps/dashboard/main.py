@@ -19,15 +19,15 @@ Status: IMPLEMENTED (Week 7)
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-import asyncio
 
-from packages.lake.transform import SilverTransform
 from packages.lake.metrics import GoldMetrics
+from packages.lake.transform import SilverTransform
 
 _STATIC_DIR = Path(__file__).parent / "static"
 _REPO_ROOT = Path(__file__).parent.parent.parent.parent
@@ -158,7 +158,7 @@ async def websocket_traces(websocket: WebSocket):
                 }
                 gm.close()
                 await websocket.send_json(data)
-            except Exception as e:
+            except Exception:
                 # ignore errors during fetch, just retry later
                 pass
             await asyncio.sleep(3)

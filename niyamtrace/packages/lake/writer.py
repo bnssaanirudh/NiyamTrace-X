@@ -16,13 +16,13 @@ Silver/Gold transforms: STUBBED (Week 7)
 
 from __future__ import annotations
 
-import json
-import time
-from datetime import datetime, timezone as _tz
+import hashlib
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
-from packages.contracts.schema import TraceEvent, EVENT_TYPES
+from packages.contracts.schema import EVENT_TYPES, TraceEvent
+from packages.lake.privacy import PIIRedactor
 
 # Default traces directory (relative to repo root, gitignored)
 _DEFAULT_TRACES_DIR = Path(__file__).parent.parent.parent.parent / "traces"
@@ -62,6 +62,10 @@ class TraceWriter:
 
     def write(self, event: TraceEvent) -> None:
         """Serialize and append one event to the JSONL file."""
+        # Phase F: PII Redaction
+        if event.payload:
+            event.payload = PIIRedactor.redact_payload(event.payload)
+            
         line = event.model_dump_json()
         self._file.write(line + "\n")
         self._file.flush()
@@ -77,6 +81,13 @@ class TraceWriter:
     def close(self) -> None:
         if not self._file.closed:
             self._file.close()
+            
+            # Phase F: Cryptographic Integrity
+            with self._path.open("rb") as f:
+                checksum = hashlib.sha256(f.read()).hexdigest()
+            
+            sig_path = self._path.with_suffix(".jsonl.sha256")
+            sig_path.write_text(checksum, encoding="utf-8")
 
     @property
     def path(self) -> Path:
@@ -86,10 +97,10 @@ class TraceWriter:
     # Context manager
     # ------------------------------------------------------------------
 
-    def __enter__(self) -> "TraceWriter":
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *_: Any) -> None:
+    def __exit__(self, *_: object) -> None:
         self.close()
 
 
@@ -140,7 +151,7 @@ def make_event(
         data_snapshot_id=data_snapshot_id,
         latency_ms=latency_ms,
         schema_version=schema_version,
-        timestamp=datetime.now(_tz.utc),
+        timestamp=datetime.now(UTC),
     )
 
 

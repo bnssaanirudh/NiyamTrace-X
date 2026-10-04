@@ -12,11 +12,10 @@ from __future__ import annotations
 
 import hashlib
 import uuid
-from datetime import datetime, timezone as _tz
+from datetime import UTC, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
-
 
 # ---------------------------------------------------------------------------
 # Supporting sub-models
@@ -32,7 +31,7 @@ class TemporalRange(BaseModel):
     inferred: bool = False
 
     @model_validator(mode="after")
-    def at_least_one_bound(self) -> "TemporalRange":
+    def at_least_one_bound(self) -> TemporalRange:
         if self.start is None and self.end is None:
             raise ValueError("TemporalRange must have at least one of start or end.")
         return self
@@ -82,7 +81,7 @@ class ActionContract(BaseModel):
     parser_version: str = "0.4.0"
 
     @model_validator(mode="after")
-    def validate_unknown_intent(self) -> "ActionContract":
+    def validate_unknown_intent(self) -> ActionContract:
         """If intent is unknown, it should require review."""
         if self.intent.lower() == "unknown":
             self.requires_review = True
@@ -125,7 +124,7 @@ class IntentContract(BaseModel):
     language_profile: dict[str, Any] = Field(default_factory=dict)
 
     # Provenance / versioning
-    parser_version: str = "0.1.0-hardcoded"  # updated when NLP parser lands (Week 4)
+    parser_version: str = "0.3.0-intake"  # updated when NLP parser lands (Week 4)
 
     @field_validator("confidence")
     @classmethod
@@ -135,7 +134,7 @@ class IntentContract(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def ambiguity_requires_no_scope_widening(self) -> "IntentContract":
+    def ambiguity_requires_no_scope_widening(self) -> IntentContract:
         """If ambiguity=True, the contract must NOT have a wildcard selector."""
         if self.ambiguity and self.selector_predicate in ("*", "TRUE", "1=1"):
             raise ValueError(
@@ -203,7 +202,7 @@ class StateDelta(BaseModel):
     def record_id_set(self) -> set[str]:
         return set(self.affected_record_ids)
 
-    def __add__(self, other: "StateDelta") -> "StateDelta":
+    def __add__(self, other: StateDelta) -> StateDelta:
         """Aggregate two state deltas (e.g. for MultiToolContract)."""
         tables = set()
         if isinstance(self.table, list): tables.update(self.table)
@@ -215,7 +214,7 @@ class StateDelta(BaseModel):
         return StateDelta(
             affected_record_ids=list(set(self.affected_record_ids + other.affected_record_ids)),
             record_deltas=self.record_deltas + other.record_deltas,
-            table=sorted(tables) if len(tables) > 1 else (list(tables)[0] if tables else ""),
+            table=sorted(tables) if len(tables) > 1 else (next(iter(tables)) if tables else ""),
             estimated_row_count=self.estimated_row_count + other.estimated_row_count
         )
 
@@ -284,7 +283,7 @@ class TraceEvent(BaseModel):
 
     # Event metadata
     event_type: EVENT_TYPES
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(_tz.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     latency_ms: float = 0.0
 
     # Language / provenance
@@ -295,7 +294,7 @@ class TraceEvent(BaseModel):
     # Version hashes — all must be populated before gate decision
     model_version: str = "none"  # no LLM in Weeks 0–2
     prompt_commit: str = "none"
-    parser_version: str = "0.1.0-hardcoded"
+    parser_version: str = "0.3.0-intake"
     policy_bundle_hash: str = ""
     tool_schema_hash: str = ""
     data_snapshot_id: str = ""  # hash of ERP seed state
@@ -333,7 +332,7 @@ class EffectCertificate(BaseModel):
     evidence_refs: list[str]
     predicted_delta: dict[str, Any]  # rows_changed, fields_changed, before_hash, after_hash
     gate_decision: str = "ALLOW"
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(_tz.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     # #21: Hash-chain fields
     prev_cert_hash: str = "GENESIS"   # SHA-256 of previous cert, or sentinel
@@ -361,7 +360,7 @@ class EffectCertificate(BaseModel):
         canonical = json.dumps(core, sort_keys=True, default=str)
         return hashlib.sha256(canonical.encode()).hexdigest()
 
-    def seal(self) -> "EffectCertificate":
+    def seal(self) -> EffectCertificate:
         """Compute and store the cert_hash. Call after construction."""
         self.cert_hash = self.compute_hash()
         return self
@@ -373,9 +372,9 @@ class EffectCertificate(BaseModel):
     @classmethod
     def chain_from(
         cls,
-        prev: "EffectCertificate | None",
+        prev: EffectCertificate | None,
         **kwargs: Any,
-    ) -> "EffectCertificate":
+    ) -> EffectCertificate:
         """
         Factory: create a new certificate chained to the previous one.
         If prev is None this is the GENESIS certificate for this actor.

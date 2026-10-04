@@ -1,0 +1,42 @@
+{
+  "project": "NiyamTrace-X",
+  "git_commit_sha": "59dff44ed3afd07b9d41f2760c0575d261b56073",
+  "policy_hash": "2f42a781b990e6a3",
+  "tool_registry_hash": "834ab0377c082729",
+  "dataset_version": "v1.0.0-holdout",
+  "frozen_holdout_hash": "19b84ab39b9c9f4d",
+  "model_identifiers": {
+    "intent_extraction": "rule-based/deterministic",
+    "evidence_nli": "rule-based/deterministic"
+  },
+  "runtime_configuration": {
+    "verified_execution_broker": "enabled",
+    "gate_evaluator": "niyam_gate_v2",
+    "strict_evidence": true
+  },
+  "random_seeds": {
+    "synthetic_erp_generation": 42
+  },
+  "environment": {
+    "python_version": "3.11",
+    "package_manager": "uv"
+  },
+  "raw_result_files": [
+    "results.json",
+    "tau3_recovered_quick_results.csv"
+  ],
+  "derived_table_files": [
+    "merged_unified_evidence.csv"
+  ],
+  "figure_files": [],
+  "statistical_analysis_scripts": [
+    "scripts/run_evals.py",
+    "scripts/run_variance_test.py"
+  ],
+  "external_benchmark_result_files": [],
+  "known_failed_incomplete_runs": [
+    "local_gpu_attempt_v1.zip",
+    "local_gpu_attempt_v2.zip"
+  ],
+  "manuscript_source_revision": "Week 8 Final"
+}

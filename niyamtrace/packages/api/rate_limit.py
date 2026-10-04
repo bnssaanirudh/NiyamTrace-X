@@ -1,4 +1,5 @@
 from fastapi import Request
+
 from packages.api.errors import NiyamAPIError
 from packages.auth import Principal
 
@@ -53,4 +54,3 @@ async def rate_limit_dependency(request: Request):
     
     # If exceeded:
     # raise NiyamAPIError(status_code=429, code="RATE_LIMIT_EXCEEDED", message="Too many requests")
-    pass

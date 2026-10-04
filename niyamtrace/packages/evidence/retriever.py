@@ -127,7 +127,7 @@ class EvidenceRetriever:
         # 1. Filter out documents missing provenance
         valid_docs = []
         import datetime
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.UTC)
         
         for doc in self._documents:
             # Must have provenance
@@ -136,7 +136,7 @@ class EvidenceRetriever:
                 
             # Freshness check: reject if > 30 days old or explicitly revoked
             try:
-                indexed_dt = datetime.datetime.fromisoformat(doc["timestamp_indexed"].replace("Z", "+00:00"))
+                indexed_dt = datetime.datetime.fromisoformat(doc["timestamp_indexed"])
                 if (now - indexed_dt).days > 30:
                     continue
             except Exception:

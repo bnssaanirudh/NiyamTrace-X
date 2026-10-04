@@ -153,8 +153,8 @@ class NLIEngine:
                     continue
                 return (
                     "CONTRADICT",
-                    f"Policy evidence explicitly prohibits or restricts this action: "
-                    f"matched signal '{keywords[0]}' in chunk '{trusted_chunks[0].doc_id}'.",
+                    (f"Policy evidence explicitly prohibits or restricts this action: "
+                    f"matched signal '{keywords[0]}' in chunk '{trusted_chunks[0].doc_id}'."),
                 )
 
         # ---------------------------------------------------------------
@@ -168,8 +168,8 @@ class NLIEngine:
             if role_match and content_match:
                 return (
                     "SUPPORT",
-                    f"Policy evidence supports '{intent}' for role '{actor_role}': "
-                    f"matched signal '{keywords[0]}' in chunk '{trusted_chunks[0].doc_id}'.",
+                    (f"Policy evidence supports '{intent}' for role '{actor_role}': "
+                    f"matched signal '{keywords[0]}' in chunk '{trusted_chunks[0].doc_id}'."),
                 )
 
         # ---------------------------------------------------------------
@@ -177,6 +177,6 @@ class NLIEngine:
         # ---------------------------------------------------------------
         return (
             "INSUFFICIENT",
-            f"Retrieved policy chunks do not clearly support or contradict "
-            f"intent '{intent}' for role '{actor_role}'. Manual review required.",
+            (f"Retrieved policy chunks do not clearly support or contradict "
+            f"intent '{intent}' for role '{actor_role}'. Manual review required."),
         )
