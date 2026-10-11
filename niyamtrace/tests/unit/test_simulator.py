@@ -112,11 +112,37 @@ class TestShadowSimulator:
 # ---------------------------------------------------------------------------
 
 
+def _make_auth(tool_call, actor="user-pm-001"):
+    import hashlib, json
+    from packages.contracts.schema import EffectCertificate
+    from packages.gate.broker import sign_certificate_authority
+    from packages.auth.models import Principal, AuthorizationContext
+    p = Principal(subject=actor, tenant_id="acme", roles=frozenset(["procurement_manager"]), scopes=frozenset(["all"]))
+    ctx = AuthorizationContext.from_principal(p)
+    cert = EffectCertificate(
+        trace_id="test-sim-trace",
+        actor=actor,
+        tenant_id="acme",
+        action="invoice.archive",
+        target_type=tool_call.tool_name,
+        selector=tool_call.arguments,
+        canonical_args_hash=hashlib.sha256(json.dumps(tool_call.arguments, sort_keys=True).encode()).hexdigest(),
+        policy_rules_used=["policy-default"],
+        evidence_refs=["ref-default"],
+        predicted_delta={"rows_changed": 3, "record_ids": ["INV-4421-2503", "INV-4421-2504", "INV-4421-2505"]},
+        server_issued=True,
+    )
+    cert = sign_certificate_authority(cert)
+    return cert, ctx
+
+
 class TestERPExecutor:
     pytestmark = pytest.mark.asyncio
     async def test_execute_archives_correct_rows(self, erp_conn):
         executor = ERPExecutor(__import__("sqlalchemy.ext.asyncio").ext.asyncio.AsyncSession(erp_conn, expire_on_commit=False))
-        actual = await executor.execute(_archive_tool(vendor_id=4421, month=3, year=2025))
+        tool = _archive_tool(vendor_id=4421, month=3, year=2025)
+        cert, ctx = _make_auth(tool)
+        actual = await executor.execute(tool, authorization=cert, auth_context=ctx)
 
         assert actual.estimated_row_count == 3
         expected_ids = {"INV-4421-2503", "INV-4421-2504", "INV-4421-2505"}
@@ -124,7 +150,9 @@ class TestERPExecutor:
 
     async def test_executed_rows_are_archived_in_db(self, erp_conn):
         executor = ERPExecutor(__import__("sqlalchemy.ext.asyncio").ext.asyncio.AsyncSession(erp_conn, expire_on_commit=False))
-        await executor.execute(_archive_tool(vendor_id=4421, month=3, year=2025))
+        tool = _archive_tool(vendor_id=4421, month=3, year=2025)
+        cert, ctx = _make_auth(tool)
+        await executor.execute(tool, authorization=cert, auth_context=ctx)
 
         # Now query the DB — no OPEN rows should remain for vendor 4421, March 2025
         open_rows = await async_query_invoices(erp_conn, vendor_id=4421, month=3, year=2025, status="OPEN")
@@ -134,7 +162,9 @@ class TestERPExecutor:
 
     async def test_execute_returns_empty_delta_when_nothing_to_archive(self, erp_conn):
         executor = ERPExecutor(__import__("sqlalchemy.ext.asyncio").ext.asyncio.AsyncSession(erp_conn, expire_on_commit=False))
-        actual = await executor.execute(_archive_tool(vendor_id=9999, month=1, year=2025))
+        tool = _archive_tool(vendor_id=9999, month=1, year=2025)
+        cert, ctx = _make_auth(tool)
+        actual = await executor.execute(tool, authorization=cert, auth_context=ctx)
         assert actual.estimated_row_count == 0
 
     async def test_simulator_fidelity_is_perfect_for_canonical_scenario(self, erp_conn):
@@ -144,7 +174,8 @@ class TestERPExecutor:
 
         tool = _archive_tool()
         predicted = await sim.predict(tool)
-        actual = await exe.execute(tool)
+        cert, ctx = _make_auth(tool)
+        actual = await exe.execute(tool, authorization=cert, auth_context=ctx)
 
         assert predicted.record_id_set() == actual.record_id_set()
         assert predicted.estimated_row_count == actual.estimated_row_count
@@ -152,7 +183,9 @@ class TestERPExecutor:
     async def test_other_vendors_not_affected_after_execution(self, erp_conn):
         """Executing archive for vendor 4421 must not touch vendor 8802 or 3301."""
         executor = ERPExecutor(__import__("sqlalchemy.ext.asyncio").ext.asyncio.AsyncSession(erp_conn, expire_on_commit=False))
-        await executor.execute(_archive_tool(vendor_id=4421, month=3, year=2025))
+        tool = _archive_tool(vendor_id=4421, month=3, year=2025)
+        cert, ctx = _make_auth(tool)
+        await executor.execute(tool, authorization=cert, auth_context=ctx)
 
         # vendor 8802 and 3301 March 2025 rows should still be OPEN
         rows_8802 = await async_query_invoices(erp_conn, vendor_id=8802, month=3, year=2025)

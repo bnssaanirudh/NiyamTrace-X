@@ -1,0 +1,3 @@
+direction,n_groups,delta_point,cluster_bootstrap_low,cluster_bootstrap_high
+granite_primary,100,-0.13333333333333333,-0.17166666666666663,-0.08666666666666666
+qwen_primary,100,0.0,0.0,0.0

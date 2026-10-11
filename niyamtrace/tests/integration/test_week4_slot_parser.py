@@ -45,7 +45,7 @@ async def test_slot_parser_integrated_in_trace(pipeline, tmp_path):
     
     # Contract is parsed correctly
     assert result.contract.intent == "invoice.archive"
-    assert result.contract.slots.get("VENDOR_ID") == "4421"
+    assert str(result.contract.slots.get("VENDOR_ID")) == "4421"
     assert "mock-test" in result.contract.parser_version
     
     # Check trace event

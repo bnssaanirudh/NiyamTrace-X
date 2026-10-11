@@ -1,0 +1,27 @@
+{
+  "run_attempted": true,
+  "source_commit": "f4da10b658946c460759e65880da6e0948966947",
+  "mandatory_native_probe_status": "CANDIDATE_PASS_REQUIRES_INDEPENDENT_REVIEW",
+  "tests": [
+    {
+      "path": "tests/security/test_native_mediation_regressions.py",
+      "status": "PASS",
+      "returncode": 0,
+      "log_sha256": "aa46969af9a2a597e908773f2e9ff1c4e383d498e9a91d44e6dcf5193b081efd"
+    },
+    {
+      "path": "tests/security/test_e2e_broker.py",
+      "status": "PASS",
+      "returncode": 0,
+      "log_sha256": "3a421a2dcd7bc4287cd7689b584e19df91407bed3b2bbf08884a7ec357e550e0"
+    },
+    {
+      "path": "tests/integration/test_simulate_execute_atomicity.py",
+      "status": "PASS",
+      "returncode": 0,
+      "log_sha256": "e727218ffb31ead25eaa3f62b63596a3abab984f585111705f08e3bd248ade79"
+    }
+  ],
+  "status": "CANDIDATE_REVIEW",
+  "issues": []
+}

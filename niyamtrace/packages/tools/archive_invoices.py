@@ -101,7 +101,21 @@ class ArchiveInvoicesTool(ToolImplementation):
             estimated_row_count=len(record_deltas),
         )
 
-    async def execute(self, session: AsyncSession, arguments: dict[str, Any]) -> StateDelta:
+    async def execute(
+        self,
+        session: AsyncSession,
+        arguments: dict[str, Any],
+        authorization: Any | None = None,
+    ) -> StateDelta:
+        if authorization is None:
+            from packages.gate.broker import ExecutionMediationError
+            raise ExecutionMediationError("ArchiveInvoicesTool: direct execution without server authorization is blocked.")
+
+        from packages.gate.broker import verify_certificate_authority
+        if not verify_certificate_authority(authorization):
+            from packages.gate.broker import ExecutionMediationError
+            raise ExecutionMediationError("ArchiveInvoicesTool: invalid or untrusted authorization capability.")
+
         vendor_id: int = arguments["vendor_id"]
         month: int = arguments.get("month")
         year: int = arguments.get("year")

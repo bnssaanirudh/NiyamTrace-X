@@ -41,7 +41,14 @@ class SuspendVendorTool(ToolImplementation):
             
     async def simulate(self, session: Any, args: dict[str, Any]) -> StateDelta:
         return StateDelta(affected_record_ids=[], record_deltas=[], table="vendors", estimated_row_count=0)
-    async def execute(self, session: Any, args: dict[str, Any]) -> StateDelta:
+    async def execute(self, session: Any, args: dict[str, Any], authorization: Any | None = None) -> StateDelta:
+        if authorization is None:
+            from packages.gate.broker import ExecutionMediationError
+            raise ExecutionMediationError("SuspendVendorTool: direct execution without server authorization is blocked.")
+        from packages.gate.broker import verify_certificate_authority
+        if not verify_certificate_authority(authorization):
+            from packages.gate.broker import ExecutionMediationError
+            raise ExecutionMediationError("SuspendVendorTool: invalid or untrusted authorization capability.")
         return await self.simulate(session, args)
 
 class UpdateCreditLimitTool(ToolImplementation):
@@ -76,7 +83,14 @@ class UpdateCreditLimitTool(ToolImplementation):
         }
     async def simulate(self, session: Any, args: dict[str, Any]) -> StateDelta:
         return StateDelta(affected_record_ids=[], record_deltas=[], table="vendor_credit_limits", estimated_row_count=0)
-    async def execute(self, session: Any, args: dict[str, Any]) -> StateDelta:
+    async def execute(self, session: Any, args: dict[str, Any], authorization: Any | None = None) -> StateDelta:
+        if authorization is None:
+            from packages.gate.broker import ExecutionMediationError
+            raise ExecutionMediationError("UpdateCreditLimitTool: direct execution without server authorization is blocked.")
+        from packages.gate.broker import verify_certificate_authority
+        if not verify_certificate_authority(authorization):
+            from packages.gate.broker import ExecutionMediationError
+            raise ExecutionMediationError("UpdateCreditLimitTool: invalid or untrusted authorization capability.")
         return await self.simulate(session, args)
 
 class BlockUserAccessTool(ToolImplementation):
@@ -111,5 +125,12 @@ class BlockUserAccessTool(ToolImplementation):
         }
     async def simulate(self, session: Any, args: dict[str, Any]) -> StateDelta:
         return StateDelta(affected_record_ids=[], record_deltas=[], table="users", estimated_row_count=0)
-    async def execute(self, session: Any, args: dict[str, Any]) -> StateDelta:
+    async def execute(self, session: Any, args: dict[str, Any], authorization: Any | None = None) -> StateDelta:
+        if authorization is None:
+            from packages.gate.broker import ExecutionMediationError
+            raise ExecutionMediationError("BlockUserAccessTool: direct execution without server authorization is blocked.")
+        from packages.gate.broker import verify_certificate_authority
+        if not verify_certificate_authority(authorization):
+            from packages.gate.broker import ExecutionMediationError
+            raise ExecutionMediationError("BlockUserAccessTool: invalid or untrusted authorization capability.")
         return await self.simulate(session, args)

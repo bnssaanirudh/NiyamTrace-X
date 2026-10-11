@@ -1,0 +1,17 @@
+{
+  "status": "BLOCKED",
+  "cohorts": [],
+  "blockers": [
+    "No official task-level native gate-in-path run (agentdojo/tau_bench packages not installed in environment)"
+  ],
+  "installed_benchmark_packages": {
+    "agentdojo": null,
+    "tau_bench": null,
+    "tau2": null
+  },
+  "not_claimable": [
+    "official score until logs and scorer provenance verified",
+    "zero population risk from zero observed events"
+  ],
+  "repo_commit": "651e87ef452c80008d4f73c8f2de21321e21fa50"
+}

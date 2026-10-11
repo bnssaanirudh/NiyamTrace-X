@@ -46,8 +46,25 @@ async def test_all_tools_have_simulation_and_execution_parity(fresh_engine):
                 
             pred_delta = await impl.simulate(session, args)
 
-            # Execute the tool
-            actual_delta = await impl.execute(session, args)
+            # Execute the tool with valid server authorization capability
+            from packages.contracts.schema import EffectCertificate
+            from packages.gate.broker import sign_certificate_authority
+            import hashlib, json
+            auth = EffectCertificate(
+                trace_id="test-parity",
+                actor="test-actor",
+                tenant_id="acme",
+                action="invoice.archive",
+                target_type=tool_name,
+                selector=args,
+                canonical_args_hash=hashlib.sha256(json.dumps(args, sort_keys=True).encode()).hexdigest(),
+                policy_rules_used=["policy-default"],
+                evidence_refs=["ref-default"],
+                predicted_delta={"rows_changed": 3, "record_ids": ["INV-4421-2503", "INV-4421-2504", "INV-4421-2505"]},
+                server_issued=True,
+            )
+            auth = sign_certificate_authority(auth)
+            actual_delta = await impl.execute(session, args, authorization=auth)
             
             # The predicted state changes must identically match the actual state changes
             assert pred_delta.affected_record_ids == actual_delta.affected_record_ids

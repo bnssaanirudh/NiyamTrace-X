@@ -412,14 +412,14 @@ def check_temporal_containment(
     contract_month = contract.slots.get("MONTH")
     contract_year = contract.slots.get("YEAR")
 
-    if contract_month is None and contract_year is None:
+    if contract_month is None or contract_year is None:
         return GateCheckResult(
             check_name="temporal_containment",
             passed=False,
             reason_code="CONTRACT_MISSING_TEMPORAL_SCOPE",
             detail=(
-                "Contract has no temporal_scope. Ambiguous temporal bounds "
-                "must be resolved before execution."
+                "Contract is missing month or year. Security-critical calendar year "
+                "is required and ambiguous temporal bounds must be resolved before execution."
             ),
         )
 

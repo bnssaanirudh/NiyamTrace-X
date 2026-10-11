@@ -342,16 +342,32 @@ class EffectCertificate(BaseModel):
     extraction_confidence: float | None = None
     repair_attempted: bool = False
 
+    # Mandatory Execution Capability fields (Prompt A - Source-native execution mediation)
+    tenant_id: str = "acme"
+    canonical_args_hash: str = ""
+    policy_version_hash: str = ""
+    snapshot_id: str = ""
+    nonce: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    expires_at: float = 0.0
+    server_signature: str = ""
+    server_issued: bool = False
+
     def compute_hash(self) -> str:
         """Compute the canonical SHA-256 hash of this certificate's core fields."""
         import json
         core = {
             "trace_id": self.trace_id,
             "actor": self.actor,
+            "tenant_id": self.tenant_id,
             "action": self.action,
             "target_type": self.target_type,
             "selector": self.selector,
             "policy_rules_used": sorted(self.policy_rules_used),
+            "canonical_args_hash": self.canonical_args_hash,
+            "policy_version_hash": self.policy_version_hash,
+            "snapshot_id": self.snapshot_id,
+            "nonce": self.nonce,
+            "expires_at": self.expires_at,
             "predicted_delta": self.predicted_delta,
             "gate_decision": self.gate_decision,
             "timestamp": self.timestamp.isoformat(),
@@ -368,6 +384,11 @@ class EffectCertificate(BaseModel):
     def verify(self) -> bool:
         """Verify the cert_hash matches the current content (tamper detection)."""
         return self.cert_hash == self.compute_hash()
+
+    def is_expired(self, current_time: float | None = None) -> bool:
+        import time
+        now = current_time if current_time is not None else time.time()
+        return self.expires_at > 0 and now > self.expires_at
 
     @classmethod
     def chain_from(

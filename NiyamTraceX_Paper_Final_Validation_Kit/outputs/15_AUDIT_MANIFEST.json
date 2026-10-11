@@ -1,0 +1,52 @@
+{
+  "source_archive": "NTX_ZERO_UPLOAD_RESULTS.zip",
+  "source_sha256": "77b2c5c2315f203699b78ad5ef88810442c179d19614bafe98283b1e7fb6c689",
+  "n_case_rows": 4320,
+  "paired": [
+    {
+      "direction": "granite_primary",
+      "n": 360,
+      "divergent_decisions": 48,
+      "anchor_only_correct": 48,
+      "full_only_correct": 0,
+      "exact_mcnemar_p": 7.105427357601002e-15,
+      "anchor_accuracy": 0.9333333333333333,
+      "full_accuracy": 0.8,
+      "delta_full_minus_anchor": -0.1333333333333333
+    },
+    {
+      "direction": "qwen_primary",
+      "n": 360,
+      "divergent_decisions": 0,
+      "anchor_only_correct": 0,
+      "full_only_correct": 0,
+      "exact_mcnemar_p": 1.0,
+      "anchor_accuracy": 0.6277777777777778,
+      "full_accuracy": 0.6277777777777778,
+      "delta_full_minus_anchor": 0.0
+    }
+  ],
+  "cluster_bootstrap": [
+    {
+      "direction": "granite_primary",
+      "n_groups": 100,
+      "delta_point": -0.13333333333333333,
+      "cluster_bootstrap_low": -0.17166666666666663,
+      "cluster_bootstrap_high": -0.08666666666666666
+    },
+    {
+      "direction": "qwen_primary",
+      "n_groups": 100,
+      "delta_point": 0.0,
+      "cluster_bootstrap_low": 0.0,
+      "cluster_bootstrap_high": 0.0
+    }
+  ],
+  "granite_regression_count": 48,
+  "cannot_claim": [
+    "independent candidate superiority",
+    "production safety",
+    "human-labeled multilingual generalization"
+  ],
+  "conclusion": "Full method does not outperform anchors in October 11 cohort; Granite degrades. Regressions require investigation rather than exclusion."
+}
