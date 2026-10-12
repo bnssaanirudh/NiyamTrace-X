@@ -27,6 +27,9 @@ class LLMProvider:
             from openai import OpenAI
             self.client = OpenAI(api_key=settings.openai_api_key)
             self.model_name = "gpt-4o-mini"
+        elif self.backend == "mock":
+            self.client = None
+            self.model_name = "mock"
         else:
             raise ValueError(f"Unknown backend {self.backend}")
 

@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     )
 
     # LLM Settings
-    llm_backend: Literal["openai", "groq", "google", "gemini", "local"] = Field(
+    llm_backend: Literal["openai", "groq", "google", "gemini", "local", "mock"] = Field(
         default="openai", description="The LLM provider backend to use."
     )
     openai_api_key: str | None = None
