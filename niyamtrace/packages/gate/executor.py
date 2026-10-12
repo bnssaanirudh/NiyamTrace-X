@@ -40,6 +40,8 @@ class ERPExecutor:
         tool_call: ToolCall,
         authorization: EffectCertificate | None = None,
         auth_context: AuthorizationContext | None = None,
+        policy: Any | None = None,
+        current_snapshot_id: str | None = None,
     ) -> StateDelta:
         """
         Execute the tool call via the registry ONLY with valid server authorization.
@@ -55,25 +57,15 @@ class ERPExecutor:
                 "ERPExecutor: execution without authenticated principal context is blocked."
             )
 
-        if not verify_certificate_authority(authorization):
-            raise ExecutionMediationError(
-                "ERPExecutor: invalid or untrusted authorization capability."
-            )
-
-        if authorization.actor != auth_context.subject:
-            raise ExecutionMediationError(
-                f"ERPExecutor: subject mismatch (auth={authorization.actor}, ctx={auth_context.subject})."
-            )
-
-        if getattr(authorization, "tenant_id", "acme") != auth_context.tenant_id:
-            raise ExecutionMediationError(
-                f"ERPExecutor: tenant mismatch (auth={getattr(authorization, 'tenant_id', 'acme')}, ctx={auth_context.tenant_id})."
-            )
-
-        if authorization.target_type != tool_call.tool_name:
-            raise ExecutionMediationError(
-                f"ERPExecutor: tool target mismatch (auth={authorization.target_type}, tool={tool_call.tool_name})."
-            )
+        from packages.gate.broker import verify_tool_authorization_binding
+        verify_tool_authorization_binding(
+            authorization=authorization,
+            tool_name=tool_call.tool_name,
+            arguments=tool_call.arguments,
+            auth_context=auth_context,
+            policy=policy,
+            current_snapshot_id=current_snapshot_id,
+        )
 
         impl = get_tool_implementation(tool_call.tool_name)
         if impl is None:
@@ -81,4 +73,11 @@ class ERPExecutor:
                 f"ERPExecutor: no execution handler for tool '{tool_call.tool_name}'"
             )
 
-        return await impl.execute(self._session, tool_call.arguments, authorization=authorization)
+        return await impl.execute(
+            self._session,
+            tool_call.arguments,
+            authorization=authorization,
+            auth_context=auth_context,
+            policy=policy,
+            current_snapshot_id=current_snapshot_id,
+        )

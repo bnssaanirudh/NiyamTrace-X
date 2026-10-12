@@ -19,10 +19,21 @@ from typing import Any, Callable
 
 import pandas as pd
 
-from packages.contracts.schema import EffectCertificate, ToolCall
-from packages.gate.broker import BrokerVerificationError, VerifiedExecutionBroker
+from packages.contracts.schema import (
+    ActionContract,
+    EffectCertificate,
+    RecordDelta,
+    StateDelta,
+    ToolCall,
+)
+from packages.gate.broker import (
+    BrokerVerificationError,
+    ExecutionMediationError,
+    VerifiedExecutionBroker,
+)
 from packages.gate.gate import NiyamGate
 from packages.gate.policy import DEFAULT_POLICY
+from packages.tools.registry import get_tool_implementation
 
 
 REQUIRED_OFFICIAL_COLUMNS = [
@@ -77,6 +88,10 @@ class OfficialBenchmarkGateInterceptor:
         arguments: dict[str, Any],
         auth_context: Any,
         native_executor_fn: Callable[[dict[str, Any]], Any],
+        contract: ActionContract | None = None,
+        predicted_delta: StateDelta | None = None,
+        actor_role: str = "procurement_manager",
+        action: str | None = None,
     ) -> Any:
         """
         Intercepts tool execution in path.
@@ -89,8 +104,72 @@ class OfficialBenchmarkGateInterceptor:
             "subject": getattr(auth_context, "subject", "unknown"),
         })
 
-        # Real enforcement: evaluate through NiyamGate
-        # Any failure raises an exception and blocks native mutation
+        # Synthesize semantic ActionContract if not supplied
+        if contract is None:
+            slots: dict[str, Any] = {}
+            if "vendor_id" in arguments:
+                slots["VENDOR_ID"] = arguments["vendor_id"]
+            if "month" in arguments:
+                slots["MONTH"] = arguments["month"]
+            if "year" in arguments:
+                slots["YEAR"] = arguments["year"]
+            if "user_id" in arguments:
+                slots["USER_ID"] = arguments["user_id"]
+
+            contract = ActionContract(
+                actor_id=getattr(auth_context, "subject", "benchmark-agent"),
+                actor_role=actor_role,
+                intent=action or ("invoice.archive" if tool_name == "archive_invoices" else f"{tool_name}.execute"),
+                intent_confidence=1.0,
+                slots=slots,
+                raw_text=f"Benchmark tool invocation for {tool_name}",
+                normalized_text=f"Benchmark tool invocation for {tool_name}",
+            )
+
+        if predicted_delta is None:
+            pred_records: list[str] = []
+            if "vendor_id" in arguments:
+                pred_records = [f"INV-{arguments['vendor_id']}-001"]
+            elif "user_id" in arguments:
+                pred_records = [str(arguments["user_id"])]
+            else:
+                pred_records = ["REC-BENCH-001"]
+
+            tbl = "vendor_invoices" if tool_name == "archive_invoices" else "benchmark_table"
+            field_name = "status" if tool_name == "archive_invoices" else "modified"
+            new_val = "ARCHIVED" if tool_name == "archive_invoices" else True
+            deltas = [
+                RecordDelta(
+                    record_id=rid,
+                    table=tbl,
+                    field=field_name,
+                    old_value="OPEN" if tool_name == "archive_invoices" else False,
+                    new_value=new_val,
+                )
+                for rid in pred_records
+            ]
+
+            predicted_delta = StateDelta(
+                affected_record_ids=pred_records,
+                record_deltas=deltas,
+                table=tbl,
+                estimated_row_count=len(pred_records),
+            )
+
+        # Mandatory authorization gate evaluation
+        decision = self.gate.evaluate(
+            contract=contract,
+            predicted_delta=predicted_delta,
+            tool_call=tool_call,
+            auth_context=auth_context,
+        )
+
+        if decision.verdict != "ALLOW":
+            raise ExecutionMediationError(
+                f"OfficialBenchmarkGateInterceptor: gate rejected tool mutation (verdict={decision.verdict}, reason={decision.reason_code}): {decision.detail}"
+            )
+
+        # Gate approved: proceed with native executor
         return native_executor_fn(arguments)
 
 

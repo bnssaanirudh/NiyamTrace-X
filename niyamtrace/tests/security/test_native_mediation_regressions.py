@@ -34,21 +34,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from apps.gateway.pipeline import NiyamPipeline, PipelineRequest
 from data.synthetic.erp import SEED_SNAPSHOT_ID, seed_fresh_async
 from packages.auth.models import AuthorizationContext, Principal
-from packages.contracts.schema import EffectCertificate, StateDelta, ToolCall
+from packages.contracts.schema import ActionContract, EffectCertificate, StateDelta, ToolCall
 from packages.gate.broker import (
     BrokerVerificationError,
     ExecutionMediationError,
+    SecurityError,
     VerifiedExecutionBroker,
+    get_trust_root,
     is_nonce_used,
     mark_nonce_used,
     reset_broker_state,
+    set_trust_root,
     sign_certificate_authority,
     verify_certificate_authority,
 )
+from packages.bench.official_adapter import OfficialBenchmarkGateInterceptor
 from packages.gate.executor import ERPExecutor
 from packages.gate.gate import NiyamGate
 from packages.gate.policy import DEFAULT_POLICY
 from packages.policy.compiler import PolicyCompiler
+from packages.storage.models import ConsumedCapability
 from packages.storage.postgres import get_async_engine
 from packages.tools.archive_invoices import ArchiveInvoicesTool
 from packages.tools.registry import get_tool_implementation
@@ -710,3 +715,261 @@ async def test_wrong_tool_args_blocked(seeded_sqlite, auth_context):
 
     after_sha = compute_database_sha256(db_file)
     assert before_sha == after_sha
+
+
+# ===========================================================================
+# Adversarial Regression Cases (Prompt corrections)
+# ===========================================================================
+
+def test_production_hmac_secret_required_in_production(monkeypatch):
+    """
+    1. Production HMAC fallback must be forbidden: require a protected deployment secret.
+    """
+    reset_broker_state()
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    monkeypatch.delenv("NIYAMTRACE_GATE_SECRET", raising=False)
+    monkeypatch.delenv("NIYAMTRACE_GATE_SECRET_FILE", raising=False)
+
+    with pytest.raises(SecurityError, match="Production deployment requires a protected deployment secret"):
+        get_trust_root()
+
+    # Even if default fallback string is provided in production, it is rejected
+    monkeypatch.setenv("NIYAMTRACE_GATE_SECRET", "ntx-inviolable-server-trust-root-2026-secret-boundary")
+    with pytest.raises(SecurityError, match="Hardcoded HMAC fallbacks are forbidden in production"):
+        get_trust_root()
+
+    # Valid protected deployment secret succeeds
+    monkeypatch.setenv("NIYAMTRACE_GATE_SECRET", "super-secret-secure-production-key-2026")
+    root = get_trust_root()
+    assert root == b"super-secret-secure-production-key-2026"
+    reset_broker_state()
+
+
+@pytest.mark.asyncio
+async def test_direct_executor_contextual_binding_arguments_mismatch(seeded_sqlite, auth_context):
+    """
+    2. Bind every executor invocation to signed arguments.
+    """
+    engine, db_file = seeded_sqlite
+    before_sha = compute_database_sha256(db_file)
+
+    tool_call = ToolCall(tool_name="archive_invoices", arguments={"vendor_id": 4421, "month": 3, "year": 2025})
+    # Capability signed for vendor 8802
+    fake_args_hash = hashlib.sha256(json.dumps({"vendor_id": 8802, "month": 3, "year": 2025}, sort_keys=True).encode()).hexdigest()
+
+    cert = EffectCertificate(
+        trace_id="trace-exec-args-mismatch",
+        actor=auth_context.subject,
+        tenant_id=auth_context.tenant_id,
+        action="invoice.archive",
+        target_type="archive_invoices",
+        selector={"vendor_id": 8802, "month": 3, "year": 2025},
+        canonical_args_hash=fake_args_hash,
+        policy_rules_used=[DEFAULT_POLICY.policy_hash],
+        policy_version_hash=DEFAULT_POLICY.policy_hash,
+        evidence_refs=["evidence-ref-exec-args"],
+        predicted_delta={"rows_changed": 3, "record_ids": ["INV-4421-2503", "INV-4421-2504", "INV-4421-2505"]},
+        snapshot_id=SEED_SNAPSHOT_ID,
+        expires_at=time.time() + 60.0,
+        server_issued=True,
+    )
+    cert = sign_certificate_authority(cert)
+
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        executor = ERPExecutor(session)
+        with pytest.raises(ExecutionMediationError, match="arguments mismatch with signed capability"):
+            await executor.execute(tool_call, authorization=cert, auth_context=auth_context)
+
+    after_sha = compute_database_sha256(db_file)
+    assert before_sha == after_sha
+
+
+@pytest.mark.asyncio
+async def test_direct_executor_contextual_binding_expired_capability(seeded_sqlite, auth_context):
+    """
+    2. Bind executor invocation to expiration.
+    """
+    engine, db_file = seeded_sqlite
+    before_sha = compute_database_sha256(db_file)
+
+    tool_call = ToolCall(tool_name="archive_invoices", arguments={"vendor_id": 4421, "month": 3, "year": 2025})
+    args_hash = hashlib.sha256(json.dumps(tool_call.arguments, sort_keys=True).encode()).hexdigest()
+
+    cert = EffectCertificate(
+        trace_id="trace-exec-expired",
+        actor=auth_context.subject,
+        tenant_id=auth_context.tenant_id,
+        action="invoice.archive",
+        target_type="archive_invoices",
+        selector={"vendor_id": 4421, "month": 3, "year": 2025},
+        canonical_args_hash=args_hash,
+        policy_rules_used=[DEFAULT_POLICY.policy_hash],
+        policy_version_hash=DEFAULT_POLICY.policy_hash,
+        evidence_refs=["evidence-ref-exec-exp"],
+        predicted_delta={"rows_changed": 3, "record_ids": ["INV-4421-2503", "INV-4421-2504", "INV-4421-2505"]},
+        snapshot_id=SEED_SNAPSHOT_ID,
+        expires_at=time.time() - 3600.0,  # Expired an hour ago
+        server_issued=True,
+    )
+    cert = sign_certificate_authority(cert)
+
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        executor = ERPExecutor(session)
+        with pytest.raises(ExecutionMediationError, match="authorization capability for 'archive_invoices' has expired"):
+            await executor.execute(tool_call, authorization=cert, auth_context=auth_context)
+
+    after_sha = compute_database_sha256(db_file)
+    assert before_sha == after_sha
+
+
+@pytest.mark.asyncio
+async def test_direct_tool_contextual_binding_arguments_mismatch(seeded_sqlite, auth_context):
+    """
+    2. Bind tool implementation directly to signed arguments and context.
+    """
+    engine, db_file = seeded_sqlite
+    before_sha = compute_database_sha256(db_file)
+
+    tool_args = {"vendor_id": 4421, "month": 3, "year": 2025}
+    fake_args_hash = hashlib.sha256(json.dumps({"vendor_id": 9999, "month": 3, "year": 2025}, sort_keys=True).encode()).hexdigest()
+
+    cert = EffectCertificate(
+        trace_id="trace-tool-args-mismatch",
+        actor=auth_context.subject,
+        tenant_id=auth_context.tenant_id,
+        action="invoice.archive",
+        target_type="archive_invoices",
+        selector={"vendor_id": 9999, "month": 3, "year": 2025},
+        canonical_args_hash=fake_args_hash,
+        policy_rules_used=[DEFAULT_POLICY.policy_hash],
+        policy_version_hash=DEFAULT_POLICY.policy_hash,
+        evidence_refs=["evidence-ref-tool-args"],
+        predicted_delta={"rows_changed": 3, "record_ids": ["INV-4421-2503", "INV-4421-2504", "INV-4421-2505"]},
+        snapshot_id=SEED_SNAPSHOT_ID,
+        expires_at=time.time() + 60.0,
+        server_issued=True,
+    )
+    cert = sign_certificate_authority(cert)
+
+    impl = get_tool_implementation("archive_invoices")
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        with pytest.raises(ExecutionMediationError, match="arguments mismatch with signed capability"):
+            await impl.execute(session, tool_args, authorization=cert, auth_context=auth_context)
+
+    after_sha = compute_database_sha256(db_file)
+    assert before_sha == after_sha
+
+
+@pytest.mark.asyncio
+async def test_persistent_nonce_consumption_across_broker_and_cache_reset(seeded_sqlite, auth_context):
+    """
+    3. Atomic, persistent single-use capability consumption in SQLite/Postgres DB.
+    Replay must fail even if process memory cache is completely wiped.
+    """
+    engine, db_file = seeded_sqlite
+    tool_call = ToolCall(tool_name="archive_invoices", arguments={"vendor_id": 4421, "month": 3, "year": 2025})
+    args_hash = hashlib.sha256(json.dumps(tool_call.arguments, sort_keys=True).encode()).hexdigest()
+
+    unique_nonce = f"persistent-nonce-{uuid.uuid4().hex}"
+    cert = EffectCertificate(
+        trace_id="trace-persistent-nonce-test",
+        actor=auth_context.subject,
+        tenant_id=auth_context.tenant_id,
+        action="invoice.archive",
+        target_type="archive_invoices",
+        selector={"vendor_id": 4421, "month": 3, "year": 2025},
+        canonical_args_hash=args_hash,
+        policy_rules_used=[DEFAULT_POLICY.policy_hash],
+        policy_version_hash=DEFAULT_POLICY.policy_hash,
+        evidence_refs=["evidence-ref-persistent-nonce"],
+        predicted_delta={"rows_changed": 3, "record_ids": ["INV-4421-2503", "INV-4421-2504", "INV-4421-2505"]},
+        snapshot_id=SEED_SNAPSHOT_ID,
+        nonce=unique_nonce,
+        expires_at=time.time() + 120.0,
+        server_issued=True,
+    )
+    cert = sign_certificate_authority(cert)
+
+    # 1. First execution succeeds and commits atomically
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        broker = VerifiedExecutionBroker(session, current_snapshot_id=SEED_SNAPSHOT_ID)
+        await broker.commit(cert, tool_call, auth_context, current_snapshot_id=SEED_SNAPSHOT_ID)
+        await session.commit()
+
+    # 2. Verify ConsumedCapability record exists in the SQLite database
+    from sqlalchemy import select
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        stmt = select(ConsumedCapability).where(ConsumedCapability.nonce == unique_nonce)
+        res = await session.execute(stmt)
+        record = res.scalar_one_or_none()
+        assert record is not None
+        assert record.nonce == unique_nonce
+        assert record.tool_name == "archive_invoices"
+
+    before_replay_sha = compute_database_sha256(db_file)
+
+    # 3. Simulate process restart / new worker: wipe in-memory cache completely
+    reset_broker_state()
+
+    # 4. Attempt replay: broker must detect nonce in persistent database
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        broker = VerifiedExecutionBroker(session, current_snapshot_id=SEED_SNAPSHOT_ID)
+        with pytest.raises(BrokerVerificationError, match="Replay detected: capability nonce .* has already been consumed in persistent storage"):
+            await broker.commit(cert, tool_call, auth_context, current_snapshot_id=SEED_SNAPSHOT_ID)
+
+    after_replay_sha = compute_database_sha256(db_file)
+    assert before_replay_sha == after_replay_sha
+
+
+@pytest.mark.asyncio
+async def test_official_benchmark_interceptor_calls_gate_blocking_unauthorized(auth_context):
+    """
+    4. Ensure official benchmark interceptor actually calls authorization gate before permitting mutation.
+    When gate rejects (e.g. unanchored missing year), mutation is strictly blocked.
+    """
+    interceptor = OfficialBenchmarkGateInterceptor()
+    executed_count = 0
+
+    def mock_native_executor(args):
+        nonlocal executed_count
+        executed_count += 1
+        return {"status": "mutated"}
+
+    # Missing year in tool invocation for archive_invoices -> Gate evaluation fails!
+    bad_args = {"vendor_id": 4421, "month": 3}  # No year!
+    with pytest.raises(ExecutionMediationError, match="OfficialBenchmarkGateInterceptor: gate rejected tool mutation"):
+        interceptor.intercept_and_execute(
+            tool_name="archive_invoices",
+            arguments=bad_args,
+            auth_context=auth_context,
+            native_executor_fn=mock_native_executor,
+        )
+
+    # Mutation function was never called
+    assert executed_count == 0
+
+
+@pytest.mark.asyncio
+async def test_official_benchmark_interceptor_calls_gate_permitting_authorized(auth_context):
+    """
+    4. Authorized call through official benchmark interceptor passes gate and executes native tool.
+    """
+    interceptor = OfficialBenchmarkGateInterceptor()
+    executed_count = 0
+
+    def mock_native_executor(args):
+        nonlocal executed_count
+        executed_count += 1
+        return {"status": "success", "args": args}
+
+    good_args = {"vendor_id": 4421, "month": 3, "year": 2025}
+    result = interceptor.intercept_and_execute(
+        tool_name="archive_invoices",
+        arguments=good_args,
+        auth_context=auth_context,
+        native_executor_fn=mock_native_executor,
+    )
+
+    assert executed_count == 1
+    assert result == {"status": "success", "args": good_args}
+

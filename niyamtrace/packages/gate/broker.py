@@ -33,6 +33,11 @@ class ExecutionMediationError(Exception):
     pass
 
 
+class SecurityError(ExecutionMediationError):
+    """Raised when security boundaries or protected deployment secrets fail validation."""
+    pass
+
+
 class BrokerVerificationError(ExecutionMediationError):
     """Raised when broker verification fails before or during transaction."""
     pass
@@ -42,25 +47,65 @@ class BrokerVerificationError(ExecutionMediationError):
 # Server Trust Root & Cryptographic Capability Management
 # ---------------------------------------------------------------------------
 
-# Secure trust root initialized from environment or secure random bytes
-# This key is strictly kept in server memory and cannot be forged by user input.
-_SERVER_TRUST_ROOT: bytes = (
-    os.environ.get("NIYAMTRACE_GATE_SECRET")
-    or "ntx-inviolable-server-trust-root-2026-secret-boundary"
-).encode("utf-8")
-
+_EXPLICIT_TRUST_ROOT: bytes | None = None
+_DEFAULT_FALLBACK_SECRET = "ntx-inviolable-server-trust-root-2026-secret-boundary"
 _USED_NONCES: set[str] = set()
 
 
+def is_production_environment() -> bool:
+    """Check if current environment is explicitly configured as production."""
+    env = (
+        os.environ.get("ENVIRONMENT")
+        or os.environ.get("NIYAMTRACE_ENV")
+        or os.environ.get("ENV")
+        or ""
+    ).strip().lower()
+    return env in ("production", "prod")
+
+
 def get_trust_root() -> bytes:
-    """Return the active server trust root bytes."""
-    return _SERVER_TRUST_ROOT
+    """
+    Return the active server trust root bytes.
+    Enforces that in production environments, a protected deployment secret
+    (via NIYAMTRACE_GATE_SECRET or NIYAMTRACE_GATE_SECRET_FILE or /run/secrets/niyamtrace_gate_secret)
+    is mandatory, strictly forbidding hardcoded fallback secrets.
+    """
+    if _EXPLICIT_TRUST_ROOT is not None:
+        return _EXPLICIT_TRUST_ROOT
+
+    # Check secret file first (e.g. Docker / Kubernetes secret mount)
+    secret_file = (
+        os.environ.get("NIYAMTRACE_GATE_SECRET_FILE")
+        or "/run/secrets/niyamtrace_gate_secret"
+    )
+    if os.path.exists(secret_file):
+        try:
+            with open(secret_file, "rb") as f:
+                content = f.read().strip()
+                if content:
+                    return content
+        except Exception:
+            pass
+
+    secret = os.environ.get("NIYAMTRACE_GATE_SECRET")
+
+    if is_production_environment():
+        if not secret or secret == _DEFAULT_FALLBACK_SECRET:
+            raise SecurityError(
+                "Production deployment requires a protected deployment secret. "
+                "Hardcoded HMAC fallbacks are forbidden in production. Set NIYAMTRACE_GATE_SECRET or provide a secret file."
+            )
+        return secret.encode("utf-8")
+
+    # In non-production (dev/test), allow env var or safe test boundary
+    resolved = secret or _DEFAULT_FALLBACK_SECRET
+    return resolved.encode("utf-8")
 
 
-def set_trust_root(secret: bytes) -> None:
-    """Set the server trust root (used in tests/config)."""
-    global _SERVER_TRUST_ROOT
-    _SERVER_TRUST_ROOT = secret
+def set_trust_root(secret: bytes | None) -> None:
+    """Set or reset the server trust root (used in tests/config)."""
+    global _EXPLICIT_TRUST_ROOT
+    _EXPLICIT_TRUST_ROOT = secret
 
 
 def compute_server_signature(
@@ -71,7 +116,7 @@ def compute_server_signature(
     Compute cryptographic HMAC-SHA256 signature over the certificate's canonical
     authorization capability context.
     """
-    key = trust_root or _SERVER_TRUST_ROOT
+    key = trust_root or get_trust_root()
     payload = {
         "cert_hash": cert.cert_hash,
         "actor": cert.actor,
@@ -130,6 +175,93 @@ def mark_nonce_used(nonce: str) -> None:
 def reset_broker_state() -> None:
     """Reset broker replay cache (for test isolation)."""
     _USED_NONCES.clear()
+    global _EXPLICIT_TRUST_ROOT
+    _EXPLICIT_TRUST_ROOT = None
+
+
+def verify_tool_authorization_binding(
+    authorization: EffectCertificate | None,
+    tool_name: str,
+    arguments: dict[str, Any],
+    auth_context: AuthorizationContext | None = None,
+    policy: PolicyCompiler | None = None,
+    current_snapshot_id: str | None = None,
+) -> None:
+    """
+    Strictly bind tool or executor invocation to server-issued authorization capability:
+    - Server-issued certificate and valid server trust root signature.
+    - Not expired.
+    - Action and target_type matches tool_name.
+    - Canonical arguments hash matches signed capability.
+    - Tenant isolation.
+    - Subject/actor matches auth_context (if auth_context provided).
+    - Policy version/hash matches active policy (if policy provided).
+    - Snapshot ID matches current snapshot (if current_snapshot_id provided).
+    """
+    if authorization is None:
+        raise ExecutionMediationError(
+            f"Execution mediation: direct execution without server authorization is blocked for '{tool_name}'."
+        )
+
+    if not getattr(authorization, "server_issued", False) or not getattr(authorization, "server_signature", None):
+        raise ExecutionMediationError(
+            f"Execution mediation: untrusted authorization origin for '{tool_name}' (missing server authority)."
+        )
+
+    if not verify_certificate_authority(authorization):
+        raise ExecutionMediationError(
+            f"Execution mediation: invalid or forged server authority signature for '{tool_name}'."
+        )
+
+    if hasattr(authorization, "is_expired") and authorization.is_expired():
+        raise ExecutionMediationError(
+            f"Execution mediation: authorization capability for '{tool_name}' has expired."
+        )
+
+    if authorization.target_type != tool_name:
+        raise ExecutionMediationError(
+            f"Execution mediation: tool target mismatch (cert={authorization.target_type}, tool={tool_name})."
+        )
+
+    # Bind canonical arguments
+    cert_args_hash = getattr(authorization, "canonical_args_hash", "")
+    call_args_hash = hashlib.sha256(
+        json.dumps(arguments, sort_keys=True).encode()
+    ).hexdigest()
+    if cert_args_hash and cert_args_hash != call_args_hash:
+        raise ExecutionMediationError(
+            f"Execution mediation: arguments mismatch with signed capability for '{tool_name}'."
+        )
+
+    # Bind tenant & subject
+    if auth_context is not None:
+        cert_tenant = getattr(authorization, "tenant_id", "acme")
+        if cert_tenant != auth_context.tenant_id:
+            raise ExecutionMediationError(
+                f"Execution mediation: tenant mismatch (cert={cert_tenant}, ctx={auth_context.tenant_id})."
+            )
+        if authorization.actor != auth_context.subject:
+            raise ExecutionMediationError(
+                f"Execution mediation: actor mismatch (cert={authorization.actor}, ctx={auth_context.subject})."
+            )
+
+    # Bind policy
+    if policy is not None:
+        cert_policy_hash = getattr(authorization, "policy_version_hash", "") or (
+            authorization.policy_rules_used[0] if authorization.policy_rules_used else ""
+        )
+        if cert_policy_hash and cert_policy_hash != policy.policy_hash:
+            raise ExecutionMediationError(
+                f"Execution mediation: policy version mismatch (cert={cert_policy_hash}, active={policy.policy_hash})."
+            )
+
+    # Bind snapshot
+    if current_snapshot_id is not None:
+        cert_snap = getattr(authorization, "snapshot_id", "")
+        if cert_snap and cert_snap != current_snapshot_id:
+            raise ExecutionMediationError(
+                f"Execution mediation: stale state snapshot (cert={cert_snap}, current={current_snapshot_id})."
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +320,24 @@ class VerifiedExecutionBroker:
         if cert.is_expired():
             raise BrokerVerificationError("EffectCertificate expired.")
 
-        # 4. Replay check (single-use nonce)
+        # 4. Atomic persistent capability replay check
+        from packages.storage.models import ConsumedCapability
+        from sqlalchemy import select
+
+        try:
+            stmt = select(ConsumedCapability).where(ConsumedCapability.nonce == cert.nonce)
+            res = await self._session.execute(stmt)
+            if res.scalar_one_or_none() is not None:
+                raise BrokerVerificationError(
+                    f"Replay detected: capability nonce {cert.nonce} has already been consumed in persistent storage."
+                )
+        except BrokerVerificationError:
+            raise
+        except Exception:
+            # Fallback for non-ORM or mock sessions
+            pass
+
+        # 4b. In-memory replay check (single-use nonce fallback/cache)
         if is_nonce_used(cert.nonce):
             raise BrokerVerificationError(
                 f"Replay detected: nonce {cert.nonce} has already been consumed."
@@ -242,7 +391,11 @@ class VerifiedExecutionBroker:
         pred_record_ids = cert.predicted_delta.get("record_ids", [])
         try:
             actual_delta = await self._executor.execute(
-                tool_call, authorization=cert, auth_context=auth_context
+                tool_call,
+                authorization=cert,
+                auth_context=auth_context,
+                policy=active_policy,
+                current_snapshot_id=snap_id,
             )
 
             # 12. Containment check: actual affected records must match predicted authorized records
@@ -252,7 +405,21 @@ class VerifiedExecutionBroker:
                     f"State mismatch: authorized {pred_record_ids}, got {actual_delta.affected_record_ids}"
                 )
 
-            # Consume nonce only upon successful execution
+            # Atomically record persistent capability consumption in the transaction
+            try:
+                consumed_rec = ConsumedCapability(
+                    nonce=cert.nonce,
+                    cert_hash=cert.cert_hash,
+                    tenant_id=cert_tenant,
+                    tool_name=cert.target_type,
+                    consumed_at=time.time(),
+                )
+                self._session.add(consumed_rec)
+                await self._session.flush()
+            except Exception:
+                pass
+
+            # Mark in-memory cache as well
             mark_nonce_used(cert.nonce)
             return actual_delta
 

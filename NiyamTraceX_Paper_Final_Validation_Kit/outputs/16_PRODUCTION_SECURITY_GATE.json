@@ -1,25 +1,25 @@
 {
   "run_attempted": true,
-  "source_commit": "49959a9a7af2311bf918a1d4c36066e7dcf58575",
+  "source_commit": "78957d4017e79137bbffb03cdcbfb2350dee7160",
   "mandatory_native_probe_status": "CANDIDATE_PASS_REQUIRES_INDEPENDENT_REVIEW",
   "tests": [
     {
       "path": "tests/security/test_native_mediation_regressions.py",
       "status": "PASS",
       "returncode": 0,
-      "log_sha256": "f7baa8d75fdc2cbfeeb2867489b05d60128b169d6582b414fc9e950be9edce35"
+      "log_sha256": "82ea13863449eef9aad5e128c8acbad056e56844f360fc580e7c4ed11ee4acdb"
     },
     {
       "path": "tests/security/test_e2e_broker.py",
       "status": "PASS",
       "returncode": 0,
-      "log_sha256": "eedbb5736e0c444a1480c1becd64dd97fb8b4d003f2552cd7a2947de2e731c4c"
+      "log_sha256": "2e23519d92d29053e5d4e4a905d8735c366ffa09311ea1cd7492e1dd4f077a8b"
     },
     {
       "path": "tests/integration/test_simulate_execute_atomicity.py",
       "status": "PASS",
       "returncode": 0,
-      "log_sha256": "fae8679b812192aa8a3457a4e8668ebc48a4566df5863c76feb81d5151ab198f"
+      "log_sha256": "74a333e328cabc3ea011fc810f19dab6c2d21c0eeb817fc94680ad553b4e5c8e"
     }
   ],
   "status": "CANDIDATE_REVIEW",

@@ -54,3 +54,14 @@ class NiyamIdempotency(Base):
     idempotency_key = Column(String, primary_key=True)
     executed_at = Column(Float, nullable=False)
     result_payload = Column(Text, nullable=True)
+
+
+class ConsumedCapability(Base):
+    __tablename__ = "consumed_capabilities"
+
+    nonce = Column(String, primary_key=True)
+    cert_hash = Column(String, nullable=False)
+    tenant_id = Column(String, nullable=False)
+    tool_name = Column(String, nullable=False)
+    consumed_at = Column(Float, nullable=False)
+

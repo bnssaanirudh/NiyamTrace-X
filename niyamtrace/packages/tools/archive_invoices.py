@@ -106,15 +106,19 @@ class ArchiveInvoicesTool(ToolImplementation):
         session: AsyncSession,
         arguments: dict[str, Any],
         authorization: Any | None = None,
+        auth_context: Any | None = None,
+        policy: Any | None = None,
+        current_snapshot_id: str | None = None,
     ) -> StateDelta:
-        if authorization is None:
-            from packages.gate.broker import ExecutionMediationError
-            raise ExecutionMediationError("ArchiveInvoicesTool: direct execution without server authorization is blocked.")
-
-        from packages.gate.broker import verify_certificate_authority
-        if not verify_certificate_authority(authorization):
-            from packages.gate.broker import ExecutionMediationError
-            raise ExecutionMediationError("ArchiveInvoicesTool: invalid or untrusted authorization capability.")
+        from packages.gate.broker import verify_tool_authorization_binding
+        verify_tool_authorization_binding(
+            authorization=authorization,
+            tool_name="archive_invoices",
+            arguments=arguments,
+            auth_context=auth_context,
+            policy=policy,
+            current_snapshot_id=current_snapshot_id,
+        )
 
         vendor_id: int = arguments["vendor_id"]
         month: int = arguments.get("month")
