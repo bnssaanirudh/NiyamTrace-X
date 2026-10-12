@@ -26,6 +26,10 @@ dependencies = [
     "pyjwt>=2.14.0",
     "tenacity>=9.1.4",
     "aiosqlite>=0.20.0",
+    "pandas>=2.0.0",
+    "rapidfuzz>=3.0.0",
+    "ftfy>=6.0.0",
+    "regex>=2024.5.15",
 ]
 
 [project.optional-dependencies]
