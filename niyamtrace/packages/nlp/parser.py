@@ -38,31 +38,48 @@ class SlotParser:
         self.backend = os.environ.get("LLM_BACKEND", "gemini").lower()
         self.parser_version = f"1.0.0-{parser_version_suffix}"
         
-        if self.backend == "gemini":
-            from google import genai
+        if self.backend in ("mock", "test"):
+            self.model_name = "mock"
+            self.parser_version = f"1.0.0-mock-{parser_version_suffix}"
+            self.client_gemini = None
+            self.client_openai = None
+        elif self.backend == "gemini":
+            try:
+                from google import genai
 
-            from packages.secrets.manager import get_secrets_manager
-            api_key = get_secrets_manager().get_optional("GEMINI_API_KEY")
-            if not api_key:
-                raise RuntimeError("GEMINI_API_KEY not found in secrets manager")
-            self.client_gemini = genai.Client(api_key=api_key)
-            self.client_gemini = genai.Client(api_key=api_key)
+                from packages.secrets.manager import get_secrets_manager
+                api_key = get_secrets_manager().get_optional("GEMINI_API_KEY")
+                if not api_key:
+                    raise RuntimeError("GEMINI_API_KEY not found in secrets manager")
+                self.client_gemini = genai.Client(api_key=api_key)
+            except (ImportError, RuntimeError, OSError, ValueError, KeyError):
+                self.client_gemini = None
         elif self.backend == "groq":
-            from groq import Groq
+            try:
+                from groq import Groq
 
-            from packages.config import get_settings
-            self.client_openai = Groq(api_key=get_settings().groq_api_key)
-            self.model_name = "groq/compound-mini"
-            self.parser_version = f"1.0.0-groq-{self.model_name}"
+                from packages.config import get_settings
+                self.client_openai = Groq(api_key=get_settings().groq_api_key)
+                self.model_name = "groq/compound-mini"
+                self.parser_version = f"1.0.0-groq-{self.model_name}"
+            except (ImportError, RuntimeError, OSError, ValueError, KeyError):
+                self.client_openai = None
+                self.model_name = "groq/compound-mini"
+                self.parser_version = f"1.0.0-groq-{self.model_name}"
         else:
-            from openai import OpenAI
-            self.model_name = os.environ.get("LOCAL_LLM_MODEL", "qwen2.5:7b")
-            self.parser_version = f"1.0.0-local-{self.model_name}"
-            # Point to Ollama default endpoint
-            self.client_openai = OpenAI(
-                base_url="http://localhost:11434/v1",
-                api_key="ollama" # required but ignored
-            )
+            try:
+                from openai import OpenAI
+                self.model_name = os.environ.get("LOCAL_LLM_MODEL", "qwen2.5:7b")
+                self.parser_version = f"1.0.0-local-{self.model_name}"
+                # Point to Ollama default endpoint
+                self.client_openai = OpenAI(
+                    base_url="http://localhost:11434/v1",
+                    api_key="ollama" # required but ignored
+                )
+            except (ImportError, RuntimeError, OSError, ValueError, KeyError):
+                self.client_openai = None
+                self.model_name = "local"
+                self.parser_version = "1.0.0-local"
 
     @retry(
         stop=stop_after_attempt(5),
