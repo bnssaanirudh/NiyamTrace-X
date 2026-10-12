@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 import pytest_asyncio
 
-from apps.gateway.pipeline import NiyamPipeline, PipelineRequest
+from apps.gateway.pipeline import NiyamPipeline, PipelineRequest, PipelineResult
 
 # ---------------------------------------------------------------------------
 # Fixtures

@@ -18,7 +18,6 @@ class RateLimiter:
     """
     @classmethod
     def check_global(cls):
-        global _global_requests
         if _global_requests >= MAX_GLOBAL_REQUESTS:
             raise NiyamAPIError(status_code=503, code="SERVER_OVERLOAD", message="Server is overloaded.")
 

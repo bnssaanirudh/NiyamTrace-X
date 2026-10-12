@@ -37,9 +37,11 @@ from pathlib import Path
 from typing import Any
 
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from data.synthetic.erp import SEED_SNAPSHOT_ID
+from packages.auth.models import AuthorizationContext
 from packages.contracts.schema import (
     ActionContract,
     GateDecision,
@@ -49,13 +51,17 @@ from packages.contracts.schema import (
 )
 from packages.evidence.nli import NLIEngine
 from packages.evidence.retriever import EvidenceRetriever
-from packages.auth.models import AuthorizationContext
+from packages.gate.broker import (
+    BrokerVerificationError,
+    ExecutionMediationError,
+    SecurityError,
+    VerifiedExecutionBroker,
+)
 from packages.gate.executor import ERPExecutor
 from packages.gate.gate import NiyamGate
-from packages.gate.broker import VerifiedExecutionBroker, BrokerVerificationError
 from packages.gate.policy import DEFAULT_POLICY, EvidenceVerdict
 from packages.gate.simulator import ShadowSimulator
-from packages.gate.tool_schemas import schema_hash, validate_tool_call
+from packages.gate.tool_schemas import ToolSchemaValidationError, schema_hash, validate_tool_call
 from packages.lake.writer import TraceWriter, make_event
 from packages.nlp.compiler import NiyamCompiler
 from packages.nlp.intake import MultilingualIntake
@@ -102,7 +108,7 @@ class PipelineRequest:
         self.traces_dir = traces_dir
         
         if auth_context is None:
-            from packages.auth.models import Principal, AuthorizationContext
+            from packages.auth.models import AuthorizationContext, Principal
             principal = Principal(
                 subject=actor_id,
                 tenant_id="acme",
@@ -336,7 +342,7 @@ class NiyamPipeline:
             for tc in tool_calls:
                 try:
                     validate_tool_call({"tool_name": tc.tool_name, "arguments": tc.arguments})
-                except Exception as exc:
+                except (ToolSchemaValidationError, ValueError, KeyError, TypeError) as exc:
                     schema_valid = False
                     schema_error = str(exc)
                     break
@@ -513,7 +519,17 @@ class NiyamPipeline:
                 gate_decision.reason_code = "TRANSACTION_ROLLBACK"
                 gate_decision.detail = "State changed during transaction execution."
                 actual_delta = None
-            except Exception as e:
+            except (
+                BrokerVerificationError,
+                ExecutionMediationError,
+                SecurityError,
+                SQLAlchemyError,
+                RuntimeError,
+                ValueError,
+                OSError,
+                KeyError,
+                TypeError,
+            ) as e:
                 logger.error(f"Execution error: {e}")
                 gate_decision = gate_decision or GateDecision(verdict="BLOCK", reason_code="INTERNAL_ERROR", detail=str(e), check_results=[])
                 actual_delta = None

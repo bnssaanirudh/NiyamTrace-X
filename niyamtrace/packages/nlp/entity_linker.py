@@ -6,6 +6,8 @@ Handles entity resolution using RapidFuzz, exact lookups, and aliases.
 
 from __future__ import annotations
 
+from typing import Any, ClassVar
+
 from rapidfuzz import fuzz
 
 from packages.contracts.schema import ActionContract
@@ -13,15 +15,15 @@ from packages.contracts.schema import ActionContract
 
 class MockDatabase:
     """Mock database for entity resolution during Week 4 testing."""
-    VENDORS = [
+    VENDORS: ClassVar[list[dict[str, Any]]] = [
         {"vendor_id": "VEN-004", "name": "Apex Technologies India", "aliases": ["Apex Tech"]},
         {"vendor_id": "VEN-017", "name": "Apex Solutions Pvt Ltd", "aliases": []},
         {"vendor_id": "VEN-100", "name": "Global Corp", "aliases": []}
     ]
 
     
-    SCOPES = {"admin", "read_only", "billing"}
-    USERS = [
+    SCOPES: ClassVar[set[str]] = {"admin", "read_only", "billing"}
+    USERS: ClassVar[list[dict[str, Any]]] = [
         {"user_id": "USR_8A2", "name": "Admin User", "tenant": "T1"}
     ]
 

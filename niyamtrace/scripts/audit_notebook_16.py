@@ -3,12 +3,13 @@ audit_notebook_16.py - Programmatic execution and verification of Notebook 16 ru
 Verifies native security regressions, checks PRODUCTION_FIX_EVIDENCE.json,
 and generates 16_PRODUCTION_SECURITY_GATE.json.
 """
-from pathlib import Path
-import os
-import json
 import hashlib
+import json
+import os
 import subprocess
 import sys
+from pathlib import Path
+
 
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -56,7 +57,14 @@ def run_audit():
 
         env = os.environ.copy()
         env["PYTHONPATH"] = str(package_dir) + os.pathsep + env.get("PYTHONPATH", "")
-        p = subprocess.run([sys.executable, "-m", "pytest", "-q", test], cwd=str(package_dir), env=env, capture_output=True, text=True)
+        p = subprocess.run(
+            [sys.executable, "-m", "pytest", "-q", test],
+            cwd=str(package_dir),
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
         logname = test.replace("/", "_")
         log_file = out_dir / f"16_{logname}.log"
         log_file.write_text(p.stdout + "\nSTDERR:\n" + p.stderr, encoding="utf-8")

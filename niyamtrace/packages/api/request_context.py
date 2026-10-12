@@ -17,10 +17,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             # In a real app we'd validate this against a cache/store.
             request.state.idempotency_key = idempotency_key
 
-        try:
-            response = await call_next(request)
-        except Exception:
-            raise
+        response = await call_next(request)
 
         response.headers["X-Request-ID"] = request_id
         

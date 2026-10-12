@@ -1,17 +1,28 @@
 import hashlib
 import json
 import time
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
-from packages.contracts.schema import EffectCertificate, ToolCall
+
+from packages.auth.models import AuthorizationContext, Principal
+from packages.contracts.schema import EffectCertificate, StateDelta, ToolCall
 from packages.gate.broker import (
-    VerifiedExecutionBroker,
     BrokerVerificationError,
+    VerifiedExecutionBroker,
     sign_certificate_authority,
 )
-from packages.gate.executor import ERPExecutor
-from packages.auth.models import AuthorizationContext, Principal
-from packages.contracts.schema import StateDelta
+
+
+@pytest.fixture
+def mock_session():
+    session = AsyncMock()
+    session.add = Mock()
+    mock_res = Mock()
+    mock_res.scalar_one_or_none.return_value = None
+    session.execute.return_value = mock_res
+    return session
+
 
 @pytest.fixture
 def auth_context():
@@ -53,8 +64,7 @@ def effect_certificate(tool_call):
     return sign_certificate_authority(cert)
 
 @pytest.mark.asyncio
-async def test_broker_valid_execution(auth_context, effect_certificate, tool_call):
-    mock_session = Mock()
+async def test_broker_valid_execution(auth_context, effect_certificate, tool_call, mock_session):
     broker = VerifiedExecutionBroker(mock_session)
     
     # Mock executor to return exactly what's predicted
@@ -69,8 +79,7 @@ async def test_broker_valid_execution(auth_context, effect_certificate, tool_cal
     assert set(actual_delta.affected_record_ids) == {"INV-1", "INV-2"}
 
 @pytest.mark.asyncio
-async def test_broker_rejects_tampered_cert(auth_context, effect_certificate, tool_call):
-    mock_session = Mock()
+async def test_broker_rejects_tampered_cert(auth_context, effect_certificate, tool_call, mock_session):
     broker = VerifiedExecutionBroker(mock_session)
     
     # Tamper the cert without resealing
@@ -80,8 +89,7 @@ async def test_broker_rejects_tampered_cert(auth_context, effect_certificate, to
         await broker.commit(effect_certificate, tool_call, auth_context)
 
 @pytest.mark.asyncio
-async def test_broker_rejects_actor_mismatch(auth_context, effect_certificate, tool_call):
-    mock_session = Mock()
+async def test_broker_rejects_actor_mismatch(auth_context, effect_certificate, tool_call, mock_session):
     broker = VerifiedExecutionBroker(mock_session)
     
     # Create auth context for different user
@@ -97,12 +105,7 @@ async def test_broker_rejects_actor_mismatch(auth_context, effect_certificate, t
         await broker.commit(effect_certificate, tool_call, wrong_auth_context)
 
 @pytest.mark.asyncio
-async def test_broker_rejects_state_mismatch(auth_context, effect_certificate, tool_call):
-    mock_session = Mock()
-    mock_session.rollback = Mock()
-    async def async_noop():
-        pass
-    mock_session.rollback = async_noop
+async def test_broker_rejects_state_mismatch(auth_context, effect_certificate, tool_call, mock_session):
     broker = VerifiedExecutionBroker(mock_session)
     
     # Executor returns different delta
@@ -112,6 +115,8 @@ async def test_broker_rejects_state_mismatch(auth_context, effect_certificate, t
         table="vendor_invoices",
         estimated_row_count=2,
     )
-    with patch.object(broker._executor, "execute", return_value=unexpected_delta):
-        with pytest.raises(BrokerVerificationError, match="State mismatch"):
-            await broker.commit(effect_certificate, tool_call, auth_context)
+    with (
+        patch.object(broker._executor, "execute", return_value=unexpected_delta),
+        pytest.raises(BrokerVerificationError, match="State mismatch"),
+    ):
+        await broker.commit(effect_certificate, tool_call, auth_context)

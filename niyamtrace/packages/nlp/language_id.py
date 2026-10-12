@@ -13,8 +13,11 @@ Supported output languages (IndicLID conventions):
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Regex patterns for protected spans
@@ -68,9 +71,8 @@ class IndicLIDWrapper:
                 logging.getLogger(__name__).info(
                     "IndicLID: real model loaded from %s", resolved_dir
                 )
-            except Exception as exc:
-                import logging
-                logging.getLogger(__name__).warning(
+            except (ImportError, OSError, RuntimeError, ValueError) as exc:
+                logger.warning(
                     "IndicLID: could not load real model (%s). "
                     "Using heuristic fallback.", exc
                 )
@@ -99,8 +101,8 @@ class IndicLIDWrapper:
                 lang_tag, conf = result[0] if isinstance(result[0], (list, tuple)) else result
                 script = "telugu" if "Telu" in str(lang_tag) else "latin"
                 return str(lang_tag), script, float(conf)
-        except Exception:
-            pass
+        except (RuntimeError, ValueError, TypeError, IndexError, KeyError, AttributeError) as exc:
+            logger.debug("IndicLID prediction failed, falling back to heuristic: %s", exc)
         return self._predict_heuristic(text)
 
     def _predict_heuristic(self, text: str) -> tuple[str, str, float]:

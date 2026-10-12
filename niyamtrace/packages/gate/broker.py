@@ -13,12 +13,15 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import os
-import secrets
 import time
 from typing import TYPE_CHECKING, Any
 
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from packages.contracts.schema import EffectCertificate, StateDelta, ToolCall
 from packages.gate.policy import DEFAULT_POLICY
@@ -30,17 +33,14 @@ if TYPE_CHECKING:
 
 class ExecutionMediationError(Exception):
     """Base error for execution mediation and authorization failures."""
-    pass
 
 
 class SecurityError(ExecutionMediationError):
     """Raised when security boundaries or protected deployment secrets fail validation."""
-    pass
 
 
 class BrokerVerificationError(ExecutionMediationError):
     """Raised when broker verification fails before or during transaction."""
-    pass
 
 
 # ---------------------------------------------------------------------------
@@ -84,8 +84,8 @@ def get_trust_root() -> bytes:
                 content = f.read().strip()
                 if content:
                     return content
-        except Exception:
-            pass
+        except OSError as exc:
+            logger.debug("Failed reading secret file %s: %s", secret_file, exc)
 
     secret = os.environ.get("NIYAMTRACE_GATE_SECRET")
 
@@ -291,8 +291,8 @@ class VerifiedExecutionBroker:
         self,
         cert: EffectCertificate,
         tool_call: ToolCall,
-        auth_context: "AuthorizationContext",
-        policy: "PolicyCompiler | None" = None,
+        auth_context: AuthorizationContext,
+        policy: PolicyCompiler | None = None,
         current_snapshot_id: str | None = None,
     ) -> StateDelta:
         """
@@ -321,8 +321,9 @@ class VerifiedExecutionBroker:
             raise BrokerVerificationError("EffectCertificate expired.")
 
         # 4. Atomic persistent capability replay check
-        from packages.storage.models import ConsumedCapability
         from sqlalchemy import select
+
+        from packages.storage.models import ConsumedCapability
 
         try:
             stmt = select(ConsumedCapability).where(ConsumedCapability.nonce == cert.nonce)
@@ -333,9 +334,10 @@ class VerifiedExecutionBroker:
                 )
         except BrokerVerificationError:
             raise
-        except Exception:
-            # Fallback for non-ORM or mock sessions
-            pass
+        except Exception as exc:
+            raise BrokerVerificationError(
+                f"Persistent capability lookup failed: {exc}. Failing closed to prevent replay."
+            ) from exc
 
         # 4b. In-memory replay check (single-use nonce fallback/cache)
         if is_nonce_used(cert.nonce):
@@ -416,8 +418,14 @@ class VerifiedExecutionBroker:
                 )
                 self._session.add(consumed_rec)
                 await self._session.flush()
-            except Exception:
-                pass
+            except Exception as exc:
+                try:
+                    await self._session.rollback()
+                except (SQLAlchemyError, OSError, RuntimeError) as roll_exc:
+                    logger.debug("Rollback during capability insertion failed: %s", roll_exc)
+                raise BrokerVerificationError(
+                    f"Persistent capability consumption failed: {exc}. Failing closed and rolling back."
+                ) from exc
 
             # Mark in-memory cache as well
             mark_nonce_used(cert.nonce)
@@ -426,6 +434,6 @@ class VerifiedExecutionBroker:
         except Exception:
             try:
                 await self._session.rollback()
-            except Exception:
-                pass
+            except (SQLAlchemyError, OSError, RuntimeError) as roll_exc:
+                logger.debug("Rollback during execution containment error failed: %s", roll_exc)
             raise

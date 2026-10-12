@@ -30,6 +30,7 @@ Status:
 from __future__ import annotations
 
 import datetime as dt
+import os
 import re
 from typing import TYPE_CHECKING, Literal
 
@@ -41,7 +42,6 @@ from packages.contracts.schema import (
 )
 from packages.policy.compiler import PolicyCompiler
 from packages.policy.loader import PolicyLoader
-import os
 
 if TYPE_CHECKING:
     from packages.auth.models import AuthorizationContext
@@ -88,7 +88,7 @@ TOOL_CONTRACT_SLOT: dict[str, str] = {
 
 def check_actor_role_authorization(
     tool_call: ToolCall,
-    auth_context: "AuthorizationContext | None",
+    auth_context: AuthorizationContext | None,
     actor_role: str,
     policy: PolicyCompiler = DEFAULT_POLICY,
 ) -> GateCheckResult:
@@ -148,7 +148,7 @@ def check_actor_role_authorization(
 
 def check_scope_authorization(
     tool_call: ToolCall,
-    auth_context: "AuthorizationContext | None",
+    auth_context: AuthorizationContext | None,
     policy: PolicyCompiler = DEFAULT_POLICY,
 ) -> GateCheckResult:
     """
@@ -219,7 +219,7 @@ def check_scope_authorization(
 def check_tenant_isolation(
     contract: ActionContract,
     tool_call: ToolCall,
-    auth_context: "AuthorizationContext | None",
+    auth_context: AuthorizationContext | None,
     policy: PolicyCompiler = DEFAULT_POLICY,
 ) -> GateCheckResult:
     """
@@ -250,7 +250,7 @@ def check_tenant_isolation(
     if resource_tenant is None:
         try:
             resource_tenant = policy.loader.bundle.tenant
-        except Exception:
+        except AttributeError:
             resource_tenant = None
 
     if resource_tenant is None:

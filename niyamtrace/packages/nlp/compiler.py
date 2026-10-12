@@ -12,10 +12,13 @@ Upgrades (#22, #23):
 
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 from packages.config import get_settings
 from packages.contracts.schema import ActionContract
@@ -196,7 +199,7 @@ class NiyamCompiler:
                     if m_v:
                         candidate.slots.VENDOR_ID = int(m_v.group(1))
             return candidate
-        except Exception:
+        except (RuntimeError, ValueError, TypeError, KeyError, AttributeError):
             return self._extract_candidate_offline(normalized_text, reference_dt)
 
     def _type_check(self, candidate: CandidateIntent) -> tuple[bool, str | None, str | None]:
@@ -328,8 +331,8 @@ class NiyamCompiler:
                         ok, err_stage, err_detail = True, None, None
                     else:
                         err_stage, err_detail = err_stage2, err_detail2
-                except Exception:
-                    pass  # repair failed, fall through to original error
+                except (RuntimeError, ValueError, TypeError, KeyError, AttributeError) as rep_err:
+                    logger.debug("Candidate repair attempt failed: %s", rep_err)
 
             if not ok:
                 return CompilerResult(
@@ -381,7 +384,7 @@ class NiyamCompiler:
                 extraction_confidence=candidate.confidence,
             )
 
-        except Exception as e:
+        except (RuntimeError, ValueError, TypeError, KeyError, AttributeError, OSError) as e:
             return CompilerResult(
                 contract=None,
                 error_stage="LLMExtractor",

@@ -37,8 +37,10 @@ class PolicyLoader:
             self._hash = hashlib.sha256(normalized_json.encode()).hexdigest()[:16]
             
             return self._bundle
-        except Exception as e:
-            raise PolicyLoadError(f"Failed to load policy: {e!s}")
+        except PolicyLoadError:
+            raise
+        except (yaml.YAMLError, ValueError, TypeError, KeyError, OSError, RuntimeError) as e:
+            raise PolicyLoadError(f"Failed to load policy: {e!s}") from e
 
     @property
     def bundle(self) -> PolicyBundle:

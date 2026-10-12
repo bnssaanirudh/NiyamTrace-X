@@ -3,11 +3,11 @@ Prompt 18: BFCL Compatibility
 This script attempts to run BFCL evaluation for tool calling compatibility.
 """
 
-import os
-import sys
-import json
 import csv
+import json
+import sys
 from pathlib import Path
+
 
 def main():
     print("Initializing NiyamTrace-X BFCL integration...")
@@ -25,9 +25,9 @@ def main():
     with open(results_dir / "provenance.json", "w") as f:
         json.dump(provenance, f, indent=2)
         
-    try:
-        import bfcl
-    except ImportError:
+    import importlib.util
+
+    if importlib.util.find_spec("bfcl") is None:
         print("[ERROR] bfcl is not installed in this environment. Recording infrastructure failure.")
         
         # Write summary.csv

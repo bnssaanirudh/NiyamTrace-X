@@ -1,8 +1,9 @@
-from pathlib import Path
-import json
 import hashlib
-import pandas as pd
+import json
+from pathlib import Path
+
 import numpy as np
+import pandas as pd
 from scipy.stats import binomtest
 from statsmodels.stats.proportion import proportion_confint
 
@@ -33,12 +34,19 @@ df["unauthorized_effects"] = pd.to_numeric(df["unauthorized_effects"], errors="r
 rows = []
 for (model, variant), g in df.groupby(["direction", "variant"]):
     a = g[g.expected == "ALLOW"]
-    rows.append(dict(
-        direction=model, variant=variant, n=len(g), correct=int(g.correct.sum()), accuracy=float(g.correct.mean()),
-        allow_n=len(a), safe_completion_count=int(a.safe_completion.sum()), safe_completion_rate=float(a.safe_completion.mean()) if len(a) else None,
-        unsafe_n=int(g.unsafe_case.sum()), unauthorized_rows=int(g.unauthorized_effects.sum()),
-        unsafe_upper_95=float(proportion_confint(int(g.unsafe_case.sum()), len(g), alpha=0.05, method="beta")[1])
-    ))
+    rows.append({
+        "direction": model,
+        "variant": variant,
+        "n": len(g),
+        "correct": int(g.correct.sum()),
+        "accuracy": float(g.correct.mean()),
+        "allow_n": len(a),
+        "safe_completion_count": int(a.safe_completion.sum()),
+        "safe_completion_rate": float(a.safe_completion.mean()) if len(a) else None,
+        "unsafe_n": int(g.unsafe_case.sum()),
+        "unauthorized_rows": int(g.unauthorized_effects.sum()),
+        "unsafe_upper_95": float(proportion_confint(int(g.unsafe_case.sum()), len(g), alpha=0.05, method="beta")[1]),
+    })
 summary = pd.DataFrame(rows).sort_values(["direction", "variant"])
 summary.to_csv(OUT / "15_full_cohort_summary.csv", index=False)
 print("Cohort summary saved.")
@@ -55,10 +63,17 @@ for direction in sorted(df.direction.unique()):
     b = int((a.correct & ~f.correct).sum())
     c = int((~a.correct & f.correct).sum())
     mc = binomtest(min(b, c), n=b + c, p=0.5, alternative="two-sided").pvalue if b + c else 1.0
-    paired.append(dict(
-        direction=direction, n=len(a), divergent_decisions=int(diff.sum()), anchor_only_correct=b, full_only_correct=c, exact_mcnemar_p=mc,
-        anchor_accuracy=float(a.correct.mean()), full_accuracy=float(f.correct.mean()), delta_full_minus_anchor=float(f.correct.mean() - a.correct.mean())
-    ))
+    paired.append({
+        "direction": direction,
+        "n": len(a),
+        "divergent_decisions": int(diff.sum()),
+        "anchor_only_correct": b,
+        "full_only_correct": c,
+        "exact_mcnemar_p": mc,
+        "anchor_accuracy": float(a.correct.mean()),
+        "full_accuracy": float(f.correct.mean()),
+        "delta_full_minus_anchor": float(f.correct.mean() - a.correct.mean()),
+    })
     comp = pd.DataFrame({
         "id": a.index, "group": a.group.values, "language": a.language.values, "kind": a.kind.values, "expected": a.expected.values,
         "anchor": a.decision.values, "full": f.decision.values, "anchor_correct": a.correct.values, "full_correct": f.correct.values,

@@ -3,11 +3,11 @@ Prompt 15 & 16: Direct τ³ Integration
 This script attempts to run the NiyamTrace-X guarded agent against the tau-bench environment.
 """
 
-import os
-import sys
-import json
 import csv
+import json
+import sys
 from pathlib import Path
+
 
 def main():
     print("Initializing NiyamTrace-X tau3 (tau-bench) integration...")
@@ -25,9 +25,9 @@ def main():
     with open(results_dir / "provenance.json", "w") as f:
         json.dump(provenance, f, indent=2)
         
-    try:
-        import tau_bench
-    except ImportError:
+    import importlib.util
+
+    if importlib.util.find_spec("tau_bench") is None:
         print("[ERROR] tau-bench is not installed in this environment. Recording infrastructure failure.")
         
         # Write summary.csv

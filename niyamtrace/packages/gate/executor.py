@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from packages.contracts.schema import EffectCertificate, StateDelta, ToolCall
-from packages.gate.broker import ExecutionMediationError, verify_certificate_authority
+from packages.gate.broker import ExecutionMediationError
 from packages.tools.registry import get_tool_implementation
 
 if TYPE_CHECKING:

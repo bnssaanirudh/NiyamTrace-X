@@ -23,7 +23,7 @@ from pathlib import Path
 import pytest
 import pytest_asyncio
 
-from apps.gateway.pipeline import NiyamPipeline, PipelineRequest
+from apps.gateway.pipeline import NiyamPipeline, PipelineRequest, PipelineResult
 from data.synthetic.erp import seed_fresh_async
 from packages.fuzz.comparator import TraceComparator
 from packages.fuzz.equivalence import SemanticPreservationChecker

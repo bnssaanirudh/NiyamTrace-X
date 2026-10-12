@@ -25,9 +25,12 @@ Status: IMPLEMENTED (Phase 2.2)
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -187,7 +190,8 @@ class TemporalDeicticsResolver:
                         expression_matched=match.group(0),
                         lang=lang,
                     )
-                except Exception:
+                except (ValueError, TypeError, IndexError, KeyError) as exc:
+                    logger.debug("Temporal resolution failed for match: %s", exc)
                     continue
         return None
 
@@ -209,7 +213,8 @@ class TemporalDeicticsResolver:
                         expression_matched=match.group(0),
                         lang=lang,
                     ))
-                except Exception:
+                except (ValueError, TypeError, IndexError, KeyError) as exc:
+                    logger.debug("Temporal resolution failed for match in resolve_all: %s", exc)
                     continue
         # Sort by position in text (approximate via expression_matched occurrence)
         return results

@@ -113,10 +113,12 @@ class TestShadowSimulator:
 
 
 def _make_auth(tool_call, actor="user-pm-001"):
-    import hashlib, json
+    import hashlib
+    import json
+
+    from packages.auth.models import AuthorizationContext, Principal
     from packages.contracts.schema import EffectCertificate
     from packages.gate.broker import sign_certificate_authority
-    from packages.auth.models import Principal, AuthorizationContext
     p = Principal(subject=actor, tenant_id="acme", roles=frozenset(["procurement_manager"]), scopes=frozenset(["all"]))
     ctx = AuthorizationContext.from_principal(p)
     cert = EffectCertificate(

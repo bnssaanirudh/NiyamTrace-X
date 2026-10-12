@@ -84,10 +84,8 @@ class ACLFilter:
 
             # Deny if actor role has no known sensitivity floor
             actor_floor = _ROLE_SENSITIVITY_FLOOR.get(actor_role_lower)
-            if actor_floor is None:
-                # Unknown role — deny all non-public
-                if sensitivity != "public":
-                    continue
+            if actor_floor is None and sensitivity != "public":
+                continue
 
             doc_rank = _SENSITIVITY_RANK.get(sensitivity, 99)
 

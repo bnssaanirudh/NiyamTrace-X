@@ -47,9 +47,11 @@ async def test_all_tools_have_simulation_and_execution_parity(fresh_engine):
             pred_delta = await impl.simulate(session, args)
 
             # Execute the tool with valid server authorization capability
+            import hashlib
+            import json
+
             from packages.contracts.schema import EffectCertificate
             from packages.gate.broker import sign_certificate_authority
-            import hashlib, json
             auth = EffectCertificate(
                 trace_id="test-parity",
                 actor="test-actor",

@@ -3,9 +3,9 @@ Prompt 22: Statistical Analysis Package
 Generates final statistics from frozen reports.
 """
 
-import os
 import json
 from pathlib import Path
+
 
 def main():
     print("Running final statistical analysis...")

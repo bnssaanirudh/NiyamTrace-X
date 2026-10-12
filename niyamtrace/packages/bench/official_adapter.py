@@ -8,33 +8,25 @@ Complies with Prompt D and Notebook 18 official verification rules.
 
 from __future__ import annotations
 
-import csv
-import hashlib
 import json
-import os
 import subprocess
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import pandas as pd
 
 from packages.contracts.schema import (
     ActionContract,
-    EffectCertificate,
-    RecordDelta,
     StateDelta,
     ToolCall,
 )
 from packages.gate.broker import (
-    BrokerVerificationError,
     ExecutionMediationError,
-    VerifiedExecutionBroker,
 )
 from packages.gate.gate import NiyamGate
 from packages.gate.policy import DEFAULT_POLICY
-from packages.tools.registry import get_tool_implementation
-
 
 REQUIRED_OFFICIAL_COLUMNS = [
     "official_suite",
@@ -104,56 +96,18 @@ class OfficialBenchmarkGateInterceptor:
             "subject": getattr(auth_context, "subject", "unknown"),
         })
 
-        # Synthesize semantic ActionContract if not supplied
+        # Ensure independently established contracts and state deltas are strictly required.
+        # Never authorize native execution based only on a contract synthesized from untrusted tool arguments.
         if contract is None:
-            slots: dict[str, Any] = {}
-            if "vendor_id" in arguments:
-                slots["VENDOR_ID"] = arguments["vendor_id"]
-            if "month" in arguments:
-                slots["MONTH"] = arguments["month"]
-            if "year" in arguments:
-                slots["YEAR"] = arguments["year"]
-            if "user_id" in arguments:
-                slots["USER_ID"] = arguments["user_id"]
-
-            contract = ActionContract(
-                actor_id=getattr(auth_context, "subject", "benchmark-agent"),
-                actor_role=actor_role,
-                intent=action or ("invoice.archive" if tool_name == "archive_invoices" else f"{tool_name}.execute"),
-                intent_confidence=1.0,
-                slots=slots,
-                raw_text=f"Benchmark tool invocation for {tool_name}",
-                normalized_text=f"Benchmark tool invocation for {tool_name}",
+            raise ExecutionMediationError(
+                "OfficialBenchmarkGateInterceptor: independently established ActionContract is required. "
+                "Authorizing execution with contracts synthesized from untrusted tool arguments is strictly prohibited."
             )
 
         if predicted_delta is None:
-            pred_records: list[str] = []
-            if "vendor_id" in arguments:
-                pred_records = [f"INV-{arguments['vendor_id']}-001"]
-            elif "user_id" in arguments:
-                pred_records = [str(arguments["user_id"])]
-            else:
-                pred_records = ["REC-BENCH-001"]
-
-            tbl = "vendor_invoices" if tool_name == "archive_invoices" else "benchmark_table"
-            field_name = "status" if tool_name == "archive_invoices" else "modified"
-            new_val = "ARCHIVED" if tool_name == "archive_invoices" else True
-            deltas = [
-                RecordDelta(
-                    record_id=rid,
-                    table=tbl,
-                    field=field_name,
-                    old_value="OPEN" if tool_name == "archive_invoices" else False,
-                    new_value=new_val,
-                )
-                for rid in pred_records
-            ]
-
-            predicted_delta = StateDelta(
-                affected_record_ids=pred_records,
-                record_deltas=deltas,
-                table=tbl,
-                estimated_row_count=len(pred_records),
+            raise ExecutionMediationError(
+                "OfficialBenchmarkGateInterceptor: independently established StateDelta is required. "
+                "Authorizing execution with state deltas synthesized from untrusted tool arguments is strictly prohibited."
             )
 
         # Mandatory authorization gate evaluation
@@ -178,7 +132,7 @@ def get_current_commit() -> str:
         out = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip().lower()
         if len(out) == 40:
             return out
-    except Exception:
+    except (subprocess.SubprocessError, OSError):
         pass
     return "0" * 40
 

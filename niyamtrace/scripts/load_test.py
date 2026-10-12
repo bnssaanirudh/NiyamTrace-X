@@ -52,7 +52,7 @@ async def send_request(client: httpx.AsyncClient, i: int) -> dict[str, Any]:
             "ok": response.is_success,
             "error": None
         }
-    except Exception as e:
+    except (httpx.HTTPError, OSError, TimeoutError) as e:
         return {
             "status": 0,
             "latency": 0.0,

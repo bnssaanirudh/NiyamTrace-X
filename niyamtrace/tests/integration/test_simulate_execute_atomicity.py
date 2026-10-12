@@ -10,6 +10,7 @@ Verifies that:
 import hashlib
 import json
 import sqlite3
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,7 +25,6 @@ from packages.gate.broker import (
 from packages.gate.policy import DEFAULT_POLICY
 from packages.gate.simulator import ShadowSimulator
 from packages.storage.postgres import get_async_engine
-from packages.tools.archive_invoices import ArchiveInvoicesTool
 
 
 def compute_table_hash(conn: sqlite3.Connection, table: str = "vendor_invoices") -> str:

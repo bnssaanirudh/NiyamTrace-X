@@ -141,8 +141,8 @@ class SlotParser:
                     temperature=0.0
                 )
                 parsed = completion.choices[0].message.parsed
-        except Exception as e:
-            raise RuntimeError(f"Failed to generate content from {self.backend} API: {e}")
+        except (RuntimeError, ValueError, KeyError, TypeError, OSError) as e:
+            raise RuntimeError(f"Failed to generate content from {self.backend} API: {e}") from e
             
         if parsed is None:
             raise RuntimeError("API returned empty parsed response")

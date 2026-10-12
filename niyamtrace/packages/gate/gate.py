@@ -72,7 +72,7 @@ class NiyamGate:
         predicted_delta: StateDelta,
         tool_call: ToolCall,
         evidence_verdict: EvidenceVerdict = "SUPPORT",
-        auth_context: "AuthorizationContext | None" = None,
+        auth_context: AuthorizationContext | None = None,
     ) -> GateDecision:
         """
         Run all gate checks and return a GateDecision.
@@ -150,10 +150,13 @@ class NiyamGate:
         failed = [r for r in results if not r.passed]
 
         if not failed:
+            import hashlib
+            import json
+            import uuid
+
+            from data.synthetic.erp import SEED_SNAPSHOT_ID
             from packages.contracts.schema import EffectCertificate
             from packages.gate.broker import sign_certificate_authority
-            from data.synthetic.erp import SEED_SNAPSHOT_ID
-            import hashlib, json, uuid  # noqa: E401
 
             # Build a real certificate with actual provenance values
             policy_hash = self._policy.policy_hash

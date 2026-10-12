@@ -55,15 +55,18 @@ class ArchiveInvoicesTool(ToolImplementation):
         }
 
     def validate_arguments(self, arguments: dict[str, Any]) -> None:
-        if "vendor_id" in arguments:
-            if not isinstance(arguments["vendor_id"], int) or arguments["vendor_id"] < 1:
-                raise ToolSchemaValidationError("INVALID_ARG:vendor_id:must_be_positive_int")
-        if "month" in arguments:
-            if not isinstance(arguments["month"], int) or not (1 <= arguments["month"] <= 12):
-                raise ToolSchemaValidationError("INVALID_ARG:month:must_be_1_to_12")
-        if "year" in arguments:
-            if not isinstance(arguments["year"], int) or not (2000 <= arguments["year"] <= 2099):
-                raise ToolSchemaValidationError("INVALID_ARG:year:must_be_2000_to_2099")
+        if "vendor_id" in arguments and (
+            not isinstance(arguments["vendor_id"], int) or arguments["vendor_id"] < 1
+        ):
+            raise ToolSchemaValidationError("INVALID_ARG:vendor_id:must_be_positive_int")
+        if "month" in arguments and (
+            not isinstance(arguments["month"], int) or not (1 <= arguments["month"] <= 12)
+        ):
+            raise ToolSchemaValidationError("INVALID_ARG:month:must_be_1_to_12")
+        if "year" in arguments and (
+            not isinstance(arguments["year"], int) or not (2000 <= arguments["year"] <= 2099)
+        ):
+            raise ToolSchemaValidationError("INVALID_ARG:year:must_be_2000_to_2099")
 
     async def simulate(self, session: AsyncSession, arguments: dict[str, Any]) -> StateDelta:
         vendor_id: int = arguments.get("vendor_id")
