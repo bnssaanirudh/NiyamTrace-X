@@ -22,21 +22,27 @@
 
 ## Post-Patch Engineering Verification Status (Branch `paper-closure/native-security-and-benchmarks`)
 
-- **Prompt A & B (Native Security & CI):** Completed and verified.
+- **Current Git Commit:** `a8f94c869636cd399a26c4b52eddb6b15d555915`
+- **Ruff Linter Cleanliness:** All 150 Ruff findings resolved without disabling any security-relevant lint rules (`B`, `BLE`, `S`, `SIM`, `RUF`, `UP`, `ASYNC`). 0 errors across entire package.
+- **Prompt A & B (Native Security & CI):** Completed, audited, and verified.
   - Removed hardcoded production HMAC fallback; strictly required protected deployment secret (`NIYAMTRACE_GATE_SECRET` or secret file), raising `SecurityError` if missing or default.
   - Bound every executor (`ERPExecutor`) and tool invocation (`ToolImplementation.execute()`) to signed arguments, policy, tenant, action, snapshot, and expiration via `verify_tool_authorization_binding`.
   - Replaced process-local nonce tracking with atomic, persistent single-use capability consumption (`ConsumedCapability` table in SQLite/Postgres DB) atomically recorded within the write transaction.
+  - **Fail-Closed Audit on Nonce Consumption:** Any lookup, insertion, flush, or transaction failure strictly raises `BrokerVerificationError` and fails closed to prevent replay. Swallowed exceptions removed.
+  - Added concurrent replay (`test_persistent_nonce_concurrent_replay`), restart replay (`test_persistent_nonce_restart_replay`), rollback atomicity (`test_persistent_nonce_rollback_atomicity`), and database failure (`test_persistent_nonce_db_failure_fails_closed`) regression tests.
   - Closed direct executor and tool registry bypass vectors.
   - Ambiguous / missing calendar years strictly blocked with `CLARIFY` / `TEMPORAL_AMBIGUOUS_UNANCHORED`.
-  - 19 real SQLite regression probes in `tests/security/test_native_mediation_regressions.py` PASS with zero unexpected row mutations.
-  - Full test suite passes: 484 passed, 1 skipped.
-  - Exported structured evidence to `niyamtrace/artifacts/PRODUCTION_FIX_EVIDENCE.json` with trace SHA-256 and DB pre/post SHA-256 hashes.
+  - 25 real SQLite regression probes in `tests/security/test_native_mediation_regressions.py` and 4 in `tests/security/test_e2e_broker.py` PASS with zero unexpected row mutations.
+  - Complete test suite passes: 476 passed, 1 skipped (152 unit, 45 security, 279 integration/regression/replay).
+  - Exported structured evidence to `niyamtrace/artifacts/PRODUCTION_FIX_EVIDENCE.json` with trace SHA-256 and DB pre/post SHA-256 hashes pinned to commit `a8f94c869636cd399a26c4b52eddb6b15d555915`.
   - Notebook 16 audit (`audit_notebook_16.py`) passes with `status: CANDIDATE_REVIEW`, `mandatory_native_probe_status: CANDIDATE_PASS_REQUIRES_INDEPENDENT_REVIEW`, and 0 issues.
-- **Prompt C (Granite 48 Failure Investigation):** Completed and verified.
+- **Prompt C (Granite 48 Failure Investigation):** Completed and verified. Historical negative research results strictly preserved.
   - Script `niyamtrace/scripts/audit_notebook_15.py` executed against SHA-256 verified `paired_variant_cases.csv`.
   - Confirmed 48 Granite regressions (ALLOW -> CLARIFY due to missing candidate ambiguity), exact McNemar p = 7.11e-15, and 1,000-iteration cluster bootstrap intervals.
   - Exported to `outputs/` (`15_full_cohort_summary.csv`, `15_paired_significance.csv`, `15_regression_case_ids.csv`, `15_cluster_bootstrap.csv`, `15_AUDIT_MANIFEST.json`).
-- **Prompt D (Official Benchmark Interceptor):** Completed and hardened.
+- **Prompt D (Official Benchmark Interceptor):** Audited and hardened.
   - Implemented `niyamtrace/packages/bench/official_adapter.py` providing `OfficialBenchmarkGateInterceptor`.
   - Interceptor routes all tool calls through `NiyamGate.evaluate()`; rejects unauthorized/unanchored mutations before native executor can be invoked.
-  - Accurately logged `status: BLOCKED` in `outputs/18_OFFICIAL_GATE_REPORT.json` due to uninstalled external packages (`agentdojo`/`tau_bench`) without fabricating numbers.
+  - **Contract & Delta Requirements:** Strictly requires independently established `ActionContract` and `StateDelta`; never synthesizes contracts from untrusted tool arguments. Rejects missing contracts or predicted deltas with `ExecutionMediationError`.
+  - Added regression tests verifying missing contract rejection, missing predicted delta rejection, unauthorized blocking, and authorized execution.
+  - Accurately logged `status: BLOCKED` in `outputs/18_OFFICIAL_GATE_REPORT.json` due to uninstalled external packages (`agentdojo`/`tau_bench`) without fabricating numbers, pinned to commit `a8f94c869636cd399a26c4b52eddb6b15d555915`.
