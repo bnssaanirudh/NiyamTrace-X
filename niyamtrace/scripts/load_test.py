@@ -1,4 +1,3 @@
-#!/usr/8/env python
 """
 scripts/load_test.py — API Load Tester
 
