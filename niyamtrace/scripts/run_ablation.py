@@ -45,7 +45,7 @@ def run_scenario_ablated(scenario: dict, mode: str) -> tuple[str, float]:
 
     try:
         candidate = compiler._extract_candidate(intake_result.normalized_text)
-    except Exception:
+    except (RuntimeError, ValueError, TypeError, KeyError, AttributeError):
         return "BLOCK", (time.perf_counter() - t0) * 1000
 
     if mode == "only_llm":

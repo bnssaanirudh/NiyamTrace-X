@@ -27,7 +27,7 @@ from apps.gateway.pipeline import NiyamPipeline, PipelineRequest
 from packages.lake.writer import read_trace
 
 # Four language forms of the canonical scenario
-CANONICAL_EN = "Archive March invoices for vendor 4421"
+CANONICAL_EN = "Archive March 2025 invoices for vendor 4421"
 CANONICAL_HI_ROM = "Vendor 4421 ke March invoices archive karo"
 # Fully Telugu-script version (Telugu words for domain nouns + digits)
 CANONICAL_TE = "వెండర్ 4421 మార్చి ఇన్వాయిస్లు ఆర్కైవ్ చేయండి"  # fully Telugu

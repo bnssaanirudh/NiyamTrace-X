@@ -1,9 +1,10 @@
-import pytest
 from unittest.mock import patch
-from datetime import datetime, UTC
+
+import pytest
 
 from apps.gateway.pipeline import run_pipeline
 from packages.nlp.compiler import CandidateIntent, CandidateSlots
+
 
 @pytest.mark.asyncio
 async def test_multi_tool_failure_rollback():

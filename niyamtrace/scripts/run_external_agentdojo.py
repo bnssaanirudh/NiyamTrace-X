@@ -3,11 +3,11 @@ Prompt 17: Direct AgentDojo Integration
 This script attempts to run the NiyamTrace-X guarded agent against the AgentDojo environment.
 """
 
-import os
-import sys
-import json
 import csv
+import json
+import sys
 from pathlib import Path
+
 
 def main():
     print("Initializing NiyamTrace-X AgentDojo integration...")
@@ -25,9 +25,9 @@ def main():
     with open(results_dir / "provenance.json", "w") as f:
         json.dump(provenance, f, indent=2)
         
-    try:
-        import agentdojo
-    except ImportError:
+    import importlib.util
+
+    if importlib.util.find_spec("agentdojo") is None:
         print("[ERROR] agentdojo is not installed in this environment. Recording infrastructure failure.")
         
         # Write summary.csv

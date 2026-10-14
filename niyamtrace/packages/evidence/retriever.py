@@ -17,6 +17,7 @@ Status: IMPLEMENTED (Week 5)
 from __future__ import annotations
 
 import json
+import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -25,6 +26,8 @@ from typing import Any
 from rapidfuzz import fuzz
 
 from packages.evidence.acl import ACLFilter
+
+logger = logging.getLogger(__name__)
 
 # Default path to policy document corpus
 _DEFAULT_CORPUS = (
@@ -139,7 +142,8 @@ class EvidenceRetriever:
                 indexed_dt = datetime.datetime.fromisoformat(doc["timestamp_indexed"])
                 if (now - indexed_dt).days > 30:
                     continue
-            except Exception:
+            except (ValueError, TypeError, KeyError) as exc:
+                logger.debug("Failed to parse document timestamp %s: %s", doc.get("timestamp_indexed"), exc)
                 continue
                 
             if doc.get("revoked", False):

@@ -47,10 +47,16 @@ class ToolImplementation(ABC):
         """
 
     @abstractmethod
-    async def execute(self, session: AsyncSession, arguments: dict[str, Any]) -> StateDelta:
+    async def execute(
+        self,
+        session: AsyncSession,
+        arguments: dict[str, Any],
+        authorization: Any | None = None,
+    ) -> StateDelta:
         """
         Execute the tool's mutation on the ERP state and return the actual StateDelta.
-        This is only called by the ERPExecutor if the gate returned ALLOW.
+        This is only called by ERPExecutor with a valid server authorization.
+        Direct execution without server authorization raises ExecutionMediationError.
         """
 
     def validate_arguments(self, arguments: dict[str, Any]) -> None:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
@@ -22,16 +22,19 @@ from packages.contracts.schema import (
 
 class TestTemporalRange:
     def test_valid_with_both_bounds(self):
-        tr = TemporalRange(start=datetime(2025, 3, 1), end=datetime(2025, 3, 31))
+        tr = TemporalRange(
+            start=datetime(2025, 3, 1, tzinfo=UTC),
+            end=datetime(2025, 3, 31, tzinfo=UTC),
+        )
         assert tr.start is not None
         assert tr.end is not None
 
     def test_valid_with_start_only(self):
-        tr = TemporalRange(start=datetime(2025, 3, 1))
+        tr = TemporalRange(start=datetime(2025, 3, 1, tzinfo=UTC))
         assert tr.end is None
 
     def test_valid_with_end_only(self):
-        tr = TemporalRange(end=datetime(2025, 3, 31))
+        tr = TemporalRange(end=datetime(2025, 3, 31, tzinfo=UTC))
         assert tr.start is None
 
     def test_invalid_no_bounds(self):

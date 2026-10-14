@@ -150,8 +150,12 @@ async def invoke(
     try:
         result = await _pipeline.run(pipeline_req)
         request.state.trace_id = result.trace_id
-    except Exception:
-        raise NiyamAPIError(status_code=500, code="PIPELINE_ERROR", message="An error occurred during pipeline execution.")
+    except (RuntimeError, ValueError, OSError, KeyError, TypeError) as exc:
+        raise NiyamAPIError(
+            status_code=500,
+            code="PIPELINE_ERROR",
+            message=f"An error occurred during pipeline execution: {exc}",
+        ) from exc
 
     fidelity: float | None = None
     if result.actual_delta is not None:
@@ -181,8 +185,11 @@ async def invoke(
     )
 
 
+_require_admin = require_role("admin")
+
+
 @app.post("/admin/reset-erp")
-async def reset_erp(principal: Principal = Depends(require_role("admin"))) -> dict[str, str]:
+async def reset_erp(principal: Principal = Depends(_require_admin)) -> dict[str, str]:
     """Reset ERP to seed state (for testing/demo — requires admin role)."""
     if _engine is None:
         raise HTTPException(status_code=503, detail="ERP not initialized.")
@@ -195,7 +202,7 @@ async def reset_erp(principal: Principal = Depends(require_role("admin"))) -> di
 # ---------------------------------------------------------------------------
 
 @app.get("/admin/approvals")
-async def list_approvals(principal: Principal = Depends(require_role("admin"))) -> list[dict]:
+async def list_approvals(principal: Principal = Depends(_require_admin)) -> list[dict]:
     """List pending approvals."""
     if _engine is None:
         raise HTTPException(status_code=503, detail="ERP not initialized.")
@@ -215,7 +222,7 @@ async def list_approvals(principal: Principal = Depends(require_role("admin"))) 
 
 
 @app.post("/admin/approvals/{approval_id}/approve")
-async def approve_escalation(approval_id: str, principal: Principal = Depends(require_role("admin"))) -> dict[str, str]:
+async def approve_escalation(approval_id: str, principal: Principal = Depends(_require_admin)) -> dict[str, str]:
     """Approve a pending request."""
     if _engine is None:
         raise HTTPException(status_code=503, detail="ERP not initialized.")
@@ -244,7 +251,7 @@ async def approve_escalation(approval_id: str, principal: Principal = Depends(re
 
 
 @app.post("/admin/approvals/{approval_id}/reject")
-async def reject_escalation(approval_id: str, principal: Principal = Depends(require_role("admin"))) -> dict[str, str]:
+async def reject_escalation(approval_id: str, principal: Principal = Depends(_require_admin)) -> dict[str, str]:
     """Reject a pending request."""
     if _engine is None:
         raise HTTPException(status_code=503, detail="ERP not initialized.")
@@ -264,7 +271,7 @@ async def reject_escalation(approval_id: str, principal: Principal = Depends(req
 
 
 @app.post("/admin/traces/purge")
-async def purge_traces(retention_days: int = 30, principal: Principal = Depends(require_role("admin"))) -> dict[str, Any]:
+async def purge_traces(retention_days: int = 30, principal: Principal = Depends(_require_admin)) -> dict[str, Any]:
     """Purge trace files older than retention_days."""
     import time
 

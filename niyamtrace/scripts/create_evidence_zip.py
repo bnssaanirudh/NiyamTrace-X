@@ -3,6 +3,7 @@ import shutil
 import zipfile
 from pathlib import Path
 
+
 def main():
     base_dir = Path("submission_evidence")
     base_dir.mkdir(exist_ok=True)

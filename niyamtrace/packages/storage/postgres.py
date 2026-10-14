@@ -3,10 +3,15 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from packages.config import get_settings
 
 
-def get_async_engine():
+def get_async_engine(db_url: str | None = None):
     settings = get_settings()
     
-    if settings.erp_db_type == "postgres":
+    if db_url is not None:
+        if db_url.startswith("sqlite+aiosqlite://"):
+            url = db_url
+        else:
+            url = db_url.replace("sqlite:///", "sqlite+aiosqlite:///")
+    elif settings.erp_db_type == "postgres":
         # Format for asyncpg: postgresql+asyncpg://user:pass@host/dbname
         url = settings.erp_db_url.replace("postgresql://", "postgresql+asyncpg://")
         if not url.startswith("postgresql+asyncpg://"):

@@ -13,6 +13,20 @@ from packages.tools.registry import (
     validate_tool_call,
 )
 
+__all__ = [
+    "ArchiveInvoicesTool",
+    "BlockUserAccessTool",
+    "SuspendVendorTool",
+    "ToolCapability",
+    "ToolImplementation",
+    "ToolSchemaValidationError",
+    "UpdateCreditLimitTool",
+    "get_registry_hash",
+    "get_tool_implementation",
+    "register_tool",
+    "validate_tool_call",
+]
+
 # Bootstrap Registry
 register_tool(ArchiveInvoicesTool())
 register_tool(SuspendVendorTool())

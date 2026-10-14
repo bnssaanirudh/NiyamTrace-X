@@ -7,6 +7,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from packages.storage.models import NiyamIdempotency
@@ -38,8 +39,8 @@ class SessionManager:
             if in_transaction:
                 try:
                     await self._session.rollback()
-                except Exception:
-                    pass
+                except (SQLAlchemyError, OSError, RuntimeError) as roll_exc:
+                    logger.debug("Session rollback failed: %s", roll_exc)
             raise
 
     async def check_idempotency(self, idempotency_key: str) -> bool:

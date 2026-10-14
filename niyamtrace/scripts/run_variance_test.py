@@ -83,7 +83,7 @@ def main():
                 verdict_map[s["scenario_id"]].append(verdict)
                 status = "✓" if verdict == s["expected_verdict"] else "✗"
                 print(f"  {status} {s['scenario_id'][:45]:45s} {verdict:8s} {ms:.0f}ms")
-            except Exception as e:
+            except (RuntimeError, ValueError, TypeError, KeyError, AttributeError, OSError) as e:
                 verdict_map[s["scenario_id"]].append("ERROR")
                 print(f"  ! {s['scenario_id'][:45]:45s} ERROR: {e}")
         print()

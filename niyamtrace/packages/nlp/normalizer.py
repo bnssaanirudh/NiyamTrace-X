@@ -7,11 +7,14 @@ Preserves protected spans natively without altering them.
 
 from __future__ import annotations
 
+import logging
 import re
 import unicodedata
-from typing import Any
+from typing import Any, ClassVar
 
 import ftfy
+
+logger = logging.getLogger(__name__)
 
 from packages.nlp.language_id import LanguageIdentifier
 
@@ -30,7 +33,7 @@ class IndicXlitWrapper:
     Supported source languages: tel_Latn, hin_Latn
     """
 
-    _REPLACEMENTS_TE: dict[str, str] = {
+    _REPLACEMENTS_TE: ClassVar[dict[str, str]] = {
         "ki": "కు", "access": "యాక్సెస్ను", "ni": "ని",
         "vacche": "వచ్చే", "rojula": "రోజుల", "paatu": "పాటు",
         "block": "బ్లాక్", "cheyyi": "చేయి", "limit": "లిమిట్",
@@ -39,7 +42,7 @@ class IndicXlitWrapper:
         "archive": "ఆర్కైవ్", "vendor": "వెండర్", "invoice": "ఇన్వాయిస్",
         "suspend": "సస్పెండ్", "karo": "కరో",
     }
-    _REPLACEMENTS_HI: dict[str, str] = {
+    _REPLACEMENTS_HI: ClassVar[dict[str, str]] = {
         "ka": "का", "agle": "अगले", "din": "दिन", "ke": "के",
         "liye": "लिए", "karo": "करो", "access": "एक्सेस",
         "block": "ब्लॉक", "pichle": "पिछले", "mahine": "महीने",
@@ -67,9 +70,8 @@ class IndicXlitWrapper:
                 logging.getLogger(__name__).info(
                     "IndicXlit: real model loaded from %s", resolved_dir
                 )
-            except Exception as exc:
-                import logging
-                logging.getLogger(__name__).warning(
+            except (ImportError, OSError, RuntimeError, ValueError) as exc:
+                logger.warning(
                     "IndicXlit: could not load real model (%s). "
                     "Using heuristic word-table.", exc
                 )
@@ -99,8 +101,8 @@ class IndicXlitWrapper:
                 result = self._xlit_engine.translit_sentence(text, lang_code)
                 if result:
                     return result
-        except Exception:
-            pass
+        except (RuntimeError, ValueError, TypeError, KeyError, AttributeError) as exc:
+            logger.debug("IndicXlit transliteration failed, using heuristic: %s", exc)
         return self._transliterate_heuristic(text, source_lang)
 
     def _transliterate_heuristic(self, text: str, source_lang: str) -> str:

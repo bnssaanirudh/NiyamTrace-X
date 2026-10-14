@@ -23,6 +23,7 @@ import hashlib
 import json
 import sqlite3
 from pathlib import Path
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -124,6 +125,14 @@ def init_schema(conn: sqlite3.Connection) -> None:
             updated_at       TEXT    NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS consumed_capabilities (
+            nonce       TEXT PRIMARY KEY,
+            cert_hash   TEXT NOT NULL,
+            tenant_id   TEXT NOT NULL,
+            tool_name   TEXT NOT NULL,
+            consumed_at REAL NOT NULL
+        );
+
         CREATE INDEX IF NOT EXISTS idx_vi_vendor
             ON vendor_invoices (vendor_id);
         CREATE INDEX IF NOT EXISTS idx_vi_period
@@ -156,6 +165,7 @@ def reset_to_seed(conn: sqlite3.Connection) -> None:
            VALUES (:vendor_id, :credit_limit_inr, :updated_at)""",
         _SEED_CREDIT_LIMITS,
     )
+    conn.execute("DELETE FROM consumed_capabilities")
     conn.commit()
 
 
@@ -176,7 +186,13 @@ async def seed_fresh_async(engine: Any) -> None:
     """
     from sqlalchemy.ext.asyncio import AsyncSession
 
-    from packages.storage.models import Base, UserAccess, VendorCreditLimit, VendorInvoice
+    from packages.storage.models import (
+        Base,
+        ConsumedCapability,
+        UserAccess,
+        VendorCreditLimit,
+        VendorInvoice,
+    )
     
     # We assume alembic handles schema, but for tests using sqlite :memory:, 
     # we can create tables if they don't exist.
@@ -185,7 +201,7 @@ async def seed_fresh_async(engine: Any) -> None:
         
     async with AsyncSession(engine) as session:
         # Wipe
-        for model in (VendorInvoice, UserAccess, VendorCreditLimit):
+        for model in (VendorInvoice, UserAccess, VendorCreditLimit, ConsumedCapability):
             from sqlalchemy import delete
             await session.execute(delete(model))
             

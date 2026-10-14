@@ -1,0 +1,52 @@
+{
+  "checks": {
+    "fully_automatic_controlled_authorization": "COMPLETE",
+    "fully_automatic_released_nlp": "COMPLETE",
+    "paired_sqlite_actual_transactions": "COMPLETE",
+    "independent_model_interpretations": "COMPLETE",
+    "repo_auto_clone": "COMPLETE",
+    "direct_executor_unauthorized_write": "NOT_VERIFIED",
+    "broker_certificate_issuer_origin": "NOT_VERIFIED",
+    "production_missing_year_real_pipeline": "NOT_VERIFIED",
+    "production_security_regression_suite": "FAIL",
+    "natural_multilingual_human_authorization_labels": "PENDING_HUMAN_ANNOTATION",
+    "official_AgentDojo_tau_bench_BFCL_gate_in_path": "NOT_EXECUTED",
+    "human_blinded_protocol_review": "PENDING_HUMAN_ANNOTATION"
+  },
+  "claims": {
+    "allowed": [
+      "controlled multilingual authorization results",
+      "natural released intent accuracy",
+      "actual local SQLite effects in reference harness",
+      "independent candidate ablation"
+    ],
+    "disallowed_until_verified": [
+      "production fail-closed",
+      "zero underlying risk",
+      "human verified authorization on MASSIVE",
+      "completed official external agent benchmarks",
+      "Q1 acceptance assured"
+    ]
+  },
+  "model_status": {
+    "qwen": {
+      "semantic_expected": 360,
+      "semantic_count": 360,
+      "semantic_valid": 226,
+      "external_expected": 336,
+      "external_count": 336,
+      "external_valid": 336
+    },
+    "granite": {
+      "semantic_expected": 360,
+      "semantic_count": 360,
+      "semantic_valid": 336,
+      "external_expected": 336,
+      "external_count": 336,
+      "external_valid": 281
+    }
+  },
+  "repository_commit": "651e87ef452c80008d4f73c8f2de21321e21fa50",
+  "results_are_generated_live": true,
+  "complete_at_utc": "2026-10-11T13:55:28.084068+00:00"
+}

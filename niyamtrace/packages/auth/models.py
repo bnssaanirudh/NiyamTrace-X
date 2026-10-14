@@ -76,7 +76,7 @@ class AuthorizationContext(BaseModel):
     model_config = {"frozen": True}
 
     @classmethod
-    def from_principal(cls, principal: Principal) -> "AuthorizationContext":
+    def from_principal(cls, principal: Principal) -> AuthorizationContext:
         """Create an AuthorizationContext from a verified Principal."""
         return cls(
             subject=principal.subject,

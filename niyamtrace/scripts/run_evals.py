@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import asyncio
 import json
 import uuid
@@ -8,6 +7,15 @@ from apps.gateway.main import InvokeRequest
 from apps.gateway.pipeline import NiyamPipeline
 from packages.config import get_settings
 from packages.storage.session import SessionManager
+
+
+def load_cases(data_path: Path) -> list[dict]:
+    cases = []
+    with data_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                cases.append(json.loads(line))
+    return cases
 
 
 async def run_evals():
@@ -24,44 +32,40 @@ async def run_evals():
     print(f"Dataset: {data_path}")
     print("=" * 40)
     
-    total = 0
+    cases = load_cases(data_path)
+    total = len(cases)
     passed = 0
     
-    with data_path.open("r", encoding="utf-8") as f:
-        for line in f:
-            if not line.strip():
-                continue
-            case = json.loads(line)
-            total += 1
-            raw_text = case["raw_text"]
-            expected_action = case["expected_action"]
+    for case in cases:
+        raw_text = case["raw_text"]
+        expected_action = case["expected_action"]
+        
+        req = InvokeRequest(
+            request_id=str(uuid.uuid4()),
+            actor_id="eval_user",
+            raw_text=raw_text,
+            task_id=case["task_id"],
+            variant_group_id=case.get("variant_group_id")
+        )
+        
+        try:
+            # We skip real tool execution side-effects by using a mock or just evaluating intent
+            # For safety, we use simulate=True to not commit changes
+            req.simulate = True
             
-            req = InvokeRequest(
-                request_id=str(uuid.uuid4()),
-                actor_id="eval_user",
-                raw_text=raw_text,
-                task_id=case["task_id"],
-                variant_group_id=case.get("variant_group_id")
-            )
+            result = await pipeline.run(req)
             
-            try:
-                # We skip real tool execution side-effects by using a mock or just evaluating intent
-                # For safety, we use simulate=True to not commit changes
-                req.simulate = True
+            actual_action = result.get("contract", {}).get("action")
+            
+            if actual_action == expected_action:
+                passed += 1
+                status = "✅ PASS"
+            else:
+                status = f"❌ FAIL (Expected: {expected_action}, Got: {actual_action})"
                 
-                result = await pipeline.run(req)
-                
-                actual_action = result.get("contract", {}).get("action")
-                
-                if actual_action == expected_action:
-                    passed += 1
-                    status = "✅ PASS"
-                else:
-                    status = f"❌ FAIL (Expected: {expected_action}, Got: {actual_action})"
-                    
-                print(f"[{case['language_form']}] {raw_text[:40]}... -> {status}")
-            except Exception as e:
-                print(f"[{case['language_form']}] {raw_text[:40]}... -> ❌ ERROR: {e}")
+            print(f"[{case['language_form']}] {raw_text[:40]}... -> {status}")
+        except (RuntimeError, ValueError, KeyError, TypeError, OSError) as e:
+            print(f"[{case['language_form']}] {raw_text[:40]}... -> ❌ ERROR: {e}")
                 
     print("=" * 40)
     print(f"Eval Results: {passed}/{total} ({(passed/total)*100 if total > 0 else 0:.1f}%) passed.")

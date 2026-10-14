@@ -1,0 +1,9 @@
+{
+  "source_archive": "NTX_ZERO_UPLOAD_RESULTS.zip",
+  "source_member": "paired_variant_cases.csv",
+  "sha256": "77b2c5c2315f203699b78ad5ef88810442c179d19614bafe98283b1e7fb6c689",
+  "expected_records": 4320,
+  "expected_pairs_per_direction": 360,
+  "known_vulnerable_commit": "651e87ef452c80008d4f73c8f2de21321e21fa50",
+  "source_context": "Oct 11 2026 archived live semantic inference + simulated effect harness; NOT production execution or human authorization ground truth"
+}

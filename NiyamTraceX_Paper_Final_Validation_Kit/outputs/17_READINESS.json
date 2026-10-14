@@ -1,0 +1,10 @@
+{
+  "annotation_complete": false,
+  "adjudication_complete": false,
+  "heldout_scored": false,
+  "blockers": [
+    "Two independent completed annotation files unavailable",
+    "Missing adjudicated gold CSV",
+    "Missing frozen holdout prediction CSV"
+  ]
+}

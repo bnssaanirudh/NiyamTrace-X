@@ -45,7 +45,7 @@ class TraceMigrator:
                     results["migrated"] += 1
                 else:
                     results["skipped"] += 1
-            except Exception as e:
+            except (OSError, ValueError, KeyError, json.JSONDecodeError) as e:
                 logger.error("Failed to migrate %s: %s", trace_file.name, e)
                 results["errors"] += 1
 

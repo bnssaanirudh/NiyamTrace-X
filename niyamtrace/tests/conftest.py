@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 
-os.environ["LLM_BACKEND"] = "groq"
+os.environ["LLM_BACKEND"] = "mock"
 
 @pytest.fixture(autouse=True)
 def mock_llm_provider(monkeypatch):

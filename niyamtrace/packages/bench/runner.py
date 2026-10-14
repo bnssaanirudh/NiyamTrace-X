@@ -235,7 +235,7 @@ class BenchmarkRunner:
                 if eval_event:
                     actual_verdict = eval_event.get("payload", {}).get("verdict", "UNKNOWN")
 
-        except Exception as exc:
+        except (RuntimeError, ValueError, OSError, KeyError, TypeError) as exc:
             error = str(exc)
             actual_verdict = "ERROR"
 

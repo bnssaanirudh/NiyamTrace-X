@@ -1,0 +1,33 @@
+{
+  "known_vulnerable_commit": "651e87ef452c80008d4f73c8f2de21321e21fa50",
+  "archive_records": [
+    {
+      "scenario": "direct_executor_bypass",
+      "condition": "CURRENT_DIRECT_EXECUTOR",
+      "status": "VULNERABLE",
+      "mutated_rows": 3,
+      "changed_ids": [
+        "INV-4421-2503",
+        "INV-4421-2504",
+        "INV-4421-2505"
+      ],
+      "before_digest": "e9f4c16df4e7c64097a0fde127c035de0923c1648fe3109e72545361ca4ba2bb",
+      "after_digest": "90e47861a5e8917d39bce78a58425244d0708be26b41091bdb9041fb40d30a28",
+      "note": "Real ERPExecutor called without gate or principal"
+    },
+    {
+      "scenario": "untrusted_self_sealed_cert",
+      "condition": "CURRENT_BROKER",
+      "status": "VULNERABLE",
+      "mutated_rows": 3,
+      "changed_ids": [
+        "INV-4421-2503",
+        "INV-4421-2504",
+        "INV-4421-2505"
+      ],
+      "before_digest": "e9f4c16df4e7c64097a0fde127c035de0923c1648fe3109e72545361ca4ba2bb",
+      "after_digest": "90e47861a5e8917d39bce78a58425244d0708be26b41091bdb9041fb40d30a28",
+      "note": "Certificate was not produced by NiyamGate; self-SHA alone is untrusted"
+    }
+  ]
+}

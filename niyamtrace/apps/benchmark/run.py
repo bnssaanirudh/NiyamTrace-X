@@ -100,7 +100,7 @@ def main() -> int:
             print(f"\n  [PASS] BENCH GATE PASSED - accuracy {s.accuracy * 100:.1f}% >= {args.threshold * 100:.0f}%\n")
             return 0
 
-    except Exception as exc:
+    except (RuntimeError, ValueError, OSError, KeyError, TypeError) as exc:
         print(f"\n  ERROR: {exc}", file=sys.stderr)
         import traceback
         traceback.print_exc()

@@ -20,7 +20,10 @@ Status: IMPLEMENTED (Week 7)
 from __future__ import annotations
 
 import asyncio
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse
@@ -87,7 +90,7 @@ async def all_metrics():
         }
         gm.close()
         return JSONResponse(content=data)
-    except Exception as exc:
+    except (RuntimeError, ValueError, OSError, KeyError, TypeError) as exc:
         return JSONResponse(content={"error": str(exc), "data": {}}, status_code=500)
 
 
@@ -158,9 +161,8 @@ async def websocket_traces(websocket: WebSocket):
                 }
                 gm.close()
                 await websocket.send_json(data)
-            except Exception:
-                # ignore errors during fetch, just retry later
-                pass
+            except (RuntimeError, ValueError, OSError, KeyError) as exc:
+                logger.debug("Metrics fetch error during websocket broadcast: %s", exc)
             await asyncio.sleep(3)
     except WebSocketDisconnect:
         pass

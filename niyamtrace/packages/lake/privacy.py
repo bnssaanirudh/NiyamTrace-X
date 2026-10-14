@@ -1,5 +1,5 @@
 import re
-from typing import Any
+from typing import Any, ClassVar
 
 
 class PIIRedactor:
@@ -13,7 +13,7 @@ class PIIRedactor:
     PHONE_REGEX = re.compile(r'\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b')
     
     # Fields that should just be completely redacted if they appear in payload
-    SENSITIVE_FIELDS = {"ssn", "social_security", "credit_card", "password", "secret"}
+    SENSITIVE_FIELDS: ClassVar[set[str]] = {"ssn", "social_security", "credit_card", "password", "secret"}
     
     @classmethod
     def redact_text(cls, text: str) -> str:

@@ -41,7 +41,24 @@ class SuspendVendorTool(ToolImplementation):
             
     async def simulate(self, session: Any, args: dict[str, Any]) -> StateDelta:
         return StateDelta(affected_record_ids=[], record_deltas=[], table="vendors", estimated_row_count=0)
-    async def execute(self, session: Any, args: dict[str, Any]) -> StateDelta:
+    async def execute(
+        self,
+        session: Any,
+        args: dict[str, Any],
+        authorization: Any | None = None,
+        auth_context: Any | None = None,
+        policy: Any | None = None,
+        current_snapshot_id: str | None = None,
+    ) -> StateDelta:
+        from packages.gate.broker import verify_tool_authorization_binding
+        verify_tool_authorization_binding(
+            authorization=authorization,
+            tool_name="suspend_vendor",
+            arguments=args,
+            auth_context=auth_context,
+            policy=policy,
+            current_snapshot_id=current_snapshot_id,
+        )
         return await self.simulate(session, args)
 
 class UpdateCreditLimitTool(ToolImplementation):
@@ -76,7 +93,24 @@ class UpdateCreditLimitTool(ToolImplementation):
         }
     async def simulate(self, session: Any, args: dict[str, Any]) -> StateDelta:
         return StateDelta(affected_record_ids=[], record_deltas=[], table="vendor_credit_limits", estimated_row_count=0)
-    async def execute(self, session: Any, args: dict[str, Any]) -> StateDelta:
+    async def execute(
+        self,
+        session: Any,
+        args: dict[str, Any],
+        authorization: Any | None = None,
+        auth_context: Any | None = None,
+        policy: Any | None = None,
+        current_snapshot_id: str | None = None,
+    ) -> StateDelta:
+        from packages.gate.broker import verify_tool_authorization_binding
+        verify_tool_authorization_binding(
+            authorization=authorization,
+            tool_name="update_credit_limit",
+            arguments=args,
+            auth_context=auth_context,
+            policy=policy,
+            current_snapshot_id=current_snapshot_id,
+        )
         return await self.simulate(session, args)
 
 class BlockUserAccessTool(ToolImplementation):
@@ -111,5 +145,22 @@ class BlockUserAccessTool(ToolImplementation):
         }
     async def simulate(self, session: Any, args: dict[str, Any]) -> StateDelta:
         return StateDelta(affected_record_ids=[], record_deltas=[], table="users", estimated_row_count=0)
-    async def execute(self, session: Any, args: dict[str, Any]) -> StateDelta:
+    async def execute(
+        self,
+        session: Any,
+        args: dict[str, Any],
+        authorization: Any | None = None,
+        auth_context: Any | None = None,
+        policy: Any | None = None,
+        current_snapshot_id: str | None = None,
+    ) -> StateDelta:
+        from packages.gate.broker import verify_tool_authorization_binding
+        verify_tool_authorization_binding(
+            authorization=authorization,
+            tool_name="block_user_access",
+            arguments=args,
+            auth_context=auth_context,
+            policy=policy,
+            current_snapshot_id=current_snapshot_id,
+        )
         return await self.simulate(session, args)

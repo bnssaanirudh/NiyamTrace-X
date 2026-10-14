@@ -72,7 +72,7 @@ class NiyamGate:
         predicted_delta: StateDelta,
         tool_call: ToolCall,
         evidence_verdict: EvidenceVerdict = "SUPPORT",
-        auth_context: "AuthorizationContext | None" = None,
+        auth_context: AuthorizationContext | None = None,
     ) -> GateDecision:
         """
         Run all gate checks and return a GateDecision.
@@ -150,18 +150,26 @@ class NiyamGate:
         failed = [r for r in results if not r.passed]
 
         if not failed:
-            from packages.contracts.schema import EffectCertificate
-            import hashlib, json  # noqa: E401
+            import hashlib
+            import json
+            import uuid
 
-            # Build a real certificate with actual provenance values (Prompt 9 partial)
+            from data.synthetic.erp import SEED_SNAPSHOT_ID
+            from packages.contracts.schema import EffectCertificate
+            from packages.gate.broker import sign_certificate_authority
+
+            # Build a real certificate with actual provenance values
             policy_hash = self._policy.policy_hash
             evidence_hash = hashlib.sha256(
                 json.dumps({"verdict": evidence_verdict}, sort_keys=True).encode()
             ).hexdigest()[:16]
 
             actor_id = auth_context.subject if auth_context else contract.actor_id
-            tenant_id = auth_context.tenant_id if auth_context else "unknown"
+            tenant_id = auth_context.tenant_id if auth_context else "acme"
             roles_repr = sorted(auth_context.roles) if auth_context else [contract.actor_role]
+            canonical_args_hash = hashlib.sha256(
+                json.dumps(tool_call.arguments, sort_keys=True).encode()
+            ).hexdigest()
 
             cert = EffectCertificate(
                 trace_id=contract.contract_id,
@@ -178,8 +186,16 @@ class NiyamGate:
                     "tenant": tenant_id,
                     "roles": roles_repr,
                 },
+                tenant_id=tenant_id,
+                canonical_args_hash=canonical_args_hash,
+                policy_version_hash=policy_hash,
+                snapshot_id=SEED_SNAPSHOT_ID,
+                nonce=str(uuid.uuid4()),
+                expires_at=time.time() + 60.0,
+                server_issued=True,
             )
             cert = cert.seal()
+            cert = sign_certificate_authority(cert)
 
             return GateDecision(
                 verdict="ALLOW",

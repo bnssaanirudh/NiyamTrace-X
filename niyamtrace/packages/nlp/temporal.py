@@ -25,16 +25,19 @@ Status: IMPLEMENTED (Phase 2.2)
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class TemporalResolution:
     """Result of resolving a relative temporal expression."""
     month: int
-    year: int
+    year: int | None
     confidence: float
     expression_matched: str
     lang: str
@@ -135,8 +138,8 @@ _RESOLVER_MAP: dict[str, callable] = {
     "next_quarter": lambda m, ref: (*_next_quarter_start(ref), 0.93),
     "named_month":  lambda m, ref: (
         _MONTH_NAMES.get(m.group("month_name").lower(), ref.month),
-        int(m.group("year")) if m.group("year") else ref.year,
-        0.98,
+        int(m.group("year")) if m.group("year") else None,
+        0.98 if m.group("year") else 0.50,
     ),
 }
 
@@ -182,12 +185,13 @@ class TemporalDeicticsResolver:
                     month, year, confidence = resolver_fn(match, ref)
                     return TemporalResolution(
                         month=int(month),
-                        year=int(year),
+                        year=int(year) if year is not None else None,
                         confidence=confidence,
                         expression_matched=match.group(0),
                         lang=lang,
                     )
-                except Exception:
+                except (ValueError, TypeError, IndexError, KeyError) as exc:
+                    logger.debug("Temporal resolution failed for match: %s", exc)
                     continue
         return None
 
@@ -204,12 +208,13 @@ class TemporalDeicticsResolver:
                     month, year, confidence = resolver_fn(match, ref)
                     results.append(TemporalResolution(
                         month=int(month),
-                        year=int(year),
+                        year=int(year) if year is not None else None,
                         confidence=confidence,
                         expression_matched=match.group(0),
                         lang=lang,
                     ))
-                except Exception:
+                except (ValueError, TypeError, IndexError, KeyError) as exc:
+                    logger.debug("Temporal resolution failed for match in resolve_all: %s", exc)
                     continue
         # Sort by position in text (approximate via expression_matched occurrence)
         return results

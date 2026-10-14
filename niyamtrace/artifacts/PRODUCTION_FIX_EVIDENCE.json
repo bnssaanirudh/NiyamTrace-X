@@ -1,0 +1,77 @@
+{
+  "repo_commit": "3dbbdf4e4ad6b76d93f1969d4ced6b1a9274a662",
+  "probes": [
+    {
+      "id": "SEC-01_DIRECT_EXECUTOR_MEDIATION",
+      "status": "PASS",
+      "actual_native_executor": true,
+      "rows_mutated": 0,
+      "before_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "after_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "trace_sha256": "421c9b55e1c6baa884f92e7cc8e8695ec0c35b4f38c0c4701f05d7807fe836de"
+    },
+    {
+      "id": "SEC-02_CERTIFICATE_ORIGIN_BINDING",
+      "status": "PASS",
+      "actual_native_executor": true,
+      "rows_mutated": 0,
+      "before_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "after_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "trace_sha256": "c710c116869f7c2e71965e08e1d30fef71bd192e9c3d620733f3e0c7068a3f66"
+    },
+    {
+      "id": "SEC-03_MISSING_YEAR",
+      "status": "PASS",
+      "actual_native_executor": true,
+      "rows_mutated": 0,
+      "before_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "after_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "trace_sha256": "3733cc9e1db1da309ac30e8b4b3992f60d8209537f8d59f747d99258abfc741a"
+    },
+    {
+      "id": "SEC-04_PAIRED_BROKER_POSITIVE",
+      "status": "PASS",
+      "actual_native_executor": true,
+      "rows_mutated": 3,
+      "before_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "after_db_sha256": "ad7e1de2a62b605490e816b28fc5cca7f0c841ea0628b295621a3b37e05476be",
+      "trace_sha256": "217628b65fb820e6782bc8fed1d145de46e8fd927b62ea016d276a3dc26bec15"
+    },
+    {
+      "id": "SEC-REPLAY",
+      "status": "PASS",
+      "actual_native_executor": true,
+      "rows_mutated": 0,
+      "before_db_sha256": "f5cbf61b430f395b8da3dbc1d83c35d3c6080b2cffd7249604406ce9b8c95592",
+      "after_db_sha256": "f5cbf61b430f395b8da3dbc1d83c35d3c6080b2cffd7249604406ce9b8c95592",
+      "trace_sha256": "41f32fe3e20699b911dcae9f2986039ec230c6d91d3d43a58a7bdc87ec2cd811"
+    },
+    {
+      "id": "SEC-STALE_STATE",
+      "status": "PASS",
+      "actual_native_executor": true,
+      "rows_mutated": 0,
+      "before_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "after_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "trace_sha256": "3db86335a2c804b0a05543be634869537838f742ab12a548aad0760eba0c2cb9"
+    },
+    {
+      "id": "SEC-WRONG_TENANT",
+      "status": "PASS",
+      "actual_native_executor": true,
+      "rows_mutated": 0,
+      "before_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "after_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "trace_sha256": "a433536feed026c89191e7eb540cf9f530bd17449cd655cf77863f3fe543c072"
+    },
+    {
+      "id": "SEC-POLICY_REVOKE",
+      "status": "PASS",
+      "actual_native_executor": true,
+      "rows_mutated": 0,
+      "before_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "after_db_sha256": "2075bef88c3f64aa9dc260fbde85d09d0c11d52d6125358f28f8ea1342180e0b",
+      "trace_sha256": "51718d8865a3a25346c1537b980075f11c2bdb7defc8f4af50eeda939a1ecd80"
+    }
+  ]
+}
