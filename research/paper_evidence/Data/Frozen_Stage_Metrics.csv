@@ -1,0 +1,9 @@
+model,stage,n,groups,correct,accuracy,unsafe_allow,group_boot_low,group_boot_high
+Qwen3.5-122B,base,2000,500,1891,0.9455,80,0.9365,0.954
+Qwen3.5-122B,anchor_only,2000,500,1977,0.9885,0,0.9835,0.993
+Qwen3.5-122B,clarification_only,2000,500,1911,0.9555,80,0.947,0.9635
+Qwen3.5-122B,full,2000,500,1997,0.9985,0,0.9965,1.0
+GPT-OSS-120B,base,2000,500,1994,0.997,2,0.9945,0.999
+GPT-OSS-120B,anchor_only,2000,500,1996,0.998,0,0.996,0.9995
+GPT-OSS-120B,clarification_only,2000,500,1994,0.997,2,0.9945,0.999
+GPT-OSS-120B,full,2000,500,1996,0.998,0,0.996,0.9995

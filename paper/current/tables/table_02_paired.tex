@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\caption{Paired 360-request reference-effect study. The preferred primary proposal is fixed across methods. Completion requires the exact authorized effect, rather than an \allow verdict alone. Expected-\allow denominator: 162 requests per direction.}
+\label{tab:paired}
+\begin{tabular}{llrrr}
+\toprule
+Primary & Method & Correct verdicts & Unsafe cases & Exact completion \\
+\midrule
+Qwen2.5-3B & Anchors & 226/360 & 0/360 & 104/162 \\
+ & Full intersection & 226/360 & 0/360 & 104/162 \\
+ & Policy only & 150/360 & 44/360 & 104/162 \\
+Granite-3.3-2B & Anchors & 336/360 & 0/360 & 152/162 \\
+ & Full intersection & 288/360 & 0/360 & 104/162 \\
+ & Policy only & 212/360 & 88/360 & 152/162 \\
+\bottomrule
+\end{tabular}
+\end{table}

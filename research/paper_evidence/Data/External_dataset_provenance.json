@@ -1,0 +1,142 @@
+[
+  {
+    "dataset": "MASSIVE",
+    "language": "en",
+    "split": "train",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "en-US/train/0000.parquet",
+    "sha256": "9c8b3ce8a96ec3b0d4aee104d8778d9f6bacdbd18f2cea232f6d8333d24401b1",
+    "rows": 11514
+  },
+  {
+    "dataset": "MASSIVE",
+    "language": "en",
+    "split": "test",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "en-US/test/0000.parquet",
+    "sha256": "c418da9a5f3a7425b5cf44941bcea032a31040dbda2da85e0dd9323785c7731e",
+    "rows": 2974
+  },
+  {
+    "dataset": "MASSIVE",
+    "language": "hi",
+    "split": "train",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "hi-IN/train/0000.parquet",
+    "sha256": "b12732fe7be6a30a08700df8fa5996086d24685f2b41175d022ca2d512478fb9",
+    "rows": 11514
+  },
+  {
+    "dataset": "MASSIVE",
+    "language": "hi",
+    "split": "test",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "hi-IN/test/0000.parquet",
+    "sha256": "f09ebfb9519169e5920785a1d6225d5d352c7de4a002235af99765147d219875",
+    "rows": 2974
+  },
+  {
+    "dataset": "MASSIVE",
+    "language": "te",
+    "split": "train",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "te-IN/train/0000.parquet",
+    "sha256": "9409958eb3ad5cf013c622ec9d7b7acf8cc5d85f839c7155d7f3ec0cec975505",
+    "rows": 11514
+  },
+  {
+    "dataset": "MASSIVE",
+    "language": "te",
+    "split": "test",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "te-IN/test/0000.parquet",
+    "sha256": "4fb52accf9dac9ade3369a50cc7fbaf464bbe0e11c49390fd2bf899192e3e2a1",
+    "rows": 2974
+  },
+  {
+    "dataset": "MASSIVE",
+    "language": "ta",
+    "split": "train",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "ta-IN/train/0000.parquet",
+    "sha256": "103048244dadf11986f20e5f1634a773c49fb8b857210c7e101d658ce963150c",
+    "rows": 11514
+  },
+  {
+    "dataset": "MASSIVE",
+    "language": "ta",
+    "split": "test",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "ta-IN/test/0000.parquet",
+    "sha256": "8b308250f0a45b25beebb5ad10371171fe955af9f1ece75d224808481f6e0516",
+    "rows": 2974
+  },
+  {
+    "dataset": "MASSIVE",
+    "language": "kn",
+    "split": "train",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "kn-IN/train/0000.parquet",
+    "sha256": "e506e74be6e27cdb8bb58f505a4e65ddfef67f6e99e15169d3db081653819f92",
+    "rows": 11514
+  },
+  {
+    "dataset": "MASSIVE",
+    "language": "kn",
+    "split": "test",
+    "repo": "AmazonScience/massive",
+    "revision": "refs/convert/parquet",
+    "file": "kn-IN/test/0000.parquet",
+    "sha256": "cc31c39e6c421d423ba1bb858e2943997e6170b28051925c5ca81ad7d261723d",
+    "rows": 2974
+  },
+  {
+    "dataset": "MTOP",
+    "language": "en",
+    "split": "train",
+    "repo": "mteb/MTOPIntentClassification",
+    "revision": "main",
+    "file": "en/train-00000-of-00001.parquet",
+    "sha256": "96c213d1753fbd80c23935f1c7eb6c01fa271a72e0a02a825b13400e2edfe4fb",
+    "rows": 15667
+  },
+  {
+    "dataset": "MTOP",
+    "language": "en",
+    "split": "test",
+    "repo": "mteb/MTOPIntentClassification",
+    "revision": "main",
+    "file": "en/test-00000-of-00001.parquet",
+    "sha256": "b49558995397c6bbd50d1c76e5bdf1fc03da16c2d6bce3c6a3bf5d79c3f14a58",
+    "rows": 4386
+  },
+  {
+    "dataset": "MTOP",
+    "language": "hi",
+    "split": "train",
+    "repo": "mteb/MTOPIntentClassification",
+    "revision": "main",
+    "file": "hi/train-00000-of-00001.parquet",
+    "sha256": "a959d8db89e685d3f7b8d61a3a9e7f6bccfe6cd23846ebed0525af4055a22eaf",
+    "rows": 11330
+  },
+  {
+    "dataset": "MTOP",
+    "language": "hi",
+    "split": "test",
+    "repo": "mteb/MTOPIntentClassification",
+    "revision": "main",
+    "file": "hi/test-00000-of-00001.parquet",
+    "sha256": "775e37b652831f0c5466868728387fb91e66a9ff938665ee2fad6cbc52ea15c0",
+    "rows": 2789
+  }
+]

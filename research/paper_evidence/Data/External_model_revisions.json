@@ -1,0 +1,16 @@
+{
+  "models": {
+    "qwen": "aa8e72537993ba99e69dfaafa59ed015b17504d1",
+    "granite": "707f574c62054322f6b5b04b6d075f0a8f05e0f0"
+  },
+  "repositories": [
+    [
+      "qwen",
+      "Qwen/Qwen2.5-3B-Instruct"
+    ],
+    [
+      "granite",
+      "ibm-granite/granite-3.3-2b-instruct"
+    ]
+  ]
+}
