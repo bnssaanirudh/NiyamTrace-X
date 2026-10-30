@@ -1,0 +1,160 @@
+{
+  "package_files_verified": 1700,
+  "frozen": [
+    {
+      "model": "Qwen3.5-122B",
+      "stage": "base",
+      "correct": 1891,
+      "unsafe_allow": 80
+    },
+    {
+      "model": "Qwen3.5-122B",
+      "stage": "anchor_only",
+      "correct": 1977,
+      "unsafe_allow": 0
+    },
+    {
+      "model": "Qwen3.5-122B",
+      "stage": "clarification_only",
+      "correct": 1911,
+      "unsafe_allow": 80
+    },
+    {
+      "model": "Qwen3.5-122B",
+      "stage": "full",
+      "correct": 1997,
+      "unsafe_allow": 0
+    },
+    {
+      "model": "GPT-OSS-120B",
+      "stage": "base",
+      "correct": 1994,
+      "unsafe_allow": 2
+    },
+    {
+      "model": "GPT-OSS-120B",
+      "stage": "anchor_only",
+      "correct": 1996,
+      "unsafe_allow": 0
+    },
+    {
+      "model": "GPT-OSS-120B",
+      "stage": "clarification_only",
+      "correct": 1994,
+      "unsafe_allow": 2
+    },
+    {
+      "model": "GPT-OSS-120B",
+      "stage": "full",
+      "correct": 1996,
+      "unsafe_allow": 0
+    }
+  ],
+  "paired": {
+    "qwen_primary": {
+      "regressions": 0,
+      "corrections": 0,
+      "case_weighted_difference": 0.0,
+      "case_weighted_group_bootstrap_95": [
+        0.0,
+        0.0
+      ]
+    },
+    "granite_primary": {
+      "regressions": 48,
+      "corrections": 0,
+      "case_weighted_difference": -0.13333333333333333,
+      "case_weighted_group_bootstrap_95": [
+        -0.17086834733893558,
+        -0.09686609686609686
+      ]
+    }
+  },
+  "native": {
+    "Qwen": {
+      "planned": 48,
+      "recorded": 48,
+      "raw_correct": 0,
+      "native_correct": 10,
+      "model_output_errors": 35,
+      "runtime_errors": 0,
+      "expected_ALLOW": 12,
+      "authorized_nonempty_completions": 3,
+      "unsafe_effect_cases": 3,
+      "unsafe_business_rows": 5,
+      "simulation_cases": 11,
+      "commit_cases": 6
+    },
+    "Granite": {
+      "planned": 48,
+      "recorded": 48,
+      "raw_correct": 5,
+      "native_correct": 0,
+      "model_output_errors": 43,
+      "runtime_errors": 0,
+      "expected_ALLOW": 12,
+      "authorized_nonempty_completions": 0,
+      "unsafe_effect_cases": 0,
+      "unsafe_business_rows": 0,
+      "simulation_cases": 0,
+      "commit_cases": 0
+    }
+  },
+  "known_candidate_control": {
+    "planned": 48,
+    "recorded": 48,
+    "raw_correct": 48,
+    "native_correct": 48,
+    "model_output_errors": 0,
+    "runtime_errors": 0,
+    "expected_ALLOW": 12,
+    "authorized_nonempty_completions": 12,
+    "unsafe_effect_cases": 0,
+    "unsafe_business_rows": 0,
+    "simulation_cases": 24,
+    "commit_cases": 12
+  },
+  "sqlite_snapshot_pairs_verified": 66,
+  "external": [
+    {
+      "model": "qwen",
+      "dataset": "MASSIVE",
+      "protocol": "within_language",
+      "n": 120,
+      "correct": 44,
+      "valid": 120
+    },
+    {
+      "model": "qwen",
+      "dataset": "MTOP",
+      "protocol": "within_language",
+      "n": 48,
+      "correct": 31,
+      "valid": 48
+    },
+    {
+      "model": "granite",
+      "dataset": "MASSIVE",
+      "protocol": "within_language",
+      "n": 120,
+      "correct": 36,
+      "valid": 111
+    },
+    {
+      "model": "granite",
+      "dataset": "MTOP",
+      "protocol": "within_language",
+      "n": 48,
+      "correct": 27,
+      "valid": 44
+    }
+  ],
+  "retained_source_test_report": {
+    "tests": 365,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "native_security_regressions": 34
+  },
+  "verification": "PASS: manuscript statistics and retained synthetic effects reproduced. No new inference or security repair."
+}
