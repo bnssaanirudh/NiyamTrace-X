@@ -5,6 +5,7 @@
 - [Five-minute demonstration](FIVE_MINUTE_LIVE_DEMONSTRATION.md): timed actions and words to say.
 - [Fifteen-minute project and paper pitch](FINAL_REVIEW_15_MINUTE_PITCH.md): presentation script with experimental findings and limits.
 - [100 faculty questions](FACULTY_100_QUESTIONS.md): suggested answers covering architecture, roles, controls, experiments, results and limitations.
+- [100 more questions on novelty and the paper](NOVELTY_AND_PAPER_100_QUESTIONS.md): a second set on positioning, experimental design, statistics, failure analysis and reviewer challenges.
 - [Workspace quickstart](WORKSPACE_QUICKSTART.md): setup and verification commands.
 
 The recordings are at `niyamtrace/artifacts/recordings/NiyamTrace_6_minute_demo.mp4` in this branch.
