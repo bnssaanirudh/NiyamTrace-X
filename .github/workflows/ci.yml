@@ -142,3 +142,24 @@ jobs:
         with:
           name: complete-notebook-and-result-audit
           path: notebook_audit_out/
+
+  reproduce-frozen-evidence:
+    name: Recompute retained manuscript results (no inference)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: archive/niyamtrace-oct-2026-research-recovery
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Extract curated archived scientific evidence
+        run: python -m zipfile -e research/paper_evidence/NiyamTraceX_Manuscript_Evidence_2026-10-28.zip reproduced_evidence
+      - name: Verify frozen paired native and control cases
+        run: python -X utf8 reproduced_evidence/Analysis/reproduce_results.py
+      - name: Verify historical stress broker and open-weight cases
+        run: python -X utf8 reproduced_evidence/Analysis/reproduce_history.py
+      - name: Verify NTX24B reference replay aggregates
+        run: python -X utf8 research/paper_evidence/verify_ntx24b.py
