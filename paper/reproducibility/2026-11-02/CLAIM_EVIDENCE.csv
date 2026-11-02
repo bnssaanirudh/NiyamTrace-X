@@ -1,0 +1,10 @@
+claim_id,study,statement,evidence_id,denominator,experiment_type,allowed_interpretation,important_limit
+C01,NTX-24,240 historical model proposals from two open-weight models,NTX24_MEMO,120 per model,original GPU inference,Descriptive archival count,Generated template cases
+C02,NTX-24B,Typed normalization reuses frozen NTX-24 outputs,NTX24_MEMO,240 original proposals,CPU replay,Not a second independent inference study,Same source cohort
+C03,NTX-24B,Text-grounded reference gate observed zero unsafe non-ALLOW effects,NTX24_MEMO,0/104 Qwen and 0/104 Granite,SQLite reference replay,Zero observed within executed cases,Not zero population risk or production guarantee
+C04,NTX-24B,Text-grounded reference gate completed authorized cases,NTX24_MEMO,13/16 Qwen and 13/16 Granite,SQLite reference replay,81.25 percent observed per model,Three legitimate variants not completed per model
+C05,NTX-24B,Ungated reference baseline produced unauthorized effects,NTX24_MEMO,61/104 Qwen and 60/104 Granite,SQLite reference replay,Paired reference comparison,Not fully integrated native execution
+C06,Native benchmark v3,Saved benchmark recorded execution errors,BENCHMARK_V3,200/200 errored,stored runtime report,Failure of evaluation infrastructure,Zero accuracy is not a measured comparison
+C07,NTX-17,Independent human gold readiness blocked,NTX16_23_STATUS,not applicable,readiness only,No human-label score reportable,Annotations/adjudication incomplete
+C08,NTX-18,Official gate-in-path external score blocked,NTX16_23_STATUS,not applicable,readiness only,No official external score reportable,No verified task-level native export
+C09,NTX-23,Controlled Qwen cohort included unsafe effects,NTX16_23_STATUS,3 cases and 5 changed rows among 48 Qwen cases,author-generated controlled cohort,Preserve observed counterexample,Not a human-gold or official benchmark
