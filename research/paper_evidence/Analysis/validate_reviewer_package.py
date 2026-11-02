@@ -57,6 +57,35 @@ def main() -> int:
                 failures,
             )
 
+    notebook_manifest = read_csv(EVIDENCE / "REVIEWER_NOTEBOOK_INTEGRITY.csv")
+    artifact_manifest = read_csv(EVIDENCE / "REVIEWER_RESULT_FILE_INTEGRITY.csv")
+    study_catalog = read_csv(EVIDENCE / "REVIEWER_STUDY_STATUS.csv")
+    check(len(notebook_manifest) == 144, "Notebook integrity inventory should have 144 paths", failures)
+    check(len(artifact_manifest) == 1239, "Result file integrity inventory should have 1239 paths", failures)
+    check(len({row["sha256"] for row in notebook_manifest}) == 86,
+          "Notebook inventory unique SHA256 count changed", failures)
+    check(sum(row["status"] != "VALID_JSON_NOTEBOOK" for row in notebook_manifest) == 1,
+          "Notebook inventory must disclose the original unreadable Notebook 23", failures)
+    check(len(study_catalog) >= 25, "Reviewer study status index appears incomplete", failures)
+    for row in study_catalog:
+        item_path = (ROOT / row["notebook_or_stage_path"]).resolve()
+        result_path = (ROOT / row["primary_data_or_status_path"]).resolve()
+        check(item_path.is_relative_to(ROOT) and item_path.is_file(),
+              f"Missing study notebook: {row['study_id']}", failures)
+        check(result_path.is_relative_to(ROOT) and result_path.is_file(),
+              f"Missing study result/status: {row['study_id']}", failures)
+
+    # The inventory is an immutable *earlier Git tree snapshot*. Recheck exact
+    # original file bytes even though the reviewer-facing markdown has changed.
+    for label, manifest in (("notebook", notebook_manifest), ("artifact", artifact_manifest)):
+        for row in manifest:
+            candidate = (ROOT / row["path"]).resolve()
+            if not candidate.is_relative_to(ROOT) or not candidate.is_file():
+                failures.append(f"Missing {label} from inventory: {row['path']}")
+                continue
+            if sha256(candidate) != row["sha256"]:
+                failures.append(f"Changed original {label} bytes: {row['path']}")
+
     data = EVIDENCE / "Data"
     frozen = read_csv(data / "Frozen_Case_Metrics.csv")
     stage = read_csv(data / "Frozen_Stage_Metrics.csv")
