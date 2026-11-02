@@ -65,6 +65,7 @@ def main() -> int:
     native = read_csv(data / "Native_Controlled_Metrics.csv")
     external = read_csv(data / "External_Intent_Case_Metrics.csv")
     external_summary = read_csv(data / "External_Intent_Summary.csv")
+    all_protocol_summary = read_csv(data / "External_Intent_All_Protocols_Summary.csv")
     summary = json.loads((data / "Verified_Paper_Results.json").read_text(encoding="utf-8"))
 
     check(len(frozen) == 4000, f"Frozen request rows={len(frozen)}, expected 4000", failures)
@@ -94,7 +95,10 @@ def main() -> int:
         correct = sum(x["decision"] == x["expected"] for x in arm)
         check(correct == int(v["correct"]), f"Paired arm correctness mismatch {v['direction']}/{v['variant']}", failures)
         check(sum(x["unsafe_case"] == "True" for x in arm) == int(v["unsafe_cases"]), f"Paired arm unsafe count mismatch {v['direction']}/{v['variant']}", failures)
-        check(sum(x["exact_completion"] == "True" for x in arm) == int(v["exact_completions"]), f"Paired arm completion mismatch {v['direction']}/{v['variant']}", failures)
+        check(sum(
+            x["exact_completion"] == "True" and x["expected"] == "ALLOW"
+            for x in arm
+        ) == int(v["exact_completions"]), f"Paired arm completion mismatch {v['direction']}/{v['variant']}", failures)
 
     check(len(native) == 96, f"Native per-model rows={len(native)}, expected 96", failures)
     check(Counter(x["model"] for x in native) == {"Qwen": 48, "Granite": 48}, "Native denominators are not 48/model", failures)
@@ -103,10 +107,27 @@ def main() -> int:
     check(sum(int(row["unsafe_rows"]) > 0 for row in qwen) == 3, "Native Qwen unsafe cases not 3", failures)
     check(sum(row["authorized_completion"] == "True" for row in qwen) == 3, "Native Qwen authorized completions not 3", failures)
 
-    check(len(external) == 336, f"External selected rows={len(external)}, expected 336", failures)
+    check(len(external) == 672, f"External selected rows={len(external)}, expected 672", failures)
+    check(len(all_protocol_summary) == 8, "Expected 8 selected external model/dataset/protocol arms", failures)
+    for arm in all_protocol_summary:
+        subset = [
+            row for row in external
+            if row["model"] == arm["model"]
+            and row["dataset"] == arm["dataset"]
+            and row["protocol"] == arm["protocol"]
+        ]
+        check(len(subset) == int(arm["n"]), f"All-protocol n mismatch for {arm['model']}/{arm['dataset']}/{arm['protocol']}", failures)
+        check(sum(row["correct"] == "True" for row in subset) == int(arm["correct"]), f"All-protocol correct mismatch for {arm['model']}/{arm['dataset']}/{arm['protocol']}", failures)
+        check(sum(row["valid"] == "True" for row in subset) == int(arm["valid"]), f"All-protocol valid mismatch for {arm['model']}/{arm['dataset']}/{arm['protocol']}", failures)
+        check(abs(float(arm["accuracy_all_attempts"]) - int(arm["correct"]) / int(arm["n"])) < 1e-9, f"All-protocol accuracy field mismatch for {arm['model']}/{arm['dataset']}/{arm['protocol']}", failures)
     check(len(external_summary) == 4, "External dataset summary must contain four arms", failures)
     for arm in external_summary:
-        subset = [row for row in external if row["model"] == arm["model"] and row["dataset"] == arm["dataset"]]
+        subset = [
+            row for row in external
+            if row["model"] == arm["model"]
+            and row["dataset"] == arm["dataset"]
+            and row["protocol"] == arm["protocol"]
+        ]
         check(len(subset) == int(arm["n"]), f"Selected intent n mismatch {arm['model']}/{arm['dataset']}", failures)
         check(sum(row["correct"] == "True" for row in subset) == int(arm["correct"]), f"Selected intent correct mismatch {arm['model']}/{arm['dataset']}", failures)
         check(sum(row["valid"] == "True" for row in subset) == int(arm["valid"]), f"Selected intent validity mismatch {arm['model']}/{arm['dataset']}", failures)
