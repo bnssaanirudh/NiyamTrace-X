@@ -1,0 +1,8 @@
+evidence_id,path,artifact_type,evidence_state,study,recorded_scope,claim_boundary
+NTX24_MEMO,results/NTX24_NTX24B_Supervisor_Evidence_Report_2026-10-13.md,report,RECORDED,NTX-24/24B,Archived authenticity checks and qualified quantitative report,Not an independent replication
+NTX24_NOTEBOOK,experiments/NTX24_Prospective_Effect_Audit.ipynb,notebook,SOURCE_ONLY,NTX-24,Original GPU model generation and reference evaluation code,Notebook presence is not current re-execution
+NTX24B_NOTEBOOK,experiments/NTX24B_Schema_Safety.ipynb,notebook,REPLAY,NTX-24B,CPU schema reanalysis using the 240 frozen NTX-24 generations,Not 240 fresh generations
+NTX16_23_STATUS,research/results/NTX16_23_PUBLIC_EVIDENCE_STATUS.md,report,RECORDED,NTX-16–23,Per-notebook status and missing or blocked outputs,Some native and official evaluation remains incomplete
+BENCHMARK_V3,niyamtrace/reports/benchmark_final_v3/benchmark_report.json,json,INFRA_FAILURE,Native benchmark v3,200 saved cases with 200 execution errors,Numeric zero accuracy is not evaluated accuracy
+HISTORICAL_MANIFEST,niyamtrace/provenance/FINAL_REPRODUCIBILITY_MANIFEST.json,json,HISTORICAL,Earlier frozen baseline,Older source and policy metadata,Not a manifest for this branch
+HISTORICAL_CLAIM_MATRIX,niyamtrace/provenance/CLAIM_EVIDENCE_MATRIX_FINAL.csv,csv,HISTORICAL,Earlier claim audit,Existing claim-to-artifact relationships,Older security wording must be checked independently
