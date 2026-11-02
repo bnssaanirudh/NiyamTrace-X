@@ -4,6 +4,10 @@
 
 The [reproducibility ZIP](NiyamTraceX_Manuscript_Evidence_2026-10-28.zip) contains the retained records and analysis used to audit the manuscript's frozen, paired, native, control, and historical findings. It preserves the scientific member bytes from `NTX_Papers_Redrafted_2026-10-13_FIXED.zip`; two aggregate files for an unreported private cohort are omitted, and the package-wide hash manifest is regenerated for the curated contents.
 
+## Full reviewer file inventories
+
+[All 144 notebook paths and SHA-256 checks](REVIEWER_NOTEBOOK_INTEGRITY.csv) · [All 1,239 research artifact checks](REVIEWER_RESULT_FILE_INTEGRITY.csv) · [Notebook-to-study/result classification](REVIEWER_STUDY_STATUS.csv). The inventories describe the archived recovered source snapshot; they do not claim new GPU experiments. A separate [reviewer data check](Analysis/validate_reviewer_package.py) validates table denominators and original-file hashes.
+
 ## Contents
 
 | Directory inside the ZIP | Evidence |
