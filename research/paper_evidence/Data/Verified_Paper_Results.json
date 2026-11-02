@@ -1,0 +1,370 @@
+{
+  "bootstrap_seed": 20261013,
+  "bootstrap_draws": 10000,
+  "frozen": {
+    "Qwen3.5-122B": {
+      "semantic_correct": 1705,
+      "frame_fields_match": 1905,
+      "schema_valid": 2000,
+      "cached": 1042,
+      "raw_sha256": "7d1b3bf2b0b34d0101c1a885847d6d511a54014c16f43e4cea778b6078123eb7"
+    },
+    "GPT-OSS-120B": {
+      "semantic_correct": 1715,
+      "frame_fields_match": 1954,
+      "schema_valid": 1996,
+      "cached": 0,
+      "raw_sha256": "991812849fb9f5a0651b6277b7bc71d6c2c1ca8796b166eb182ec8fac221e81d"
+    }
+  },
+  "frozen_stages": [
+    {
+      "model": "Qwen3.5-122B",
+      "stage": "base",
+      "n": 2000,
+      "groups": 500,
+      "correct": 1891,
+      "accuracy": 0.9455,
+      "unsafe_allow": 80,
+      "group_boot_low": 0.9365,
+      "group_boot_high": 0.954
+    },
+    {
+      "model": "Qwen3.5-122B",
+      "stage": "anchor_only",
+      "n": 2000,
+      "groups": 500,
+      "correct": 1977,
+      "accuracy": 0.9885,
+      "unsafe_allow": 0,
+      "group_boot_low": 0.9835,
+      "group_boot_high": 0.993
+    },
+    {
+      "model": "Qwen3.5-122B",
+      "stage": "clarification_only",
+      "n": 2000,
+      "groups": 500,
+      "correct": 1911,
+      "accuracy": 0.9555,
+      "unsafe_allow": 80,
+      "group_boot_low": 0.947,
+      "group_boot_high": 0.9635
+    },
+    {
+      "model": "Qwen3.5-122B",
+      "stage": "full",
+      "n": 2000,
+      "groups": 500,
+      "correct": 1997,
+      "accuracy": 0.9985,
+      "unsafe_allow": 0,
+      "group_boot_low": 0.9965,
+      "group_boot_high": 1.0
+    },
+    {
+      "model": "GPT-OSS-120B",
+      "stage": "base",
+      "n": 2000,
+      "groups": 500,
+      "correct": 1994,
+      "accuracy": 0.997,
+      "unsafe_allow": 2,
+      "group_boot_low": 0.9945,
+      "group_boot_high": 0.999
+    },
+    {
+      "model": "GPT-OSS-120B",
+      "stage": "anchor_only",
+      "n": 2000,
+      "groups": 500,
+      "correct": 1996,
+      "accuracy": 0.998,
+      "unsafe_allow": 0,
+      "group_boot_low": 0.996,
+      "group_boot_high": 0.9995
+    },
+    {
+      "model": "GPT-OSS-120B",
+      "stage": "clarification_only",
+      "n": 2000,
+      "groups": 500,
+      "correct": 1994,
+      "accuracy": 0.997,
+      "unsafe_allow": 2,
+      "group_boot_low": 0.9945,
+      "group_boot_high": 0.999
+    },
+    {
+      "model": "GPT-OSS-120B",
+      "stage": "full",
+      "n": 2000,
+      "groups": 500,
+      "correct": 1996,
+      "accuracy": 0.998,
+      "unsafe_allow": 0,
+      "group_boot_low": 0.996,
+      "group_boot_high": 0.9995
+    }
+  ],
+  "paired": {
+    "qwen_primary": {
+      "n": 360,
+      "groups": 100,
+      "regressions": 0,
+      "corrections": 0,
+      "groups_with_regression": 0,
+      "case_weighted_difference": 0.0,
+      "case_weighted_group_bootstrap_95": [
+        0.0,
+        0.0
+      ],
+      "equal_group_difference": 0.0,
+      "equal_group_bootstrap_95": [
+        0.0,
+        0.0
+      ],
+      "case_level_mcnemar_not_used_for_inference": 1.0
+    },
+    "granite_primary": {
+      "n": 360,
+      "groups": 100,
+      "regressions": 48,
+      "corrections": 0,
+      "groups_with_regression": 34,
+      "case_weighted_difference": -0.13333333333333333,
+      "case_weighted_group_bootstrap_95": [
+        -0.17086834733893558,
+        -0.09686609686609686
+      ],
+      "equal_group_difference": -0.12666666666666665,
+      "equal_group_bootstrap_95": [
+        -0.17,
+        -0.08666666666666666
+      ],
+      "case_level_mcnemar_not_used_for_inference": 7.105427357601002e-15
+    }
+  },
+  "paired_variants": [
+    {
+      "direction": "qwen_primary",
+      "variant": "raw",
+      "n": 360,
+      "groups": 100,
+      "correct": 104,
+      "unsafe_cases": 194,
+      "unsafe_rows": 568,
+      "allow_cases": 162,
+      "exact_completions": 0
+    },
+    {
+      "direction": "qwen_primary",
+      "variant": "policy_only",
+      "n": 360,
+      "groups": 100,
+      "correct": 150,
+      "unsafe_cases": 44,
+      "unsafe_rows": 88,
+      "allow_cases": 162,
+      "exact_completions": 104
+    },
+    {
+      "direction": "qwen_primary",
+      "variant": "anchors",
+      "n": 360,
+      "groups": 100,
+      "correct": 226,
+      "unsafe_cases": 0,
+      "unsafe_rows": 0,
+      "allow_cases": 162,
+      "exact_completions": 104
+    },
+    {
+      "direction": "qwen_primary",
+      "variant": "single_best",
+      "n": 360,
+      "groups": 100,
+      "correct": 226,
+      "unsafe_cases": 0,
+      "unsafe_rows": 0,
+      "allow_cases": 162,
+      "exact_completions": 104
+    },
+    {
+      "direction": "qwen_primary",
+      "variant": "independent_only",
+      "n": 360,
+      "groups": 100,
+      "correct": 182,
+      "unsafe_cases": 44,
+      "unsafe_rows": 88,
+      "allow_cases": 162,
+      "exact_completions": 104
+    },
+    {
+      "direction": "qwen_primary",
+      "variant": "full",
+      "n": 360,
+      "groups": 100,
+      "correct": 226,
+      "unsafe_cases": 0,
+      "unsafe_rows": 0,
+      "allow_cases": 162,
+      "exact_completions": 104
+    },
+    {
+      "direction": "granite_primary",
+      "variant": "raw",
+      "n": 360,
+      "groups": 100,
+      "correct": 152,
+      "unsafe_cases": 300,
+      "unsafe_rows": 1096,
+      "allow_cases": 162,
+      "exact_completions": 0
+    },
+    {
+      "direction": "granite_primary",
+      "variant": "policy_only",
+      "n": 360,
+      "groups": 100,
+      "correct": 212,
+      "unsafe_cases": 88,
+      "unsafe_rows": 176,
+      "allow_cases": 162,
+      "exact_completions": 152
+    },
+    {
+      "direction": "granite_primary",
+      "variant": "anchors",
+      "n": 360,
+      "groups": 100,
+      "correct": 336,
+      "unsafe_cases": 0,
+      "unsafe_rows": 0,
+      "allow_cases": 162,
+      "exact_completions": 152
+    },
+    {
+      "direction": "granite_primary",
+      "variant": "single_best",
+      "n": 360,
+      "groups": 100,
+      "correct": 336,
+      "unsafe_cases": 0,
+      "unsafe_rows": 0,
+      "allow_cases": 162,
+      "exact_completions": 152
+    },
+    {
+      "direction": "granite_primary",
+      "variant": "independent_only",
+      "n": 360,
+      "groups": 100,
+      "correct": 228,
+      "unsafe_cases": 44,
+      "unsafe_rows": 88,
+      "allow_cases": 162,
+      "exact_completions": 104
+    },
+    {
+      "direction": "granite_primary",
+      "variant": "full",
+      "n": 360,
+      "groups": 100,
+      "correct": 288,
+      "unsafe_cases": 0,
+      "unsafe_rows": 0,
+      "allow_cases": 162,
+      "exact_completions": 104
+    }
+  ],
+  "native": {
+    "Qwen": {
+      "planned": 48,
+      "recorded": 48,
+      "raw_correct": 0,
+      "native_correct": 10,
+      "model_output_errors": 35,
+      "runtime_errors": 0,
+      "expected_ALLOW": 12,
+      "authorized_nonempty_completions": 3,
+      "unsafe_effect_cases": 3,
+      "unsafe_business_rows": 5,
+      "simulation_cases": 11,
+      "commit_cases": 6
+    },
+    "Granite": {
+      "planned": 48,
+      "recorded": 48,
+      "raw_correct": 5,
+      "native_correct": 0,
+      "model_output_errors": 43,
+      "runtime_errors": 0,
+      "expected_ALLOW": 12,
+      "authorized_nonempty_completions": 0,
+      "unsafe_effect_cases": 0,
+      "unsafe_business_rows": 0,
+      "simulation_cases": 0,
+      "commit_cases": 0
+    }
+  },
+  "preflight": {
+    "planned": 48,
+    "recorded": 48,
+    "raw_correct": 48,
+    "native_correct": 48,
+    "model_output_errors": 0,
+    "runtime_errors": 0,
+    "expected_ALLOW": 12,
+    "authorized_nonempty_completions": 12,
+    "unsafe_effect_cases": 0,
+    "unsafe_business_rows": 0,
+    "simulation_cases": 24,
+    "commit_cases": 12
+  },
+  "external": [
+    {
+      "model": "qwen",
+      "dataset": "MASSIVE",
+      "protocol": "within_language",
+      "n": 120,
+      "correct": 44,
+      "valid": 120
+    },
+    {
+      "model": "qwen",
+      "dataset": "MTOP",
+      "protocol": "within_language",
+      "n": 48,
+      "correct": 31,
+      "valid": 48
+    },
+    {
+      "model": "granite",
+      "dataset": "MASSIVE",
+      "protocol": "within_language",
+      "n": 120,
+      "correct": 36,
+      "valid": 111
+    },
+    {
+      "model": "granite",
+      "dataset": "MTOP",
+      "protocol": "within_language",
+      "n": 48,
+      "correct": 27,
+      "valid": 44
+    }
+  ],
+  "nonallow_groups": 374,
+  "zero_event_one_sided_95_group_bound": 0.007977984938356775,
+  "human_cohort_scope": "Previously examined 32-request participant cohort excluded from manuscript analysis. Its aggregate results remain in audit records; no private participant requests are redistributed.",
+  "corrections": [
+    "GPT-OSS clarification-only replay has 2 unsafe verdicts, not the 6 stated in the old prose.",
+    "Case-weighted and equal-group bootstrap intervals are different estimands; regenerate them and keep labels distinct.",
+    "A bare case-level McNemar p-value ignores request-group dependence; retain it only as an audit calculation.",
+    "Semantic correctness includes clarification/disagreement fields; eight-field exact match alone is a different metric.",
+    "1042/2000 Qwen reference outputs carry cached=true; do not call these a new fully fresh inference replication."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "source_archive_filename": "NTX_Papers_Redrafted_2026-10-13_FIXED.zip",
+  "source_archive_sha256": "68c8f68e9fa3dd95f3ac056be635ec3ecd0af1fc59415c14721f2561e488910e",
+  "curated_files": 1700,
+  "excluded_unreported_private_aggregate_files": [
+    "Audit/Private_Cohort_Archive_Aggregates.json",
+    "Data/Native_Original_Private_Run_Aggregates.json"
+  ],
+  "scientific_member_bytes_modified": false,
+  "credential_prefix_scan_findings": [],
+  "scan_note": "Prefix matching uses a leading boundary to avoid matching sk- inside task identifiers. No logs were redacted."
+}

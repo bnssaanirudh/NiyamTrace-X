@@ -1,0 +1,15 @@
+\begin{table}[htbp]
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\caption{Native controlled experiment and known-candidate execution control. All 48 attempts remain in verdict denominators. Completion is measured over twelve expected-\allow requests. Unsafe counts are actual business changes; affected rows are in parentheses. The control supplies correct extractions and runs no language model.}
+\label{tab:native}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrr}
+\toprule
+Arm & Correct verdicts & Output errors & Completion & Commits & Unsafe cases \\
+\midrule
+Qwen2.5-3B & 10/48 & 35 & 3/12 & 6 & 3 (5 rows) \\
+Granite-3.3-2B & 0/48 & 43 & 0/12 & 0 & 0 (0 rows) \\
+Known candidates & 48/48 & 0 & 12/12 & 12 & 0 (0 rows) \\
+\bottomrule
+\end{tabular}
+\end{table}

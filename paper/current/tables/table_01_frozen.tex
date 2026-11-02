@@ -1,0 +1,15 @@
+\begin{table}[htbp]
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\caption{Replay of the frozen reference records. Every stage uses the same 2,000 requests per checkpoint. Unsafe counts concern verdicts rather than executed effects. Four GPT-OSS invalid outputs remain incorrect.}
+\label{tab:frozen}
+\begin{tabular}{lrrrr}
+\toprule
+Stage & Qwen correct & Qwen unsafe & GPT-OSS correct & GPT-OSS unsafe \\
+\midrule
+Base & 1,891/2,000 & 80 & 1,994/2,000 & 2 \\
+Anchors only & 1,977/2,000 & 0 & 1,996/2,000 & 0 \\
+Clarification recovery only & 1,911/2,000 & 80 & 1,994/2,000 & 2 \\
+Full reference sequence & 1,997/2,000 & 0 & 1,996/2,000 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}

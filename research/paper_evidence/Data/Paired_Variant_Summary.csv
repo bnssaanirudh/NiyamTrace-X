@@ -1,0 +1,13 @@
+direction,variant,n,groups,correct,unsafe_cases,unsafe_rows,allow_cases,exact_completions
+qwen_primary,raw,360,100,104,194,568,162,0
+qwen_primary,policy_only,360,100,150,44,88,162,104
+qwen_primary,anchors,360,100,226,0,0,162,104
+qwen_primary,single_best,360,100,226,0,0,162,104
+qwen_primary,independent_only,360,100,182,44,88,162,104
+qwen_primary,full,360,100,226,0,0,162,104
+granite_primary,raw,360,100,152,300,1096,162,0
+granite_primary,policy_only,360,100,212,88,176,162,152
+granite_primary,anchors,360,100,336,0,0,162,152
+granite_primary,single_best,360,100,336,0,0,162,152
+granite_primary,independent_only,360,100,228,44,88,162,104
+granite_primary,full,360,100,288,0,0,162,104

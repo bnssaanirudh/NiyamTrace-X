@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "Please cite the repository and identify the manuscript revision and evidence snapshot you used."
+type: software
+title: "NiyamTrace-X"
+authors:
+  - family-names: "Badampudi"
+    given-names: "Agasthya Anirudh"
+  - family-names: "K"
+    given-names: "Sri Pranav"
+  - family-names: "V"
+    given-names: "Vijayarajan"
+repository-code: "https://github.com/bnssaanirudh/NiyamTrace-X"
+url: "https://github.com/bnssaanirudh/NiyamTrace-X"
+abstract: "Research code and retained evidence for request-grounded authorization in multilingual tool-using agents. See paper/current for the author-supplied manuscript and research/paper_evidence for cohort-specific reproduction."

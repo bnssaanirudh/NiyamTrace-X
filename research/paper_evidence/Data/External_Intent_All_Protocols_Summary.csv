@@ -1,0 +1,9 @@
+protocol,model,dataset,n,correct,valid,accuracy_all_attempts,valid_fraction,scope
+english_transfer,granite,MASSIVE,120,24,81,0.2,0.675,selected_intent_classification
+english_transfer,granite,MTOP,48,23,45,0.479166666667,0.9375,selected_intent_classification
+english_transfer,qwen,MASSIVE,120,40,120,0.333333333333,1.0,selected_intent_classification
+english_transfer,qwen,MTOP,48,26,48,0.541666666667,1.0,selected_intent_classification
+within_language,granite,MASSIVE,120,36,111,0.3,0.925,selected_intent_classification
+within_language,granite,MTOP,48,27,44,0.5625,0.916666666667,selected_intent_classification
+within_language,qwen,MASSIVE,120,44,120,0.366666666667,1.0,selected_intent_classification
+within_language,qwen,MTOP,48,31,48,0.645833333333,1.0,selected_intent_classification
