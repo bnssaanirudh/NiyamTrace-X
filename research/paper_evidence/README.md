@@ -1,5 +1,7 @@
 # Evidence for the current manuscript
 
+**Peer reviewer navigation:** [Start here](../../REVIEWER_START_HERE.md) · [Data dictionary](DATA_DICTIONARY.md) · [Table / figure sources](RESULTS_AND_FIGURES.md) · [Step-by-step reproduction](REPRODUCE.md) · [Machine-readable reviewer evidence index](REVIEWER_DATA_INDEX.csv). Preserve original data bytes; derived tables are *views* of archived records.
+
 The [reproducibility ZIP](NiyamTraceX_Manuscript_Evidence_2026-10-28.zip) contains the retained records and analysis used to audit the manuscript's frozen, paired, native, control, and historical findings. It preserves the scientific member bytes from `NTX_Papers_Redrafted_2026-10-13_FIXED.zip`; two aggregate files for an unreported private cohort are omitted, and the package-wide hash manifest is regenerated for the curated contents.
 
 ## Contents
