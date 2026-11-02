@@ -4,6 +4,10 @@ Research code and retained evidence for **NiyamTrace-X: An Agent-Based Multiling
 
 NiyamTrace-X studies whether multilingual requests retain their authorization limits through interpretation, policy checks, and database writes. This repository preserves successful results, failed runs, superseded methods, and the native execution failures reported in the paper.
 
+## Peer-review access
+
+**For manuscript evaluation, begin with the [reviewer evidence portal](REVIEWER_START_HERE.md)**. It links the exact October 28 paper, case-level data, notebook provenance, negative results, definitions, data availability, and audited reproduction commands. [Data dictionary](research/paper_evidence/DATA_DICTIONARY.md) · [Manuscript figure/table traceability](research/paper_evidence/RESULTS_AND_FIGURES.md) · [Reproduction instructions](research/paper_evidence/REPRODUCE.md). The full release is currently on an unmerged research-recovery branch; do not interpret the smaller default branch as the publication package.
+
 ## Start here
 
 | Resource | Location |
