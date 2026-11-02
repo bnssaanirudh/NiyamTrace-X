@@ -1,0 +1,46 @@
+name: Reviewer evidence consistency
+
+on:
+  push:
+    branches:
+      - archive/niyamtrace-oct-2026-research-recovery
+  pull_request:
+    paths:
+      - 'REVIEWER_START_HERE.md'
+      - 'research/paper_evidence/**'
+      - 'paper/current/**'
+      - '.github/workflows/reviewer-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  data-consistency:
+    name: Check paper tables, case totals and hashes (no inference)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check reviewer package and derived CSV totals
+        run: |
+          python research/paper_evidence/Analysis/validate_reviewer_package.py --report reviewer-validation.json
+      - name: Verify saved model and native results from archived evidence
+        run: |
+          python -m zipfile -e research/paper_evidence/NiyamTraceX_Manuscript_Evidence_2026-10-28.zip reproduced_evidence
+          python -X utf8 reproduced_evidence/Analysis/reproduce_results.py > reviewer-main-reproduction.json
+          python -X utf8 reproduced_evidence/Analysis/reproduce_history.py > reviewer-historical-reproduction.json
+          python -X utf8 research/paper_evidence/verify_ntx24b.py > reviewer-ntx24b-reproduction.json
+      - name: Publish reviewer verification receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: niyamtrace-reviewer-evidence-checks
+          if-no-files-found: warn
+          path: |
+            reviewer-validation.json
+            reviewer-main-reproduction.json
+            reviewer-historical-reproduction.json
+            reviewer-ntx24b-reproduction.json
