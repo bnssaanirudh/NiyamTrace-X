@@ -56,6 +56,9 @@ jobs:
       - name: Run replay tests
         working-directory: niyamtrace
         run: pytest tests/replay/ -v --tb=short
+      - name: Run security tests
+        working-directory: niyamtrace
+        run: pytest tests/security/ -v --tb=short
 
   benchmark:
     runs-on: ubuntu-latest
