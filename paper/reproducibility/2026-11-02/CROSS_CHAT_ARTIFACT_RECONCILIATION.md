@@ -56,6 +56,16 @@
 - PR #2's manuscript still lacks a concise explanation for the **374 non-ALLOW groups** used in one zero-event bound: 500 total groups minus 126 ALLOW groups. This warrants an explicit manuscript sentence.
 - October 13 older manuscript copies, Oct 28 current manuscript, and September format variants are **versions**, not independent scientific studies.
 
+## Earlier September/October chat artifacts identified on a second retrieval pass
+
+The cross-chat retrieval also surfaced **additional historical filenames absent as exact paths** from main and PR #2, beyond the Oct 25 inventory. These **are historical claims to verify**, not proof that standalone underlying raw bytes remain available:
+
+- September external multilingual validation: `NTX_External_Multilingual_Validation.ipynb`, `NTX_External_Multilingual_Validation_Notebook.zip`, `NTX_External_Multilingual_Validation_Results_GitHub.zip`, `NiyamTrace-X_External_Validation_GitHub_Ready.zip`. The earlier summary reports MASSIVE 450 and MTOP 300 selected cases, including 278/308 strict grounding on one audit. **Do not replace or add these counts to** PR #2's 120-case MASSIVE and 48-case MTOP selected cohort: these are potentially different source/protocol slices and require original files, labels, model revisions, and actual checksums to reconcile.
+- October 12 Granite independent retest: `NTX_Granite48_Retest_Outputs.zip` was previously classified as `archived_only` / byte-identical to the prior study, **not a new GPU trial**. The notebook source `NTX_Granite_48_Independent_Retest.ipynb` is already on PR #2. Prior audit attributes the 48 Granite ALLOW→CLARIFY regressions to invalid secondary Qwen proposals (29 missing `args`, 19 invalid tool); detailed raw rows must be checked before using causal wording.
+- Source-notebook names `17_NTX17_SOURCE_VENDOR_FIX_AND_32_CASE_RERUN.ipynb`, `17_NiyamTraceX_UPDATED_Combined_Human_Gold_Colab.ipynb` and `18_NTX17_FRESH_CASES_POLICY_GATE_COLAB.ipynb` are referenced in historical notebook audit records but not present as those exact paths on GitHub. **They mention private material**; do not bulk-publish their notebooks or pilot outputs.
+- Additional October 13 journal **format** packages: `NiyamTraceX_ESWA_Multilingual_Expanded_2026-10-13.zip`, `NiyamTraceX_Frontiers_Multilingual_Expanded_2026-10-13.zip`, `NiyamTraceX_ScientificReports_Multilingual_Expanded_2026-10-13.zip`, plus separate `NiyamTraceX_*_NTX24B_Integrated_2026-10-13.zip` source packages and earlier clean LaTeX packages. Exact names are absent from the Git trees inspected. These are **versioned manuscripts**, not new experiments.
+- Other September submission-format copies and the October 12 all-in-one PDFs/ZIP have names in prior conversations but are lower-priority archival versions. Verify content hashes against the already published Oct 28 manuscript before storing further duplicates.
+
 ## Safe recovery sequence
 
 1. Review/merge PR #2's manuscript and evidence first, after legal/privacy/licensing and secret checks. No duplication into PR #3.
