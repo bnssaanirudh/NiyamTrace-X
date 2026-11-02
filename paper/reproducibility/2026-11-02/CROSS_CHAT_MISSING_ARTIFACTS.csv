@@ -11,3 +11,6 @@ outputs,Oct06 T4 LIVE baseline/redteam/stateful ZIPs,NOT_FOUND,NOT_FOUND,NOT_FOU
 outputs,Oct11 revised and assorted historical result ZIPs,NOT_FOUND,NOT_FOUND,NOT_FOUND,Recover only authenticated nonduplicate archives,P2
 video,10-minute all-roles recording,NOT_FOUND,NOT_FOUND,NOT_FOUND,Check footage and credentials before public release,P2
 evidence,Independent human gold and official native external scores,BLOCKED,BLOCKED,BLOCKED,Requires actual experiments; no fabricated numbers,P0
+outputs,September MASSIVE/MTOP external multilingual validation 450/300 archive,NOT_FOUND,NOT_FOUND,NOT_FOUND,Earlier source cohort not matched to PR2 120/48 selected diagnostic,P1
+notebooks,Oct12 NTX17 source vendor fix and human-gold private notebooks,NOT_FOUND,NOT_FOUND,NOT_FOUND,Private content review required before any release,P1
+paper,Oct13 multilingual expanded ESWA Frontiers ScientificReports ZIP versions,NOT_FOUND,NOT_FOUND,NOT_FOUND,Preserve versions by hash and compare Oct28 before duplication,P2
