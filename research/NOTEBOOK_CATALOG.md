@@ -1,5 +1,7 @@
 # Notebook catalog
 
+**Reviewer warning (2026-11-02):** `research/notebooks/23_Full_Pipeline_Public_Controlled.ipynb` is an unreadable binary/non-JSON file in the inspected GitHub tree. Do **not** claim the linked notebook is runnable. Its native controlled aggregates and retained source snapshot still exist separately in the Oct 28 evidence package. Restoration is tracked in [issue #4](https://github.com/bnssaanirudh/NiyamTrace-X/issues/4). A 144-path static notebook inventory (86 distinct byte hashes, one malformed path) and its per-file evidence audit are documented in [the review report](https://github.com/bnssaanirudh/NiyamTrace-X/blob/paper-evidence-format-2026-11-02/paper/reproducibility/2026-11-02/COMPLETE_NOTEBOOK_RESULT_AUDIT.md). This catalog lists *historical source filenames*, not 144 executed experiments.
+
 Notebook paths describe source availability. They do not establish successful execution. Duplicate copies and corrected versions are retained in the historical tree.
 
 ## Current manuscript support
