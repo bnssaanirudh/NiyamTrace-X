@@ -7,7 +7,7 @@
 | Reviewer question | Go directly to |
 |---|---|
 | What is the manuscript? | [Rendered PDF](paper/current/main.pdf) · [LaTeX](paper/current/main.tex) · [reference database](paper/current/references.bib) |
-| Which data generated Tables 1–4? | [Table/figure traceability](research/paper_evidence/RESULTS_AND_FIGURES.md) · [machine-readable data index](research/paper_evidence/REVIEWER_DATA_INDEX.csv) |
+| Which data generated the manuscript's five tables and six figures? | [Table/figure traceability](research/paper_evidence/RESULTS_AND_FIGURES.md) · [machine-readable data index](research/paper_evidence/REVIEWER_DATA_INDEX.csv) |
 | What does each CSV column mean? | [Data dictionary](research/paper_evidence/DATA_DICTIONARY.md) |
 | How do I reproduce the saved calculations? | [Reproduction protocol](research/paper_evidence/REPRODUCE.md) |
 | Where are the original case records, model generations, DB snapshots, source hashes? | [Curated evidence ZIP](research/paper_evidence/NiyamTraceX_Manuscript_Evidence_2026-10-28.zip) · [archive contents](research/paper_evidence/README.md) |
@@ -32,7 +32,7 @@ For full denominators and other historical controlled experiments, see [traceabi
 
 ## Read the evidence in the right order
 
-1. Read Tables 1–3 in the [manuscript](paper/current/main.pdf), using [table index](research/paper_evidence/RESULTS_AND_FIGURES.md) to open *case-level* and *summary* CSVs.
+1. Read Tables 1–5 in the [manuscript](paper/current/main.pdf), using [table index](research/paper_evidence/RESULTS_AND_FIGURES.md) to open *case-level* and *summary* CSVs.
 2. Inspect **raw retained records and synthetic before/after database snapshots** inside the [curated ZIP](research/paper_evidence/NiyamTraceX_Manuscript_Evidence_2026-10-28.zip); the root-level `Data/` directory contains convenience **derived** data, not every original.
 3. Execute the three **retained-record** verifier commands in the [reproduction protocol](research/paper_evidence/REPRODUCE.md) on an unmodified copy of the evidence bundle. Inspect failures rather than suppressing them.
 4. Distinguish the actual evaluated source snapshot *inside that ZIP* from later `niyamtrace/` code; do not assume the two are byte-identical.
