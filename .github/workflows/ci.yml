@@ -136,6 +136,26 @@ jobs:
             --output-dir notebook_audit_out \
             --source-ref archive/niyamtrace-oct-2026-research-recovery \
             --crc-limit-mib 32
+      - name: Identify the unreadable public Notebook 23 encoding
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("recovery_snapshot/research/notebooks/23_Full_Pipeline_Public_Controlled.ipynb")
+          data = path.read_bytes()
+          print("path:", path)
+          print("bytes:", len(data))
+          print("first_32_hex:", data[:32].hex())
+          for codec in ("utf-8-sig", "utf-16", "utf-16-le", "utf-16-be"):
+              try:
+                  decoded = data.decode(codec)
+                  ok = isinstance(json.loads(decoded), dict)
+                  print(f"{codec} JSON object: {ok}")
+              except (UnicodeError, ValueError):
+                  print(f"{codec} not valid notebook JSON")
+          PY
       - name: Upload per-notebook and per-result integrity inventory
         if: always()
         uses: actions/upload-artifact@v4
