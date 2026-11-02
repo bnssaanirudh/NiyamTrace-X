@@ -27,6 +27,12 @@ Historical frozen evidence stays in place; no ZIP, trace, or prior manuscript ha
 - **HISTORICAL:** Prior manifest for an earlier commit; not an updated audit.
 - **INDEPENDENTLY_REPRODUCED:** Reserved for externally rerun and independently reviewed evidence; not assigned here.
 
+## Cross-chat recovery and unmerged results
+
+The [cross-chat artifact reconciliation](CROSS_CHAT_ARTIFACT_RECONCILIATION.md) compares recoverable prior ChatGPT/Library research records with main and the open GitHub recovery PR #2. The [missing-artifact register](CROSS_CHAT_MISSING_ARTIFACTS.csv) records the exact filenames and whether an item is already on PR #2, missing only by name, or genuinely unverified. The Oct 28 manuscript and most frozen/paired/native findings are already preserved in PR #2, not in main; do not duplicate or overstate their merge status.
+
+**CI receipt:** GitHub Actions [run 41478741827](https://github.com/bnssaanirudh/NiyamTrace-X/actions/runs/41478741827) passed the isolated **Paper evidence integrity and tooling** job. The overall workflow failed on inherited Ruff lint findings and skipped downstream tests/benchmark. Paper evidence validation is not a substitute for complete source CI or fresh model inference.
+
 ## Precisely scoped results
 
 - NTX-24 recorded **240 original model outputs**: 120 per model, from Qwen2.5-3B and Granite-3.3-2B on generated multilingual cases. NTX-24B is a typed-parser replay **of the same 240 outputs**, not a second sample.
