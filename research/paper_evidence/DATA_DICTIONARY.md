@@ -57,7 +57,7 @@ The same frozen predictions are re-evaluated across stages: **do not sum `n` acr
 | `reason` | Rule/fallback path recorded in the reference evaluation |
 | `gold_covered_by_candidate_union` | Whether the constructed effect union included the gold target |
 
-Do **not** confuse `safe_completion` with `exact_completion`. Observations are clustered by `group`; repeated policy arms are **paired**, not independent.
+Do **not** confuse `safe_completion` with `exact_completion`. The per-case `exact_completion=True` can also mark a correctly non-ALLOW no-op; **Table 2 counts exact completions only when `expected == ALLOW`**, divided by 162 expected-ALLOW cases per direction/variant. Observations are clustered by `group`; repeated policy arms are **paired**, not independent.
 
 ### D. Paired_Variant_Summary.csv — Table 2
 
@@ -84,13 +84,14 @@ Do **not** confuse `safe_completion` with `exact_completion`. Observations are c
 
 ### F. External_Intent_Case_Metrics.csv — selected MASSIVE/MTOP diagnostics
 
-`model,id,dataset,language,protocol,gold,pred,valid,correct`. These are **selected public-intent classification** records, *not* official native authorization benchmark scores. `gold`/`pred` are mapped category IDs (e.g. C00), not ERP verdicts. The class mappings are in [External_class_manifest.json](Data/External_class_manifest.json), model revisions in [External_model_revisions.json](Data/External_model_revisions.json) and dataset-file hashes and splits in [External_dataset_provenance.json](Data/External_dataset_provenance.json). Original external corpus text is not republished.
+`model,id,dataset,language,protocol,gold,pred,valid,correct`. The CSV has **672 case rows** across two model checkpoints, two datasets and two protocols (`within_language` and `english_transfer`). The original [External_Intent_Summary.csv](Data/External_Intent_Summary.csv) covers only 336 `within_language` rows; the [all-protocol summary](Data/External_Intent_All_Protocols_Summary.csv) covers all 672 rows in eight model/dataset/protocol arms. These are **selected public-intent classification** records, *not* official native authorization benchmark scores. `gold`/`pred` are mapped category IDs (e.g. C00), not ERP verdicts. The class mappings are in [External_class_manifest.json](Data/External_class_manifest.json), model revisions in [External_model_revisions.json](Data/External_model_revisions.json) and dataset-file hashes and splits in [External_dataset_provenance.json](Data/External_dataset_provenance.json). Original external corpus text is not republished.
 
 ### G. Other files
 
 | File | Purpose |
 |---|---|
-| [External_Intent_Summary.csv](Data/External_Intent_Summary.csv) | Selected class prediction counts and valid-output denominators |
+| [External_Intent_Summary.csv](Data/External_Intent_Summary.csv) | Original within-language-only class predictions (336 rows across four arms) |
+| [External_Intent_All_Protocols_Summary.csv](Data/External_Intent_All_Protocols_Summary.csv) | Derived summary for all 672 case rows across eight model/dataset/protocol arms |
 | [Verified_Paper_Results.json](Data/Verified_Paper_Results.json) | Consolidated derived frozen, paired, native and external analyses |
 | [Verified_Historical_Results.json](Data/Verified_Historical_Results.json) | Constructed anchor, formal effect, broker and historical cohort results |
 | [verification/main_results.json](verification/main_results.json) | Programmatic retained-record verification receipt |
