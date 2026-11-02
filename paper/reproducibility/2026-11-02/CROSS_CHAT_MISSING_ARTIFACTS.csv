@@ -1,0 +1,16 @@
+category,artifact_or_evidence,github_main,github_PR2,github_PR3,disposition,priority
+manuscript,paper/current/main.pdf and editable sources,ABSENT,PRESENT,ABSENT,Already recovered on PR2 do not duplicate,P0
+research,research/paper_evidence/NiyamTraceX_Manuscript_Evidence_2026-10-28.zip,ABSENT,PRESENT,ABSENT,Review PR2 and claim map,P0
+notebooks,NTX25_Advanced_EndToEnd_Colab_FIXED.ipynb,ABSENT,PRESENT,ABSENT,Source recovered not full GPU results,P0
+results,NTX25_results.zip and real GPU provenance,NOT_FOUND,NOT_FOUND,NOT_FOUND,Check original failed/partial archive and model errors; not proven GPU run,P0
+notebooks,Oct04 ROOTFIX 00..08 nine notebooks,NOT_FOUND,NOT_FOUND,NOT_FOUND,Original source missing by basename; Q1 16..24 is different,P1
+paper,Oct13 NTX24B integrated Scientific Reports/ESWA/Frontiers PDFs,NOT_FOUND,NOT_FOUND,NOT_FOUND,Restore exact archival versions if available,P1
+paper,Oct13 later FactChecked Scientific Reports and Frontiers V1 PDFs,NOT_FOUND,NOT_FOUND,NOT_FOUND,Verify later PDFs and editable-source mismatch,P1
+study,NTX17 32-case patched private rerun,NOT_FOUND,NOT_FOUND,NOT_FOUND,Private diagnostic; do not upload raw cohort,P1
+outputs,Oct06 T4 LIVE baseline/redteam/stateful ZIPs,NOT_FOUND,NOT_FOUND,NOT_FOUND,Compare historical archive member checksums before concluding lost,P2
+outputs,Oct11 revised and assorted historical result ZIPs,NOT_FOUND,NOT_FOUND,NOT_FOUND,Recover only authenticated nonduplicate archives,P2
+video,10-minute all-roles recording,NOT_FOUND,NOT_FOUND,NOT_FOUND,Check footage and credentials before public release,P2
+evidence,Independent human gold and official native external scores,BLOCKED,BLOCKED,BLOCKED,Requires actual experiments; no fabricated numbers,P0
+outputs,September MASSIVE/MTOP external multilingual validation 450/300 archive,NOT_FOUND,NOT_FOUND,NOT_FOUND,Earlier source cohort not matched to PR2 120/48 selected diagnostic,P1
+notebooks,Oct12 NTX17 source vendor fix and human-gold private notebooks,NOT_FOUND,NOT_FOUND,NOT_FOUND,Private content review required before any release,P1
+paper,Oct13 multilingual expanded ESWA Frontiers ScientificReports ZIP versions,NOT_FOUND,NOT_FOUND,NOT_FOUND,Preserve versions by hash and compare Oct28 before duplication,P2
