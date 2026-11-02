@@ -33,6 +33,10 @@ The [cross-chat artifact reconciliation](CROSS_CHAT_ARTIFACT_RECONCILIATION.md) 
 
 **CI receipt:** GitHub Actions [run 41478741827](https://github.com/bnssaanirudh/NiyamTrace-X/actions/runs/41478741827) passed the isolated **Paper evidence integrity and tooling** job. The overall workflow failed on inherited Ruff lint findings and skipped downstream tests/benchmark. Paper evidence validation is not a substitute for complete source CI or fresh model inference.
 
+## Full notebook and result audit
+
+The [complete notebook/result audit](COMPLETE_NOTEBOOK_RESULT_AUDIT.md) records **144 notebook paths, 86 unique byte hashes, one unreadable Notebook 23, 1,239 scanned research artifacts, and 47 zero-row CSVs**. The independent [CI audit artifact](https://github.com/bnssaanirudh/NiyamTrace-X/actions/runs/41480883525) includes per-file CSV inventories. [Retained-record reproduction](https://github.com/bnssaanirudh/NiyamTrace-X/actions/runs/41480562701) passed for archived frozen, paired, historical and NTX-24B calculations; this did not perform new model inference. The full CI workflow remains red due to inherited Ruff errors and one malformed notebook. Treat the failed static inventory as a tracked source defect, not as a recovered notebook.
+
 ## Precisely scoped results
 
 - NTX-24 recorded **240 original model outputs**: 120 per model, from Qwen2.5-3B and Granite-3.3-2B on generated multilingual cases. NTX-24B is a typed-parser replay **of the same 240 outputs**, not a second sample.
