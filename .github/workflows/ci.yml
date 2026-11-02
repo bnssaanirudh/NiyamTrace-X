@@ -102,7 +102,7 @@ jobs:
         working-directory: niyamtrace
         run: |
           python -m pip install pytest
-          python -m pytest tests/unit/test_paper_tools.py -q --confcutdir=tests/unit
+          python -m pytest tests/unit/test_paper_tools.py tests/unit/test_notebook_evidence_audit.py -q --confcutdir=tests/unit
       - name: Validate registered paper artifact files
         run: |
           python niyamtrace/scripts/paper_audit.py --repo-root . --register paper/reproducibility/2026-11-02/EVIDENCE_REGISTER.csv --output-dir paper_audit_out
@@ -112,3 +112,33 @@ jobs:
         with:
           name: paper-evidence-audit
           path: paper_audit_out/
+
+  notebook-evidence-audit:
+    name: Complete static notebook and result archive audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout audit scripts (this PR)
+        uses: actions/checkout@v4
+      - name: Checkout unmerged October recovery evidence
+        uses: actions/checkout@v4
+        with:
+          ref: archive/niyamtrace-oct-2026-research-recovery
+          path: recovery_snapshot
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Audit all recovered notebook JSON and result paths
+        run: |
+          python niyamtrace/scripts/notebook_evidence_audit.py \
+            --repo-root recovery_snapshot \
+            --output-dir notebook_audit_out \
+            --source-ref archive/niyamtrace-oct-2026-research-recovery \
+            --crc-limit-mib 32
+      - name: Upload per-notebook and per-result integrity inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: complete-notebook-and-result-audit
+          path: notebook_audit_out/
