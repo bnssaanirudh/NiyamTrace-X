@@ -38,7 +38,15 @@ For full denominators and other historical controlled experiments, see [traceabi
 4. Distinguish the actual evaluated source snapshot *inside that ZIP* from later `niyamtrace/` code; do not assume the two are byte-identical.
 5. Check the [limitations and exception register](research/paper_evidence/REPRODUCE.md#limitations-and-unresolved-work) before assessing scientific scope.
 
-## Dataset and evidence access policy
+## Complete machine-readable inventories
+
+- [All 144 notebook files, SHA-256 hashes, structural validity and saved-cell-output counts](research/paper_evidence/REVIEWER_NOTEBOOK_INTEGRITY.csv).
+- [All 1,239 checked source/result artifacts, SHA-256 hashes, record counts and ZIP integrity states](research/paper_evidence/REVIEWER_RESULT_FILE_INTEGRITY.csv).
+- [Curated notebook-to-study/result/status matrix](research/paper_evidence/REVIEWER_STUDY_STATUS.csv): links key experimental notebooks to the retained evidence or the explicit blocker.
+
+The inventories are a **dated snapshot** of the recovered October evidence tree. There are 86 distinct notebook byte hashes among 144 paths; duplicates are retained for audit rather than counted as separate experiments. The inventory also preserves 47 zero-row CSV files (46 one-byte placeholders). Empty files are not valid completed benchmark scores.
+
+
 
 The public evidence contains curated author-generated controlled fixtures, released model-response records, derived analysis CSVs, historical diagnostics, and synthetic SQLite state snapshots. It does **not** provide participants' private text, the private original NB21/NB22 diagnostics, complete independent bilingual adjudicated gold labels, or official gate-in-path AgentDojo/BFCL/τ scores. External MASSIVE and MTOP data must be obtained from their respective original distributors under applicable license terms; this repository provides [dataset revision and file hashes](research/paper_evidence/Data/External_dataset_provenance.json) and [class mappings](research/paper_evidence/Data/External_class_manifest.json).
 
