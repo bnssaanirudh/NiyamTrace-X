@@ -6,10 +6,10 @@ All relative links in this document resolve from `research/paper_evidence/`. The
 
 | Manuscript element | Downloadable derived data | Original / retained source | Computational check |
 |---|---|---|---|
-| **Table 1:** frozen verdict accuracy by stage | [Case rows](Data/Frozen_Case_Metrics.csv) · [Stage summary](Data/Frozen_Stage_Metrics.csv) | ZIP `Reproducibility/Frozen/` | `Analysis/reproduce_results.py` inside extracted ZIP |
-| **Table 2:** paired reference policy/effect ablations | [4,320 method rows](Data/Paired_Case_Metrics.csv) · [12 summary rows](Data/Paired_Variant_Summary.csv) | ZIP `Reproducibility/Paired/` | `Analysis/reproduce_results.py` inside ZIP |
-| **Table 3:** native Qwen/Granite + control | [Native per-case rows](Data/Native_Controlled_Metrics.csv) · [Summary JSON](Data/Verified_Paper_Results.json) | ZIP `Reproducibility/Native_Controlled/`, `Reproducibility/Controlled_Candidate_Preflight/`, source and SQL snapshots | `Analysis/reproduce_results.py` + saved effect oracle |
-| **Exploratory NTX-24B table / figure:** typed reference parser | [NTX-24B archive](../../results/NTX24B_results.zip) · [Reaggregated counts](verification/ntx24b_results.json) | `case_level.csv`, `metrics.csv`, `per_language.csv` inside NTX-24B ZIP | [verify_ntx24b.py](verify_ntx24b.py) |
+| **Table 3 (`tab:frozen`):** frozen verdict accuracy by stage | [Case rows](Data/Frozen_Case_Metrics.csv) · [Stage summary](Data/Frozen_Stage_Metrics.csv) | ZIP `Reproducibility/Frozen/` | `Analysis/reproduce_results.py` inside extracted ZIP |
+| **Table 4 (`tab:paired`):** paired reference policy/effect ablations | [4,320 method rows](Data/Paired_Case_Metrics.csv) · [12 summary rows](Data/Paired_Variant_Summary.csv) | ZIP `Reproducibility/Paired/` | `Analysis/reproduce_results.py` inside ZIP |
+| **Table 5 (`tab:native`):** native Qwen/Granite + control | [Native per-case rows](Data/Native_Controlled_Metrics.csv) · [Summary JSON](Data/Verified_Paper_Results.json) | ZIP `Reproducibility/Native_Controlled/`, `Reproducibility/Controlled_Candidate_Preflight/`, source and SQL snapshots | `Analysis/reproduce_results.py` + saved effect oracle |
+| **Tables 1–2 (`tab:ntx24b`, `tab:ntx24b_languages`) and Figure 1:** typed reference parser | [NTX-24B archive](../../results/NTX24B_results.zip) · [Reaggregated counts](verification/ntx24b_results.json) | `case_level.csv`, `metrics.csv`, `per_language.csv` inside NTX-24B ZIP | [verify_ntx24b.py](verify_ntx24b.py) |
 | **Selected public-intent diagnostics:** MASSIVE / MTOP | [672 per-case](Data/External_Intent_Case_Metrics.csv) · [Original within-language summary](Data/External_Intent_Summary.csv) · [All-protocol summary](Data/External_Intent_All_Protocols_Summary.csv) | ZIP `Reproducibility/External/`; [dataset hashes](Data/External_dataset_provenance.json), [class mapping](Data/External_class_manifest.json) | `Analysis/reproduce_results.py` |
 | **Additional historical evidence** | [Derived historical JSON](Data/Verified_Historical_Results.json) | ZIP `Reproducibility/Historical/` | `Analysis/reproduce_history.py` inside ZIP |
 
@@ -19,18 +19,22 @@ All relative links in this document resolve from `research/paper_evidence/`. The
 
 ## Figure source registry
 
+**Current numbered order comes from `paper/current/main.tex`, not filenames.** The preserved `figure_6_ntx24b_by_language.pdf` is **Figure 1** in this manuscript; the preserved `figure_1_frozen_reference.pdf` is **Figure 2**. Do not infer the displayed figure number from the filename. The current source contains six `figure` environments.
+
 | Figure file preserved with Oct 28 PDF | Result context | Evidence / presentation note |
 |---|---|---|
-| [figure_1_frozen_reference.pdf](../../paper/current/images/figure_1_frozen_reference.pdf) | Frozen reference mechanism/decisions | [Frozen summary](Data/Frozen_Stage_Metrics.csv) and source snapshot |
-| [figure_2_paired_utility.pdf](../../paper/current/images/figure_2_paired_utility.pdf) | Utility and safety of paired methods | [Paired summary](Data/Paired_Variant_Summary.csv) |
-| [figure_3_native_effects.pdf](../../paper/current/images/figure_3_native_effects.pdf) | Native effect outcomes | [Native case rows](Data/Native_Controlled_Metrics.csv) |
-| [figure_4_native_diagnostics.pdf](../../paper/current/images/figure_4_native_diagnostics.pdf) | Model-output / execution diagnostics | [Native case rows](Data/Native_Controlled_Metrics.csv) |
-| [figure_5_language_scope.pdf](../../paper/current/images/figure_5_language_scope.pdf) | Language coverage and scope | [Frozen case rows](Data/Frozen_Case_Metrics.csv); selected [external intent](Data/External_Intent_Case_Metrics.csv) |
-| [figure_6_ntx24b_by_language.pdf](../../paper/current/images/figure_6_ntx24b_by_language.pdf) · [PNG](../../paper/current/images/figure_6_ntx24b_by_language.png) | NTX-24B reference parser replay stratification | [NTX-24B ZIP](../../results/NTX24B_results.zip), `per_language.csv` |
+| **Figure 2 (`fig:frozen`)** — [figure_1_frozen_reference.pdf](../../paper/current/images/figure_1_frozen_reference.pdf) | Frozen reference mechanism/decisions | [Frozen summary](Data/Frozen_Stage_Metrics.csv) and source snapshot |
+| **Figure 3 (`fig:pairedtradeoff`)** — [figure_2_paired_utility.pdf](../../paper/current/images/figure_2_paired_utility.pdf) | Utility and safety of paired methods | [Paired summary](Data/Paired_Variant_Summary.csv) |
+| **Figure 4 (`fig:native`)** — [figure_3_native_effects.pdf](../../paper/current/images/figure_3_native_effects.pdf) | Native effect outcomes | [Native case rows](Data/Native_Controlled_Metrics.csv) |
+| **Figure 5 (`fig:nativebreakdown`)** — [figure_4_native_diagnostics.pdf](../../paper/current/images/figure_4_native_diagnostics.pdf) | Model-output / execution diagnostics | [Native case rows](Data/Native_Controlled_Metrics.csv) |
+| **Figure 6 (`fig:languagecontrasts`)** — [figure_5_language_scope.pdf](../../paper/current/images/figure_5_language_scope.pdf) | Language coverage and scope | [Frozen case rows](Data/Frozen_Case_Metrics.csv); selected [external intent](Data/External_Intent_Case_Metrics.csv) |
+| **Figure 1 (`fig:ntx24b_languages`)** — [figure_6_ntx24b_by_language.pdf](../../paper/current/images/figure_6_ntx24b_by_language.pdf) · [PNG](../../paper/current/images/figure_6_ntx24b_by_language.png) | NTX-24B reference parser replay stratification | [NTX-24B ZIP](../../results/NTX24B_results.zip), `per_language.csv` |
 
 **Important figure caveat:** The `paper/current/images/` files are the exact figures preserved from the author-supplied manuscript; the repository additionally contains `Analysis/make_figures.py` inside the evidence archive and a lightweight code copy under `research/paper_evidence/Analysis/`. Do not claim the latter generates *byte-identical* files with the preserved filenames without a separate regeneration/hash comparison. Inspect figure labels and plotted denominators manually before publishing.
 
 ## LaTeX source
+
+The **authoritative table environments are inline in [paper/current/main.tex](../../paper/current/main.tex)** and appear as Tables 1–5 in this order: NTX-24B replay, NTX-24B language breakdown, frozen verdicts, paired effects, and native outcomes. The separately preserved `paper/current/tables/table_01_frozen.tex`, `table_02_paired.tex`, `table_03_native.tex` are *auxiliary copies with older filename numbering*, not `\\input` dependencies of the present `main.tex`. The existing `CLAIM_EVIDENCE_MAP.csv` also uses the former Table 1/2/3 notation; for the currently compiled paper, use this updated index and the LaTeX labels.
 
 [Table 1 source](../../paper/current/tables/table_01_frozen.tex) · [Table 2 source](../../paper/current/tables/table_02_paired.tex) · [Table 3 source](../../paper/current/tables/table_03_native.tex).
 
