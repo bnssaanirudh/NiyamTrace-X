@@ -44,6 +44,8 @@ If any command fails, preserve the stdout/stderr and exact source commit; do not
 | `Reproducibility/External/` | Selected public-intent tests, **not official agent authorization benchmarks** |
 | `Data/` | Derived tables and diagnostics from curated raw files |
 
+The selected MASSIVE/MTOP CSV includes **two** protocols and 672 case rows; the original summary includes only 336 `within_language` rows. The [all-protocol derived summary](Data/External_Intent_All_Protocols_Summary.csv) discloses the remaining `english_transfer` observations. Similarly, paired exact-completion ratios are calculated only over `expected == ALLOW` cases.
+
 Use [DATA_DICTIONARY.md](DATA_DICTIONARY.md) to interpret columns and [RESULTS_AND_FIGURES.md](RESULTS_AND_FIGURES.md) to match the manuscript to raw records, derived tables and figure files.
 
 ## What is *not* established by these commands
